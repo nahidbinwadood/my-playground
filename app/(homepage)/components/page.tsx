@@ -165,7 +165,7 @@ export default function ComponentsPage() {
         <ComponentSidebar
           components={components}
           selectedId={selectedComponent.id}
-          onSelect={(id) => {
+          onSelect={(id: string) => {
             const component = components.find((c) => c.id === id);
             if (component) setSelectedComponent(component);
           }}
