@@ -35,6 +35,6 @@ This playground is focused on:
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/<your-username>/nextjs-playground.git
+git clone https://github.com/nahidbinwadood/my-playground.git
 cd nextjs-playground
 ```
