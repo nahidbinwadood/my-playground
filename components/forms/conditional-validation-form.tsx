@@ -17,9 +17,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Toaster } from '@/components/ui/sonner';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { toast } from 'sonner';
 import * as z from 'zod';
 
@@ -70,19 +69,18 @@ export function ConditionalValidationForm() {
     },
   });
 
-  const accountType = form.watch('accountType');
+  const accountType = useWatch({ control: form.control, name: 'accountType' });
 
   const onSubmit = (data: FormValues) => {
     console.log('Form submitted:', data);
     toast.success('Form submitted successfully!', {
-      description: `Account type: ${data.accountType}`,
+      // description: `Account type: ${data.accountType}`,
     });
     form.reset();
   };
 
   return (
     <>
-      <Toaster />
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           <FormField

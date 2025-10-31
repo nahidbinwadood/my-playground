@@ -1,5 +1,6 @@
 import { Footer } from '@/components/layout/footer';
 import { Header } from '@/components/layout/header';
+import { Toaster } from '@/components/ui/sonner';
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
@@ -21,6 +22,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${inter.className}  antialiased`}>
         <div className="flex min-h-screen flex-col">
+          <Toaster />
           <Header />
           <main className="flex-1">{children}</main>
           <Footer />

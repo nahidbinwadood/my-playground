@@ -6,7 +6,7 @@ import { cn } from '@/lib/utils';
 type ComponentSidebarProps = {
   components: ComponentItem[];
   selectedId: string;
-  onSelect: (id: string) => void;
+  onSelect: any;
 };
 
 export function ComponentSidebar({

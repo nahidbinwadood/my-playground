@@ -36,5 +36,5 @@ This playground is focused on:
 
 ```bash
 git clone https://github.com/nahidbinwadood/my-playground.git
-cd nextjs-playground
+cd my-playground
 ```
