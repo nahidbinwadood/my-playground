@@ -19,7 +19,7 @@ const ChallengesTabContainer = memo(
     onChallengeSelect: (id: string) => void;
   }) => {
     return (
-      <Card className="lg:sticky lg:top-24">
+      <Card className="lg:sticky lg:top-24 ">
         <CardHeader>
           <CardTitle>Challenges</CardTitle>
           <CardDescription>
@@ -27,7 +27,7 @@ const ChallengesTabContainer = memo(
             {challenges.length} completed
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-2">
+        <CardContent className="space-y-2 max-h-[600px] hide-scrollbar overflow-y-auto">
           {challenges.map((challenge: IChallenge) => (
             <ChallengeTabButton
               key={challenge.id}

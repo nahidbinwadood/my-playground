@@ -70,6 +70,7 @@ const FormInput = <T extends FieldValues>({
           placeholder={placeholder}
           {...field}
           className={cn(
+            'h-10',
             startIcon && 'pl-10',
             (endIcon || isPasswordType) && 'pr-10',
             error ? 'border-red-500' : 'border-gray-300',

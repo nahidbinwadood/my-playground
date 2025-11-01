@@ -37,7 +37,11 @@ const ChallengesTabContentContainer = memo(
           </div>
         </CardHeader>
         <CardContent>
-          <Tabs defaultValue="description" className="w-full">
+          <Tabs
+            key={selectedChallenge.id}
+            defaultValue="description"
+            className="w-full"
+          >
             <TabsList className="grid w-full max-w-md grid-cols-2">
               <TabsTrigger value="description" className="cursor-pointer">
                 Description
@@ -55,13 +59,13 @@ const ChallengesTabContentContainer = memo(
               </div>
               <div>
                 <h3 className="font-semibold mb-2">Requirements</h3>
-                <ul className="space-y-2">
+                <ul className="space-y-3">
                   {selectedChallenge.requirements.map((req, index) => (
                     <li
                       key={index}
                       className="flex items-start gap-2 text-sm text-muted-foreground"
                     >
-                      <span className="text-primary mt-0.5">•</span>
+                      <span className="text-primary">•</span>
                       <span>{req}</span>
                     </li>
                   ))}
