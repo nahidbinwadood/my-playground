@@ -1,59 +1,27 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { Form } from '@/components/ui/form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm, useWatch } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import * as z from 'zod';
+import FormInput from './shadcn/form-input';
 
-const formSchema = z
-  .object({
-    name: z.string().min(2, 'Name must be at least 2 characters'),
-    email: z.string().email('Invalid email address'),
-    accountType: z.enum(['personal', 'business']),
-    companyName: z.string().optional(),
-    phone: z.string().optional(),
-  })
-  .refine(
-    (data) => {
-      if (data.accountType === 'business') {
-        return !!data.companyName && data.companyName.length >= 2;
-      }
-      return true;
-    },
-    {
-      message: 'Company name is required for business accounts',
-      path: ['companyName'],
-    }
-  )
-  .refine(
-    (data) => {
-      if (data.accountType === 'personal') {
-        return !!data.phone && data.phone.length >= 10;
-      }
-      return true;
-    },
-    {
-      message: 'Phone number is required for personal accounts',
-      path: ['phone'],
-    }
-  );
+const formSchema = z.object({
+  name: z
+    .string()
+    .min(1, 'Name is required')
+    .max(30, 'Name cannot be more than 30 character'),
+  email: z
+    .string()
+    .min(1, 'Email is required')
+    .max(30, 'Email cannot be more than 30 character'),
+  password: z
+    .string()
+    .min(1, 'Password is required')
+    .max(20, 'Password cannot be more than 20 character'),
+});
 
 type FormValues = z.infer<typeof formSchema>;
 
@@ -63,13 +31,9 @@ export function ConditionalValidationForm() {
     defaultValues: {
       name: '',
       email: '',
-      accountType: 'business',
-      companyName: '',
-      phone: '',
+      password: '',
     },
   });
-
-  const accountType = useWatch({ control: form.control, name: 'accountType' });
 
   const onSubmit = (data: FormValues) => {
     console.log('Form submitted:', data);
@@ -83,98 +47,32 @@ export function ConditionalValidationForm() {
     <>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          <FormField
-            control={form.control}
+          <FormInput
             name="name"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Name</FormLabel>
-                <FormControl>
-                  <Input placeholder="John Doe" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            control={form.control}
+            label="Name"
+            placeholder="Enter Your name"
+            tooltip="Enter Your name"
+            required
           />
 
-          <FormField
+          <FormInput
+            label="Email"
+            placeholder="Enter your email"
             control={form.control}
             name="email"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Email</FormLabel>
-                <FormControl>
-                  <Input
-                    type="email"
-                    placeholder="john@example.com"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            tooltip="Enter your email"
+            required
           />
-
-          <FormField
+          <FormInput
+            label="Password"
+            placeholder="Enter your password"
             control={form.control}
-            name="accountType"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Account Type</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select account type" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="personal">Personal</SelectItem>
-                    <SelectItem value="business">Business</SelectItem>
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
+            name="password"
+            type="password"
+            required
+            tooltip="Enter your password"
           />
-
-          {accountType === 'business' && (
-            <FormField
-              control={form.control}
-              name="companyName"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>
-                    Company Name <span className="text-destructive">*</span>
-                  </FormLabel>
-                  <FormControl>
-                    <Input placeholder="Acme Inc." {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          )}
-
-          {accountType === 'personal' && (
-            <FormField
-              control={form.control}
-              name="phone"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>
-                    Phone Number <span className="text-destructive">*</span>
-                  </FormLabel>
-                  <FormControl>
-                    <Input placeholder="(555) 123-4567" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          )}
 
           <Button type="submit" className="w-full">
             Submit
