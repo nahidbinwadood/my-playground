@@ -1,4 +1,7 @@
 import BasicValidationForm from '../_components/all-forms/basic-validation-form/basic-validation-form';
+import ConditionalValidationForm from '../_components/all-forms/conditional-validation-form/conditional-validation-form';
+import DependentDropDownForm from '../_components/all-forms/dependent-dropdown-form/dependent-dropdown-form';
+import SelectInputForm from '../_components/all-forms/with-select-inputs/select-input-form';
 import { IChallenge } from '../types';
 
 export const challenges: IChallenge[] = [
@@ -36,8 +39,8 @@ export const challenges: IChallenge[] = [
       'Account Type must be selected before submitting',
       'Reset form after submission',
     ],
-    // component: FormWithSelect,
-    completed: false,
+    component: SelectInputForm,
+    completed: true,
   },
   {
     id: 'dependent-dropdown',
@@ -49,8 +52,8 @@ export const challenges: IChallenge[] = [
       'Cities should change based on selected Country',
       'Both fields required',
     ],
-    // component: DependentDropdownForm,
-    completed: false,
+    component: DependentDropDownForm,
+    completed: true,
   },
   {
     id: 'conditional-validation',
@@ -65,7 +68,7 @@ export const challenges: IChallenge[] = [
       'Email must be valid format',
       'Show appropriate error messages for each field',
     ],
-    // component: ConditionalValidationForm,
+    component: ConditionalValidationForm,
     completed: false,
   },
   {

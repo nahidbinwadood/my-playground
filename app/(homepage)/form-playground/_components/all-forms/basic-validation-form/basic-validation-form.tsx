@@ -25,6 +25,7 @@ const BasicValidationForm = () => {
       toast.success('Form submitted successfully !');
       methods.reset();
     } catch (error) {
+      console.log(error);
       toast.error('Please fill all the required fields');
     }
   };

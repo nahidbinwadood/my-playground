@@ -5,13 +5,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import {
-  Control,
-  FieldValues,
-  Path,
-  useController,
-  useFormContext,
-} from 'react-hook-form';
+import { Control, FieldValues, Path, useController } from 'react-hook-form';
 import { FormFieldWrapper } from './form-field-wrapper';
 
 interface IFormSelectProps<T extends FieldValues> {
@@ -50,7 +44,6 @@ const FormSelect = <T extends FieldValues>({
     fieldState: { error },
   } = useController({ name, control });
 
-  const { clearErrors } = useFormContext();
   return (
     <FormFieldWrapper
       label={label}
@@ -67,7 +60,6 @@ const FormSelect = <T extends FieldValues>({
             : ''
         }
         onValueChange={(val) => {
-          clearErrors(name);
           field.onChange(val);
         }}
         disabled={disabled}
