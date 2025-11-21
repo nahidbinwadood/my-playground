@@ -13,7 +13,7 @@ export const selectInputFormSchema = z.object({
       /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/i,
       'Please enter a valid email address'
     ),
-  accountType: z.string().min(1, 'Gender is required'),
+  accountType: z.string().min(1, 'Account type is required'),
 });
 
 export type SelectInputFormValues = z.infer<typeof selectInputFormSchema>;

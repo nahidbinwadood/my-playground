@@ -21,7 +21,7 @@ interface FormInputProps<T extends FieldValues> {
   required?: boolean;
 }
 
-const FormInput = <T extends FieldValues>({
+function FormInput<T extends FieldValues>({
   name,
   label,
   tooltip,
@@ -33,7 +33,7 @@ const FormInput = <T extends FieldValues>({
   placeholder,
   inputClassName,
   required,
-}: FormInputProps<T>) => {
+}: FormInputProps<T>) {
   const {
     field,
     fieldState: { error },
@@ -102,6 +102,6 @@ const FormInput = <T extends FieldValues>({
       </div>
     </FormFieldWrapper>
   );
-};
+}
 
 export default FormInput;

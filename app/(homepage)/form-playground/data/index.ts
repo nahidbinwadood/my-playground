@@ -1,6 +1,8 @@
 import BasicValidationForm from '../_components/all-forms/basic-validation-form/basic-validation-form';
 import ConditionalValidationForm from '../_components/all-forms/conditional-validation-form/conditional-validation-form';
 import DependentDropDownForm from '../_components/all-forms/dependent-dropdown-form/dependent-dropdown-form';
+import DynamicFieldsFormWrapper from '../_components/all-forms/dynamic-fields-form/dynamic-fields-form-wrapper';
+import MultiFieldValidationForm from '../_components/all-forms/multi-field-validation-form/multi-field-validation-form';
 import SelectInputForm from '../_components/all-forms/with-select-inputs/select-input-form';
 import { IChallenge } from '../types';
 
@@ -69,7 +71,7 @@ export const challenges: IChallenge[] = [
       'Show appropriate error messages for each field',
     ],
     component: ConditionalValidationForm,
-    completed: false,
+    completed: true,
   },
   {
     id: 'multi-field-validation',
@@ -82,8 +84,8 @@ export const challenges: IChallenge[] = [
       'Both must match before submit',
       'Show combined error if mismatch',
     ],
-    // component: MultiFieldValidationForm,
-    completed: false,
+    component: MultiFieldValidationForm,
+    completed: true,
   },
   {
     id: 'dynamic-fields',
@@ -96,7 +98,7 @@ export const challenges: IChallenge[] = [
       'Validate all fields in each address group',
       'Minimum 1 address required, maximum 5 addresses',
     ],
-    // component: DynamicFieldsForm,
+    component: DynamicFieldsFormWrapper,
     completed: false,
   },
   {

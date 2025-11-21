@@ -26,7 +26,7 @@ interface IFormSelectOptions {
   label: string;
 }
 
-const FormSelect = <T extends FieldValues>({
+function FormSelect<T extends FieldValues>({
   label,
   description,
   required,
@@ -37,7 +37,7 @@ const FormSelect = <T extends FieldValues>({
   disabled,
   options,
   placeholder = 'Select an option',
-}: IFormSelectProps<T>) => {
+}: IFormSelectProps<T>) {
   // declare the controller==>
   const {
     field,
@@ -81,6 +81,6 @@ const FormSelect = <T extends FieldValues>({
       </Select>
     </FormFieldWrapper>
   );
-};
+}
 
 export default FormSelect;
