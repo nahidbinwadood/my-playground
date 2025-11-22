@@ -4,6 +4,8 @@ export const crossFieldValidationSchema = z
   .object({
     startDate: z.date({ message: 'Start date is required' }),
     endDate: z.date({ message: 'End date is required' }),
+    validityStart: z.date({ message: 'Validity date is required' }),
+    validityEnd: z.date({ message: 'Validity date is required' }),
   })
   .superRefine((data, ctx) => {
     if (data.endDate <= data.startDate) {

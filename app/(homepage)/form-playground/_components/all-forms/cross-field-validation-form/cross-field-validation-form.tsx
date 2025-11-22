@@ -1,4 +1,5 @@
 import FormDatePicker from '@/components/forms/shadcn/form-date-picker';
+import FormDateRangePicker from '@/components/forms/shadcn/form-date-range-picker';
 import { Button } from '@/components/ui/button';
 import { Form } from '@/components/ui/form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -15,6 +16,8 @@ const CrossFieldValidationForm = () => {
     defaultValues: {
       startDate: undefined,
       endDate: undefined,
+      validityStart: undefined,
+      validityEnd: undefined,
     },
     mode: 'onChange',
     resolver: zodResolver(crossFieldValidationSchema),
@@ -33,6 +36,7 @@ const CrossFieldValidationForm = () => {
 
   const startDate = useWatch({ name: 'startDate', control: form.control });
   const endDate = useWatch({ name: 'endDate', control: form.control });
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
@@ -72,6 +76,20 @@ const CrossFieldValidationForm = () => {
                 const start = new Date(startDate);
                 return date <= start;
               }
+              return date < today;
+            }}
+          />
+          <FormDateRangePicker
+            label="Reward Validity"
+            required
+            placeholder="Enter your dates"
+            tooltip="Enter your dates"
+            startName="validityStart"
+            endName="validityEnd"
+            numberOfMonths={2}
+            disableDateFn={(date: Date) => {
+              const today = new Date();
+              today.setHours(0, 0, 0, 0);
               return date < today;
             }}
           />
