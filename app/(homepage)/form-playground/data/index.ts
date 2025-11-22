@@ -1,5 +1,6 @@
 import BasicValidationForm from '../_components/all-forms/basic-validation-form/basic-validation-form';
 import ConditionalValidationForm from '../_components/all-forms/conditional-validation-form/conditional-validation-form';
+import CrossFieldValidationForm from '../_components/all-forms/cross-field-validation-form/cross-field-validation-form';
 import DependentDropDownForm from '../_components/all-forms/dependent-dropdown-form/dependent-dropdown-form';
 import DynamicFieldsFormWrapper from '../_components/all-forms/dynamic-fields-form/dynamic-fields-form-wrapper';
 import MultiFieldValidationForm from '../_components/all-forms/multi-field-validation-form/multi-field-validation-form';
@@ -99,7 +100,7 @@ export const challenges: IChallenge[] = [
       'Minimum 1 address required, maximum 5 addresses',
     ],
     component: DynamicFieldsFormWrapper,
-    completed: false,
+    completed: true,
   },
   {
     id: 'field-array',
@@ -164,8 +165,8 @@ export const challenges: IChallenge[] = [
       'End date cannot be before start date',
       'Show custom error for invalid range',
     ],
-    // component: CrossFieldValidationForm,
-    completed: false,
+    component: CrossFieldValidationForm,
+    completed: true,
   },
   {
     id: 'password-strength',
