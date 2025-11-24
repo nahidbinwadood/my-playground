@@ -1,7 +1,7 @@
 import z from 'zod';
 
 export const fieldArrayFormSchema = z.object({
-  address: z.array(
+  contacts: z.array(
     z.object({
       name: z
         .string()
