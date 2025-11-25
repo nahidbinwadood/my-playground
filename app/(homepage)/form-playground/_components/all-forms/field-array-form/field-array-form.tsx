@@ -4,6 +4,7 @@ import { Form } from '@/components/ui/form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Plus, Trash } from 'lucide-react';
 import { useFieldArray, useForm } from 'react-hook-form';
+import { toast } from 'sonner';
 import { fieldArrayFormSchema, FieldArrayFormValues } from './schema';
 
 const FieldArrayForm = () => {
@@ -26,6 +27,8 @@ const FieldArrayForm = () => {
   const onSubmit = (data: FieldArrayFormValues) => {
     try {
       console.log('IFormData', data);
+      toast.success('Form submitted successfully !');
+      form.reset();
     } catch (error) {
       console.log(error);
     }
@@ -55,7 +58,7 @@ const FieldArrayForm = () => {
                   onClick={() => {
                     remove(index);
                   }}
-                  disabled={!!contactFields?.length}
+                  disabled={contactFields.length == 0}
                   className="p-2 disabled:text-gray-400 disabled:cursor-not-allowed"
                 >
                   <Trash size={18} />
