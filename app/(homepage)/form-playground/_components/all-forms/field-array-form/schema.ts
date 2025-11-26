@@ -15,7 +15,7 @@ export const fieldArrayFormSchema = z.object({
           /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/i,
           'Please enter a valid email address'
         ),
-      phone: z.array(z.number({ message: 'Phone is required' })),
+      phone: z.array(z.string().min(1, 'Phone is required')),
     })
   ),
 });

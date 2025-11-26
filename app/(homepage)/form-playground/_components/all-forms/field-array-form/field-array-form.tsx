@@ -5,6 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Plus, Trash } from 'lucide-react';
 import { useFieldArray, useForm } from 'react-hook-form';
 import { toast } from 'sonner';
+import PhoneNumberInputWrapper from './phone-number-input-wrapper';
 import { fieldArrayFormSchema, FieldArrayFormValues } from './schema';
 
 const FieldArrayForm = () => {
@@ -15,7 +16,7 @@ const FieldArrayForm = () => {
         {
           name: '',
           email: '',
-          phone: [],
+          phone: [''],
         },
       ],
     },
@@ -39,6 +40,7 @@ const FieldArrayForm = () => {
     remove,
     append,
   } = useFieldArray({ name: 'contacts', control: form.control });
+
   return (
     <Form {...form}>
       <form action="" onSubmit={form.handleSubmit(onSubmit)}>
@@ -46,7 +48,6 @@ const FieldArrayForm = () => {
           <h4 className="text-lg font-semibold">Contact</h4>
 
           {/* single contacts */}
-
           {contactFields?.map((field, index) => (
             <div
               key={field?.id}
@@ -58,7 +59,7 @@ const FieldArrayForm = () => {
                   onClick={() => {
                     remove(index);
                   }}
-                  disabled={contactFields.length == 0}
+                  disabled={contactFields.length == 1}
                   className="p-2 disabled:text-gray-400 disabled:cursor-not-allowed"
                 >
                   <Trash size={18} />
@@ -80,6 +81,8 @@ const FieldArrayForm = () => {
                 tooltip="Enter your email"
                 required
               />
+
+              <PhoneNumberInputWrapper index={index} />
             </div>
           ))}
 
