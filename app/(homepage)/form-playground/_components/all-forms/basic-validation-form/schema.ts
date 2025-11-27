@@ -15,7 +15,7 @@ export const basicValidationSchema = z.object({
     ),
   password: z
     .string()
-    .min(8, 'Password is must be at least 8 characters long')
+    .min(8, 'Password must be at least 8 characters long')
     .max(50, 'Password cannot be more than 50 characters')
     .regex(/[A-Z]/, 'Password should contain at least one uppercase letter')
     .regex(/[a-z]/, 'Password should contain at least one lowercase letter')
