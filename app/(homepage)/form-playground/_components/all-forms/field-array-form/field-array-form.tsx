@@ -16,7 +16,7 @@ const FieldArrayForm = () => {
         {
           name: '',
           email: '',
-          phone: [''],
+          phone: [{ value: '' }],
         },
       ],
     },
@@ -96,7 +96,7 @@ const FieldArrayForm = () => {
                 append({
                   name: '',
                   email: '',
-                  phone: [],
+                  phone: [{ value: '' }],
                 });
               }}
             >

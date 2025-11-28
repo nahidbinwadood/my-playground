@@ -1,3 +1,4 @@
+import { isValidPhoneNumber } from 'react-phone-number-input';
 import z from 'zod';
 
 export const fieldArrayFormSchema = z.object({
@@ -15,7 +16,13 @@ export const fieldArrayFormSchema = z.object({
           /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/i,
           'Please enter a valid email address'
         ),
-      phone: z.array(z.string().min(1, 'Phone is required')),
+      phone: z.array(
+        z.object({
+          value: z
+            .string()
+            .refine(isValidPhoneNumber, { message: 'Invalid phone number' }),
+        })
+      ),
     })
   ),
 });
