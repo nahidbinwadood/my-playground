@@ -4,36 +4,47 @@ import { Form } from '@/components/ui/form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Plus, Trash } from 'lucide-react';
 import { useFieldArray, useForm } from 'react-hook-form';
-import { toast } from 'sonner';
 import PhoneNumberInputWrapper from './phone-number-input-wrapper';
 import { fieldArrayFormSchema, FieldArrayFormValues } from './schema';
-
-const FieldArrayForm = () => {
+interface IFormData {
+  name: string;
+  email: string;
+  phone: { value: string }[];
+}
+const FieldArrayForm = ({
+  onSubmit,
+  formData,
+}: {
+  onSubmit: (data: FieldArrayFormValues) => void;
+  formData?: IFormData[] | null;
+}) => {
   // declare the form==>
   const form = useForm<FieldArrayFormValues>({
     defaultValues: {
-      contacts: [
-        {
-          name: '',
-          email: '',
-          phone: [{ value: '' }],
-        },
-      ],
+      contacts: formData
+        ? formData
+        : [
+            {
+              name: '',
+              email: '',
+              phone: [{ value: '' }],
+            },
+          ],
     },
     mode: 'onChange',
     resolver: zodResolver(fieldArrayFormSchema),
   });
 
   // submit handlers==>
-  const onSubmit = (data: FieldArrayFormValues) => {
-    try {
-      console.log('IFormData', data);
-      toast.success('Form submitted successfully !');
-      form.reset();
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  // const onSubmit = (data: FieldArrayFormValues) => {
+  //   try {
+  //     console.log('IFormData', data);
+  //     toast.success('Form submitted successfully !');
+  //     form.reset();
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // };
 
   const {
     fields: contactFields,
@@ -53,18 +64,20 @@ const FieldArrayForm = () => {
               key={field?.id}
               className="mt-5 border rounded-md p-4 space-y-4"
             >
-              <div className="w-full flex justify-end">
-                <Button
-                  type="button"
-                  onClick={() => {
-                    remove(index);
-                  }}
-                  disabled={contactFields.length == 1}
-                  className="p-2 disabled:text-gray-400 disabled:cursor-not-allowed"
-                >
-                  <Trash size={18} />
-                </Button>
-              </div>
+              {!formData && (
+                <div className="w-full flex justify-end">
+                  <Button
+                    type="button"
+                    onClick={() => {
+                      remove(index);
+                    }}
+                    disabled={contactFields.length == 1}
+                    className="p-2 disabled:text-gray-400 disabled:cursor-not-allowed"
+                  >
+                    <Trash size={18} />
+                  </Button>
+                </div>
+              )}
               <FormInput
                 name={`contacts.${index}.name`}
                 label="Name"
@@ -87,25 +100,27 @@ const FieldArrayForm = () => {
           ))}
 
           {/* Add new contact button */}
-          <div className="mt-4 w-full flex justify-end pb-4">
-            <Button
-              className="disabled:opacity-50"
-              disabled={contactFields?.length >= 5}
-              type="button"
-              onClick={() => {
-                append({
-                  name: '',
-                  email: '',
-                  phone: [{ value: '' }],
-                });
-              }}
-            >
-              <Plus />
-              <span>Add New Contact</span>
-            </Button>
-          </div>
+          {!formData && (
+            <div className="mt-4 w-full flex justify-end pb-4">
+              <Button
+                className="disabled:opacity-50"
+                disabled={contactFields?.length >= 5}
+                type="button"
+                onClick={() => {
+                  append({
+                    name: '',
+                    email: '',
+                    phone: [{ value: '' }],
+                  });
+                }}
+              >
+                <Plus />
+                <span>Add New Contact</span>
+              </Button>
+            </div>
+          )}
 
-          <Button className="w-full">Submit</Button>
+          <Button className="w-full">{formData ? 'Update' : 'Submit'}</Button>
         </div>
       </form>
     </Form>
