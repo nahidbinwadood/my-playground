@@ -25,11 +25,11 @@ export function CTASection() {
             <Button
               size="lg"
               variant="outline"
-              className="bg-transparent text-background border-background hover:bg-background/10"
+              className="bg-transparent text-background border-background hover:bg-background/10 hover:text-white"
               asChild
             >
               <a
-                href="https://github.com"
+                href="https://github.com/nahidbinwadood/my-playground"
                 target="_blank"
                 rel="noopener noreferrer"
               >

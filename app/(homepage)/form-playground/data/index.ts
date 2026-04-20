@@ -3,7 +3,7 @@ import ConditionalValidationForm from '../_components/all-forms/conditional-vali
 import CrossFieldValidationForm from '../_components/all-forms/cross-field-validation-form/cross-field-validation-form';
 import DependentDropDownForm from '../_components/all-forms/dependent-dropdown-form/dependent-dropdown-form';
 import DynamicFieldsFormWrapper from '../_components/all-forms/dynamic-fields-form/dynamic-fields-form-wrapper';
-import FieldArrayForm from '../_components/all-forms/field-array-form/field-array-form';
+import FieldArrayFormMainWrapper from '../_components/all-forms/field-array-form/field-array-form-main-wrapper';
 import MultiFieldValidationForm from '../_components/all-forms/multi-field-validation-form/multi-field-validation-form';
 import SelectInputForm from '../_components/all-forms/with-select-inputs/select-input-form';
 import { IChallenge } from '../types';
@@ -114,8 +114,8 @@ export const challenges: IChallenge[] = [
       'Phones are dynamic per contact',
       'Validate all levels properly',
     ],
-    component: FieldArrayForm,
-    completed: false,
+    component: FieldArrayFormMainWrapper,
+    completed: true,
   },
   {
     id: 'nested-form',

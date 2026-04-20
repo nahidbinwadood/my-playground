@@ -7,7 +7,7 @@ export default function Home() {
   return (
     <Fragment>
       <HeroSection />
-      <FeaturesSection />
+      {/* <FeaturesSection /> */}
       <CTASection />
     </Fragment>
   );

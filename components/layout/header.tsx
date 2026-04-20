@@ -62,13 +62,13 @@ export function Header() {
         </div>
         <div className="hidden lg:flex lg:flex-1 lg:justify-end">
           <Button variant="outline" size="sm" asChild>
-            <a
-              href="https://github.com"
+            <Link
+              href="https://github.com/nahidbinwadood/my-playground"
               target="_blank"
               rel="noopener noreferrer"
             >
               GitHub
-            </a>
+            </Link>
           </Button>
         </div>
       </nav>

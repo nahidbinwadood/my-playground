@@ -1,3 +1,4 @@
+import { isValidPhoneNumber } from 'react-phone-number-input';
 import z from 'zod';
 
 export const conditionalValidationFormSchema = z
@@ -25,7 +26,10 @@ export const conditionalValidationFormSchema = z
       .max(50, 'Company name cannot exceed 50 characters')
       .optional(),
 
-    phone: z.string().optional(),
+    phone: z
+      .string()
+      .refine(isValidPhoneNumber, { message: 'Invalid phone number' })
+      .optional(),
   })
   .superRefine((data, ctx) => {
     // if the account type is business==>
