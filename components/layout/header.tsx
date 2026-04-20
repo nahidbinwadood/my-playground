@@ -9,6 +9,7 @@ import { useState } from 'react';
 
 const navigation = [
   { name: 'Home', href: '/' },
+  { name: 'Blogs', href: '/blogs' },
   { name: 'Components', href: '/components' },
   { name: 'Form Playground', href: '/form-playground' },
 ];
