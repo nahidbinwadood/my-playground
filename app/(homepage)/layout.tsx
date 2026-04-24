@@ -8,7 +8,7 @@ const RootLayout = ({ children }: { children: React.ReactNode }) => {
     <div className="flex min-h-screen flex-col">
       <Toaster />
       <Header />
-      {children}
+      <main className="flex-1">{children}</main>
       <Footer />
     </div>
   );

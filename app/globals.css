@@ -41,6 +41,32 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+
+  /* Collapsible animations */
+  --animate-collapsible-down: collapsible-down 200ms ease-out;
+  --animate-collapsible-up: collapsible-up 200ms ease-out;
+}
+
+@keyframes collapsible-down {
+  from {
+    height: 0;
+    overflow: hidden;
+  }
+  to {
+    height: var(--radix-collapsible-content-height);
+    overflow: hidden;
+  }
+}
+
+@keyframes collapsible-up {
+  from {
+    height: var(--radix-collapsible-content-height);
+    overflow: hidden;
+  }
+  to {
+    height: 0;
+    overflow: hidden;
+  }
 }
 
 :root {
