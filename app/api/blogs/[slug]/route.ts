@@ -5,6 +5,8 @@ import path from 'path';
 const blogsFilePath = path.join(process.cwd(), 'app/(homepage)/blogs/data/blogs.json');
 
 function readBlogs(): IBlogs[] {
+  console.log('[v0] Blog file path:', blogsFilePath);
+  console.log('[v0] File exists:', fs.existsSync(blogsFilePath));
   const content = fs.readFileSync(blogsFilePath, 'utf-8');
   return JSON.parse(content);
 }
