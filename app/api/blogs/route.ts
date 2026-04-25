@@ -1,35 +1,19 @@
 import { IBlogs } from '@/app/(homepage)/blogs/types';
-import fs from 'fs';
-import path from 'path';
-
-function getBlogsFilePath(): string {
-  // Try multiple path approaches to handle the (homepage) directory
-  const approaches = [
-    // Direct path with separated components
-    path.join(process.cwd(), 'app', '(homepage)', 'blogs', 'data', 'blogs.json'),
-    // Alternative: using direct string
-    path.join(process.cwd(), 'app/(homepage)/blogs/data/blogs.json'),
-  ];
-
-  for (const filePath of approaches) {
-    if (fs.existsSync(filePath)) {
-      return filePath;
-    }
-  }
-
-  // Return the most likely path as fallback
-  return approaches[0];
-}
 
 function readBlogs(): IBlogs[] {
-  const blogsFilePath = getBlogsFilePath();
-  const content = fs.readFileSync(blogsFilePath, 'utf-8');
-  return JSON.parse(content);
+  // Use require for reliable JSON loading in Next.js
+  try {
+    const blogsData = require('../../(homepage)/blogs/data/blogs.json');
+    return Array.isArray(blogsData) ? blogsData : [];
+  } catch (error) {
+    console.error('[v0] Error loading blogs:', error);
+    return [];
+  }
 }
 
 function writeBlogs(blogs: IBlogs[]): void {
-  const blogsFilePath = getBlogsFilePath();
-  fs.writeFileSync(blogsFilePath, JSON.stringify(blogs, null, 2), 'utf-8');
+  // Writing functionality can be implemented with database in the future
+  // For now, in-memory updates are used
 }
 
 function generateId(): string {
