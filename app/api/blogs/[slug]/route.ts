@@ -28,6 +28,7 @@ function readBlogs(): IBlogs[] {
 }
 
 function writeBlogs(blogs: IBlogs[]): void {
+  const blogsFilePath = getBlogsFilePath();
   fs.writeFileSync(blogsFilePath, JSON.stringify(blogs, null, 2), 'utf-8');
 }
 
@@ -37,16 +38,20 @@ export async function GET(
 ) {
   try {
     const { slug } = params;
+    console.log('[v0] Fetching blog with slug:', slug);
     const blogs = readBlogs();
+    console.log('[v0] Total blogs loaded:', blogs.length);
+    console.log('[v0] Available slugs:', blogs.map(b => b.slug));
     const blog = blogs.find((b) => b.slug === slug);
 
     if (!blog) {
+      console.log('[v0] Blog not found for slug:', slug);
       return Response.json({ error: 'Blog not found' }, { status: 404 });
     }
 
     return Response.json(blog);
   } catch (error) {
-    console.error('Error reading blog:', error);
+    console.error('[v0] Error reading blog:', error);
     return Response.json({ error: 'Failed to fetch blog' }, { status: 500 });
   }
 }
