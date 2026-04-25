@@ -2,14 +2,33 @@ import { IBlogs } from '@/app/(homepage)/blogs/types';
 import fs from 'fs';
 import path from 'path';
 
-const blogsFilePath = path.join(process.cwd(), 'app/(homepage)/blogs/data/blogs.json');
+function getBlogsFilePath(): string {
+  // Try multiple path approaches to handle the (homepage) directory
+  const approaches = [
+    // Direct path with separated components
+    path.join(process.cwd(), 'app', '(homepage)', 'blogs', 'data', 'blogs.json'),
+    // Alternative: using direct string
+    path.join(process.cwd(), 'app/(homepage)/blogs/data/blogs.json'),
+  ];
+
+  for (const filePath of approaches) {
+    if (fs.existsSync(filePath)) {
+      return filePath;
+    }
+  }
+
+  // Return the most likely path as fallback
+  return approaches[0];
+}
 
 function readBlogs(): IBlogs[] {
+  const blogsFilePath = getBlogsFilePath();
   const content = fs.readFileSync(blogsFilePath, 'utf-8');
   return JSON.parse(content);
 }
 
 function writeBlogs(blogs: IBlogs[]): void {
+  const blogsFilePath = getBlogsFilePath();
   fs.writeFileSync(blogsFilePath, JSON.stringify(blogs, null, 2), 'utf-8');
 }
 

@@ -2,25 +2,27 @@ import { IBlogs } from '@/app/(homepage)/blogs/types';
 import fs from 'fs';
 import path from 'path';
 
-const blogsFilePath = path.join(process.cwd(), 'app/(homepage)/blogs/data/blogs.json');
+function getBlogsFilePath(): string {
+  // Try multiple path approaches to handle the (homepage) directory
+  const approaches = [
+    // Direct path with escaped parentheses
+    path.join(process.cwd(), 'app', '(homepage)', 'blogs', 'data', 'blogs.json'),
+    // Alternative: using direct string
+    path.join(process.cwd(), 'app/(homepage)/blogs/data/blogs.json'),
+  ];
 
-function readBlogs(): IBlogs[] {
-  console.log('[v0] Blog file path:', blogsFilePath);
-  console.log('[v0] CWD:', process.cwd());
-  console.log('[v0] File exists:', fs.existsSync(blogsFilePath));
-  
-  if (!fs.existsSync(blogsFilePath)) {
-    console.log('[v0] File not found at path, trying alternate path...');
-    // Try alternate path approach
-    const altPath = path.join(process.cwd(), 'app', '(homepage)', 'blogs', 'data', 'blogs.json');
-    console.log('[v0] Alternate path:', altPath);
-    console.log('[v0] Alternate path exists:', fs.existsSync(altPath));
-    if (fs.existsSync(altPath)) {
-      const content = fs.readFileSync(altPath, 'utf-8');
-      return JSON.parse(content);
+  for (const filePath of approaches) {
+    if (fs.existsSync(filePath)) {
+      return filePath;
     }
   }
-  
+
+  // Return the most likely path as fallback
+  return approaches[0];
+}
+
+function readBlogs(): IBlogs[] {
+  const blogsFilePath = getBlogsFilePath();
   const content = fs.readFileSync(blogsFilePath, 'utf-8');
   return JSON.parse(content);
 }
