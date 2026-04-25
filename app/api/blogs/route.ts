@@ -1,14 +1,9 @@
 import { IBlogs } from '@/app/(homepage)/blogs/types';
+import blogsData from '@/app/(homepage)/blogs/data/blogs.json';
 
 function readBlogs(): IBlogs[] {
-  // Use require for reliable JSON loading in Next.js
-  try {
-    const blogsData = require('../../(homepage)/blogs/data/blogs.json');
-    return Array.isArray(blogsData) ? blogsData : [];
-  } catch (error) {
-    console.error('[v0] Error loading blogs:', error);
-    return [];
-  }
+  // blogsData is imported at module level
+  return Array.isArray(blogsData) ? blogsData : [];
 }
 
 function writeBlogs(blogs: IBlogs[]): void {
