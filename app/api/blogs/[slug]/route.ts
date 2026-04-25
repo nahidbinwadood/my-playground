@@ -6,7 +6,21 @@ const blogsFilePath = path.join(process.cwd(), 'app/(homepage)/blogs/data/blogs.
 
 function readBlogs(): IBlogs[] {
   console.log('[v0] Blog file path:', blogsFilePath);
+  console.log('[v0] CWD:', process.cwd());
   console.log('[v0] File exists:', fs.existsSync(blogsFilePath));
+  
+  if (!fs.existsSync(blogsFilePath)) {
+    console.log('[v0] File not found at path, trying alternate path...');
+    // Try alternate path approach
+    const altPath = path.join(process.cwd(), 'app', '(homepage)', 'blogs', 'data', 'blogs.json');
+    console.log('[v0] Alternate path:', altPath);
+    console.log('[v0] Alternate path exists:', fs.existsSync(altPath));
+    if (fs.existsSync(altPath)) {
+      const content = fs.readFileSync(altPath, 'utf-8');
+      return JSON.parse(content);
+    }
+  }
+  
   const content = fs.readFileSync(blogsFilePath, 'utf-8');
   return JSON.parse(content);
 }
