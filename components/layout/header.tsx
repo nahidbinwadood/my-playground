@@ -6,6 +6,7 @@ import { Code2, Menu, X } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
+import { ThemeToggle } from '@/components/common/theme-toggle';
 
 const navigation = [
   { name: 'Home', href: '/' },
@@ -60,7 +61,8 @@ export function Header() {
             </Link>
           ))}
         </div>
-        <div className="hidden lg:flex lg:flex-1 lg:justify-end">
+        <div className="hidden lg:flex lg:flex-1 lg:justify-end lg:gap-x-3 lg:items-center">
+          <ThemeToggle />
           <Button variant="outline" size="sm" asChild>
             <Link
               href="https://github.com/nahidbinwadood/my-playground"
@@ -90,6 +92,9 @@ export function Header() {
                 {item.name}
               </Link>
             ))}
+            <div className="flex items-center px-3 py-2 pt-4 border-t">
+              <ThemeToggle />
+            </div>
           </div>
         </div>
       )}
