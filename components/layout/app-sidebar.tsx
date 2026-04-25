@@ -30,9 +30,9 @@ const AppSidebar = () => {
   const { isMobile } = useSidebar();
 
   return (
-    <Sidebar collapsible="icon" className="bg-white">
+    <Sidebar collapsible="icon">
       {/* sidebar header */}
-      <SidebarHeader className="h-16 border-b px-4 flex flex-row items-center bg-white overflow-hidden">
+      <SidebarHeader className="h-16 border-b px-4 flex flex-row items-center overflow-hidden">
         <div className="flex items-center gap-3">
           <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-primary text-primary-foreground font-bold">
             A
@@ -44,7 +44,7 @@ const AppSidebar = () => {
       </SidebarHeader>
 
       {/* sidebar contents */}
-      <SidebarContent className="bg-white">
+      <SidebarContent>
         <SidebarGroup>
           <SidebarMenu className="gap-2 mt-2">
             {navItems?.map((item: INavItem) => {
@@ -80,7 +80,7 @@ const AppSidebar = () => {
       </SidebarContent>
 
       {/* sidebar footer */}
-      <SidebarFooter className="bg-white">
+      <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem className="">
             <DropdownMenu>
