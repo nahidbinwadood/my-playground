@@ -1,11 +1,11 @@
-import React from 'react';
-
-const page = () => {
+import { Fragment } from 'react/jsx-runtime';
+import AdminDashboardMainWrapper from './_components/admin-dashboard-main-wrapper';
+const DashboardPage = () => {
   return (
-    <div className='min-h-[200vh]'>
-      <h1>Hello from admin dashboard</h1>
-    </div>
+    <Fragment>
+      <AdminDashboardMainWrapper />
+    </Fragment>
   );
 };
 
-export default page;
+export default DashboardPage;

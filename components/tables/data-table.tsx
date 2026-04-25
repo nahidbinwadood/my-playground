@@ -44,7 +44,7 @@ import { Ellipsis, MoveUpRight } from 'lucide-react';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { Card, CardContent } from '../ui/card';
-import { Dialog, DialogContent } from '../ui/dialog';
+import { Dialog, DialogContent, DialogTitle } from '../ui/dialog';
 import {
   DragHandleProps,
   FlexibleDataTableProps,
@@ -503,7 +503,7 @@ export function DataTable<TData, TValue = unknown>({
       {/* Modal component */}
       <Dialog open={isModalOpen} onOpenChange={setModalOpen}>
         <DialogContent className="sm:max-w-[85%] max-h-[90vh] overflow-y-scroll hide-scroll">
-          {/* <DialogTitle /> */}
+          <DialogTitle className='hidden' />
           <div className="o  max-h-[calc(90vh-120px)]">
             <div className="space-y-4 p-4">
               {/* Modal content similar to main table */}

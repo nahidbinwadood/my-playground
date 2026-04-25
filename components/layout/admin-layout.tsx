@@ -1,3 +1,4 @@
+import ThemeToggler from '../common/theme-toggler';
 import { SidebarInset, SidebarProvider, SidebarTrigger } from '../ui/sidebar';
 import AppSidebar from './app-sidebar';
 import ProfileMenu from './profile-menu';
@@ -19,11 +20,14 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
           </div>
 
           {/* profile menu */}
-          <ProfileMenu />
+          <div className='flex gap-2 items-center'>
+            <ThemeToggler />
+            <ProfileMenu />
+          </div>
         </header>
 
         {/* sidebar children pages */}
-        <div className="min-h-[calc(100vh-64px)] max-h-[calc(100vh-64px)] overflow-y-auto p-4">
+        <div className="min-h-[calc(100vh-64px)] max-h-[calc(100vh-64px)] overflow-y-auto p-6">
           {children}
         </div>
       </SidebarInset>

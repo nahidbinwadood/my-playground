@@ -1,7 +1,10 @@
-
+import React from 'react';
+import AdminBlogsMainWrapper from './_components/admin-blogs-main-wrapper';
 
 export default function BlogPage() {
   return (
-    <div className="min-h-[200vh]">page</div>
-  )
+    <React.Fragment>
+      <AdminBlogsMainWrapper />
+    </React.Fragment>
+  );
 }

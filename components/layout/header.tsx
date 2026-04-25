@@ -6,6 +6,7 @@ import { Code2, Menu, X } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
+import ThemeToggler from '../common/theme-toggler';
 
 const navigation = [
   { name: 'Home', href: '/' },
@@ -60,7 +61,10 @@ export function Header() {
             </Link>
           ))}
         </div>
-        <div className="hidden lg:flex lg:flex-1 lg:justify-end">
+        <div className="hidden lg:flex lg:flex-1 lg:justify-end gap-2">
+          {/* theme toggler */}
+          <ThemeToggler />
+
           <Button variant="outline" size="sm" asChild>
             <Link
               href="https://github.com/nahidbinwadood/my-playground"
