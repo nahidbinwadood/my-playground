@@ -3,6 +3,9 @@ import blogsData from '@/app/(homepage)/blogs/data/blogs.json';
 
 function readBlogs(): IBlogs[] {
   // blogsData is imported at module level
+  console.log('[v0] blogsData type:', typeof blogsData);
+  console.log('[v0] blogsData is array:', Array.isArray(blogsData));
+  console.log('[v0] blogsData:', blogsData);
   return Array.isArray(blogsData) ? blogsData : [];
 }
 
