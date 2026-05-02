@@ -2,7 +2,7 @@
 
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { Code2, Menu, X } from 'lucide-react';
+import { Code2, Menu, X, Github } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
@@ -71,7 +71,13 @@ export function Header() {
               target="_blank"
               rel="noopener noreferrer"
             >
-              GitHub
+              <Github/>
+            </Link>
+          </Button>
+
+          <Button variant="outline" size="sm" asChild>
+            <Link href="/auth/login" rel="noopener noreferrer">
+              Login
             </Link>
           </Button>
         </div>

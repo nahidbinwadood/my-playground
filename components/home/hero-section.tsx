@@ -20,7 +20,7 @@ export function HeroSection() {
           </h1>
           <p className="mt-6 text-lg leading-8 text-muted-foreground">
             A modern playground for React components, form validation
-            challenges, and best practices. Built with Next.js 15, TypeScript,
+            challenges, and best practices. Built with Next.js 16, TypeScript,
             and Tailwind CSS.
           </p>
           <div className="mt-10 flex items-center justify-center gap-x-6">

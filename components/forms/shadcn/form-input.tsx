@@ -19,6 +19,7 @@ interface FormInputProps<T extends FieldValues> {
   placeholder?: string;
   inputClassName?: string;
   required?: boolean;
+  disabled?: boolean;
 }
 
 function FormInput<T extends FieldValues>({
@@ -33,6 +34,7 @@ function FormInput<T extends FieldValues>({
   placeholder,
   inputClassName,
   required,
+  disabled = false,
 }: FormInputProps<T>) {
   const {
     field,
@@ -65,6 +67,7 @@ function FormInput<T extends FieldValues>({
 
         {/* Main Input */}
         <Input
+          disabled={disabled}
           type={inputType}
           maxLength={maxLength}
           placeholder={placeholder}
@@ -88,9 +91,10 @@ function FormInput<T extends FieldValues>({
         {/* Password Toggle */}
         {isPasswordType && (
           <button
+            disabled={disabled}
             type="button"
             onClick={togglePassword}
-            className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer"
+            className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer disabled:pointer-events-none"
           >
             {showPassword ? (
               <EyeIcon className="h-5 w-5 text-gray-400" />
