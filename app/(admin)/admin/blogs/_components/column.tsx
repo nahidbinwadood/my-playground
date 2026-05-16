@@ -1,12 +1,24 @@
-import { IBlogs } from "@/app/(homepage)/blogs/types";
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { ColumnDef } from "@tanstack/react-table";
-import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
-import Link from "next/link";
+import { IBlog } from '@/types';
+import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { ColumnDef } from '@tanstack/react-table';
+import { MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
+import Link from 'next/link';
 
-export const columns: ColumnDef<IBlogs>[] = [
+export const adminBlogsColumn = ({
+  setSelectedItem,
+  setOpen,
+}: {
+  setSelectedItem: React.Dispatch<React.SetStateAction<IBlog | null>>;
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+}): ColumnDef<IBlog>[] => [
+  // ─── SELECT ─────────────────────────────────────
   {
     id: 'select',
     header: ({ table }) => (
@@ -29,58 +41,64 @@ export const columns: ColumnDef<IBlogs>[] = [
     enableSorting: false,
     enableHiding: false,
   },
+
+  // ─── TITLE ─────────────────────────────────────
   {
     accessorKey: 'title',
     header: 'Title',
-    cell: ({ row }) => {
-      const title = row.original.title;
-      return <div className="font-medium">{title}</div>;
-    },
+    cell: ({ row }) => <div className="font-medium">{row.original.title}</div>,
   },
+
+  // ─── STATUS (FIXED) ───────────────────────────
   {
-    accessorKey: 'category',
-    header: 'Category',
-    cell: ({ row }) => {
-      const category = row.original.category;
-      return <div className="text-sm">{category}</div>;
-    },
-  },
-  {
-    accessorKey: 'status',
+    accessorKey: 'isPublished',
     header: 'Status',
     cell: ({ row }) => {
-      const status = row.original.status;
-      const statusColors: Record<string, string> = {
-        published: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
-        draft: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
-        archived: 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200',
-      };
+      const isPublished = row.original.isPublished;
+
       return (
         <span
           className={`px-2 py-1 rounded-full text-xs font-semibold ${
-            statusColors[status] || statusColors.draft
+            isPublished
+              ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+              : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
           }`}
         >
-          {status.charAt(0).toUpperCase() + status.slice(1)}
+          {isPublished ? 'Published' : 'Draft'}
         </span>
       );
     },
   },
+
+  // ─── SLUG (OPTIONAL BUT USEFUL) ───────────────
   {
-    accessorKey: 'viewCount',
-    header: 'Views',
-    cell: ({ row }) => {
-      return <div className="text-sm">{row.original.viewCount}</div>;
-    },
+    accessorKey: 'slug',
+    header: 'Slug',
+    cell: ({ row }) => (
+      <div className="text-sm text-muted-foreground">{row.original.slug}</div>
+    ),
   },
+
+  // ─── CREATED DATE ──────────────────────────────
   {
     accessorKey: 'createdAt',
     header: 'Created',
     cell: ({ row }) => {
       const date = new Date(row.original.createdAt);
-      return <div className="text-sm">{date.toLocaleDateString()}</div>;
+
+      return (
+        <div className="text-sm text-muted-foreground">
+          {date.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+          })}
+        </div>
+      );
     },
   },
+
+  // ─── ACTIONS ───────────────────────────────────
   {
     id: 'actions',
     cell: ({ row }) => {
@@ -90,32 +108,32 @@ export const columns: ColumnDef<IBlogs>[] = [
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
               <MoreHorizontal className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
+
           <DropdownMenuContent align="end">
+            {/* EDIT */}
             <DropdownMenuItem asChild>
               <Link
-                href={`/admin/blogs/edit-blog/${blog.slug}`}
+                href={`/admin/blogs/edit-blog/${blog.id}`}
                 className="flex items-center cursor-pointer"
               >
                 <Pencil className="mr-2 h-4 w-4" />
-                <span>Edit</span>
+                Edit
               </Link>
             </DropdownMenuItem>
+
+            {/* DELETE */}
             <DropdownMenuItem
-              className="text-red-600 dark:text-red-400 cursor-pointer"
+              className="text-red-600 cursor-pointer"
               onClick={() => {
-                // Delete will be handled by parent component
-                const event = new CustomEvent('blog-delete', {
-                  detail: { slug: blog.slug, title: blog.title },
-                });
-                window.dispatchEvent(event);
+                setOpen(true);
+                setSelectedItem(row.original);
               }}
             >
               <Trash2 className="mr-2 h-4 w-4" />
-              <span>Delete</span>
+              Delete
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

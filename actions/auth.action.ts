@@ -1,6 +1,7 @@
 'use server';
 
 import { LoginFormValues } from '@/app/(auth)/auth/login/schema';
+import { getToken } from '@/lib/getToken';
 import { cookies } from 'next/headers';
 
 export const loginAction = async (payload: LoginFormValues) => {
@@ -49,8 +50,7 @@ export const loginAction = async (payload: LoginFormValues) => {
 };
 
 export const logoutAction = async () => {
-  const cookieStore = await cookies();
-  const accessToken = cookieStore.get('accessToken');
+  const accessToken = (await getToken()).accessToken;
 
   try {
     const response = await fetch(
@@ -59,7 +59,7 @@ export const logoutAction = async () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken?.value}`,
+          Authorization: `Bearer ${accessToken}`,
         },
         credentials: 'include',
         cache: 'no-store',
@@ -72,11 +72,46 @@ export const logoutAction = async () => {
     if (!data.success) {
       throw new Error(data.message);
     }
-
+    const cookieStore = await cookies();
     cookieStore.delete('accessToken');
     cookieStore.delete('refreshToken');
     return data;
   } catch (error) {
     throw error;
+  }
+};
+
+export const getProfileAction = async () => {
+  const cookieStore = await cookies();
+
+  const accessToken = (await getToken()).accessToken;
+
+  try {
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_SERVER_URL}/auth/me`,
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
+        credentials: 'include',
+        cache: 'no-store',
+      }
+    );
+
+    const data = await response.json();
+
+    if (!data.success) {
+      throw new Error(data.message);
+    }
+
+    return data;
+  } catch (error) {
+    // clear invalid cookies
+    cookieStore.delete('accessToken');
+    cookieStore.delete('refreshToken');
+
+    return null;
   }
 };

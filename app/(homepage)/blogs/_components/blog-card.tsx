@@ -1,9 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import React from 'react';
-import { IBlogs } from '../types';
 
-const BlogCard = ({ blog }: { blog: IBlogs }) => {
+const BlogCard = ({ blog }: { blog: any }) => {
   return (
     <Link href={`/blogs/${blog.slug}`}>
       <article className="group rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-800 hover:shadow-xl transition-all duration-300">
@@ -22,7 +20,7 @@ const BlogCard = ({ blog }: { blog: IBlogs }) => {
         <div className="p-5">
           {/* Tags */}
           <div className="flex flex-wrap gap-2 mb-3">
-            {blog.tags.slice(0, 3).map((tag) => (
+            {blog.tags.slice(0, 3).map((tag: any) => (
               <span
                 key={tag}
                 className="text-xs px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded-full text-gray-600 dark:text-gray-300"

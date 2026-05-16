@@ -1,10 +1,12 @@
-import React from 'react';
+import { Fragment } from 'react';
 import AdminBlogsMainWrapper from './_components/admin-blogs-main-wrapper';
+import { getAllBlogs } from '@/actions/blog.action';
 
-export default function BlogPage() {
+export default async function BlogPage() {
+  const response = await getAllBlogs();
   return (
-    <React.Fragment>
-      <AdminBlogsMainWrapper />
-    </React.Fragment>
+    <Fragment>
+      <AdminBlogsMainWrapper blogs={response.data} />
+    </Fragment>
   );
 }

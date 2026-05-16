@@ -1,74 +1,16 @@
-'use client';
-
 import PageHeader from '@/components/common/page-header';
-import StatsCard from '@/components/common/stats-card';
-import { DataTable } from '@/components/tables/data-table';
 import { Button } from '@/components/ui/button';
-import {
-    BarChart,
-    Eye,
-    FileText,
-    LucideIcon,
-    Plus,
-    TrendingUp,
-} from 'lucide-react';
+import { IBlog } from '@/types';
+import { Plus } from 'lucide-react';
 import Link from 'next/link';
-import blogs from '../../../../(homepage)/blogs/data/blogs.json';
-import { columns } from './column';
+import AdminBlogsStatsContainer from './admin-blogs-stats-container';
+import AdminBlogsTableContainer from './admin-blogs-table-container';
 
-const AdminBlogsMainWrapper = () => {
-  const stats = {
-    total: blogs.length,
-    published: blogs.filter((b) => b.status === 'published').length,
-    drafts: blogs.filter((b) => b.status === 'draft').length,
-    totalViews: blogs.reduce((sum, b) => sum + b.viewCount, 0),
-  };
-
-  const blogsStats: {
-    title: string;
-    value: number;
-    description: string;
-    icon: LucideIcon;
-  }[] = [
-    {
-      title: 'Total Blogs',
-      value: stats.total,
-      description: 'All published and draft blogs',
-      icon: FileText,
-    },
-    {
-      title: 'Published',
-      value: stats.published,
-      description: 'Live blogs',
-      icon: TrendingUp,
-    },
-    {
-      title: 'Drafts',
-      value: stats.drafts,
-      description: 'Work in progress',
-      icon: BarChart,
-    },
-    {
-      title: 'Total Views',
-      value: stats.totalViews,
-      description: 'Combined views',
-      icon: Eye,
-    },
-  ];
+const AdminBlogsMainWrapper = ({ blogs }: { blogs: IBlog[] }) => {
   return (
     <div className="space-y-6">
       {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-4">
-        {blogsStats?.map((item) => (
-          <StatsCard
-            key={item?.title}
-            title={item?.title}
-            value={item?.value}
-            description={item?.description}
-            icon={<item.icon className="h-4 w-4" />}
-          />
-        ))}
-      </div>
+      <AdminBlogsStatsContainer blogs={blogs} />
 
       {/* Page Header */}
       <PageHeader
@@ -91,31 +33,9 @@ const AdminBlogsMainWrapper = () => {
           </Button>
         </div>
 
-        <DataTable columns={columns} data={blogs} />
+        {/* Blogs Table */}
+        <AdminBlogsTableContainer blogs={blogs} />
       </div>
-
-      {/* Delete Confirmation Dialog */}
-      {/* <AlertDialog
-        open={deleteDialog.open}
-        onOpenChange={(open) => setDeleteDialog({ open })}
-      >
-        <AlertDialogContent>
-          <AlertDialogTitle>Delete Blog</AlertDialogTitle>
-          <AlertDialogDescription>
-            Are you sure you want to delete &quot;{deleteDialog.title}&quot;?
-            This action cannot be undone.
-          </AlertDialogDescription>
-          <div className="flex justify-end gap-3">
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDeleteConfirm}
-              className="bg-red-600 hover:bg-red-700"
-            >
-              Delete
-            </AlertDialogAction>
-          </div>
-        </AlertDialogContent>
-      </AlertDialog> */}
     </div>
   );
 };
