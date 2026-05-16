@@ -7,14 +7,22 @@ import { Button } from '@/components/ui/button';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useState } from 'react';
 import { toast } from 'sonner';
+import { loginAction } from '@/actions/auth.action';
+import { useRouter } from 'next/navigation';
 
 const LoginForm = () => {
   const [loading, setLoading] = useState<boolean>(false);
+  const router = useRouter();
+
+  const isDevMode = process.env.NEXT_PUBLIC_ENV === 'development';
+
   const form = useForm<LoginFormValues>({
-    defaultValues: {
-      email: '',
-      password: '',
-    },
+    defaultValues: isDevMode
+      ? { email: 'superadmin@gmail.com', password: 'Admin@123' }
+      : {
+          email: '',
+          password: '',
+        },
     resolver: zodResolver(loginSchema),
     mode: 'onChange',
   });
@@ -25,18 +33,25 @@ const LoginForm = () => {
 
     try {
       setLoading(true);
-      console.log(values);
-      await new Promise((res) => setTimeout(res, 2000));
-      toast.success('🎉 Welcome Back!', {
-        description:
-          'You’re logged in successfully. Let’s get things moving 🚀',
-      });
-      form.reset();
-    } catch (error) {
-      console.log(error);
-      toast.error('Failed to login');
-    } finally {
+
+      const response = await loginAction(values);
+
+      if (response?.success) {
+        toast.success('🎉 Welcome Back!', {
+          description:
+            response?.message ||
+            'You’re logged in successfully. Let’s get things moving 🚀',
+        });
+        router.push('/admin/dashboard');
+        form.reset();
+      }
+    } catch (error: any) {
+      console.log(error.message);
       setLoading(false);
+      toast.error('Login Failed', {
+        description:
+          error?.message || 'Something went wrong. Please try again.',
+      });
     }
   };
 

@@ -3,7 +3,7 @@
 import { INavItem, navItems } from '@/lib/nav-items';
 import { ChevronsUpDown, LogOut, Settings, User } from 'lucide-react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import {
   DropdownMenu,
@@ -23,6 +23,9 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from '../ui/sidebar';
+import { logoutAction } from '@/actions/auth.action';
+import { toast } from 'sonner';
+import LogoutButton from '../common/logoutButton';
 
 const AppSidebar = () => {
   const pathname = usePathname();
@@ -118,10 +121,7 @@ const AppSidebar = () => {
                   <span>Settings</span>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>
-                  <LogOut className="mr-2 h-4 w-4" />
-                  <span>Logout</span>
-                </DropdownMenuItem>
+                <LogoutButton />
               </DropdownMenuContent>
             </DropdownMenu>
           </SidebarMenuItem>

@@ -1,5 +1,5 @@
-import React from 'react';
-import { SidebarTrigger } from '../ui/sidebar';
+import { LogOut, Settings, User } from 'lucide-react';
+import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -7,8 +7,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '../ui/dropdown-menu';
-import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
-import { LogOut, Settings, User } from 'lucide-react';
+import { SidebarTrigger } from '../ui/sidebar';
+import LogoutButton from '../common/logoutButton';
 
 export default function DashboardHeader() {
   return (
@@ -52,10 +52,7 @@ export default function DashboardHeader() {
             <span>Settings</span>
           </DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem>
-            <LogOut className="mr-2 h-4 w-4" />
-            <span>Logout</span>
-          </DropdownMenuItem>
+          <LogoutButton />
         </DropdownMenuContent>
       </DropdownMenu>
     </header>
