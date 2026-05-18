@@ -6,7 +6,7 @@ export default async function BlogPage() {
   const response = await getAllBlogs();
   return (
     <Fragment>
-      <AdminBlogsMainWrapper blogs={response.data} />
+      <AdminBlogsMainWrapper blogs={response?.data} />
     </Fragment>
   );
 }

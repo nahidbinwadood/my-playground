@@ -1,12 +1,22 @@
+'use client';
+
 import PageHeader from '@/components/common/page-header';
 import { Button } from '@/components/ui/button';
 import { IBlog } from '@/types';
 import { Plus } from 'lucide-react';
 import Link from 'next/link';
+import { useTransition } from 'react';
+import AdminBlogsSkeleton from './admin-blogs-skeleton';
 import AdminBlogsStatsContainer from './admin-blogs-stats-container';
 import AdminBlogsTableContainer from './admin-blogs-table-container';
 
 const AdminBlogsMainWrapper = ({ blogs }: { blogs: IBlog[] }) => {
+  const [isPending, startTransition] = useTransition();
+
+  if (isPending) {
+    return <AdminBlogsSkeleton />;
+  }
+
   return (
     <div className="space-y-6">
       {/* Stats Cards */}

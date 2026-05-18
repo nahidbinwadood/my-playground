@@ -39,7 +39,7 @@ export const createBlogAction = async (payload: BlogFormValues) => {
 export const getAllBlogs = async () => {
   try {
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_SERVER_URL}/blogs `,
+      `${process.env.NEXT_PUBLIC_SERVER_URL}/blogs`,
       {
         method: 'GET',
         headers: {
@@ -49,7 +49,7 @@ export const getAllBlogs = async () => {
         next: {
           tags: ['blogs'],
         },
-        cache: 'force-cache',
+        // cache: 'force-cache',
       }
     );
 
@@ -90,6 +90,67 @@ export const deleteBlog = async (id: string) => {
       throw new Error(data.message);
     }
     revalidateTag('blogs', 'max');
+    return data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+// update blog action==>
+export const updateBlogAction = async (id: string, payload: BlogFormValues) => {
+  const accessToken = (await getToken()).accessToken;
+
+  try {
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_SERVER_URL}/blogs/${id}`,
+      {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
+        credentials: 'include',
+        body: JSON.stringify(payload),
+      }
+    );
+
+    const data = await response.json();
+
+    // throw error if the response doesn't return success==>
+    if (!data.success) {
+      throw new Error(data.message);
+    }
+    revalidateTag('blogs', 'max');
+    return data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+// get single blog==>
+export const singleBlogAction = async (id: string) => {
+  try {
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_SERVER_URL}/blogs/${id}`,
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        // next: {
+        //   tags: ['blogs'],
+        // },
+      }
+    );
+
+    const data = await response.json();
+
+    // throw error if the response doesn't return success==>
+    if (!data.success) {
+      throw new Error(data.message);
+    }
+
     return data;
   } catch (error) {
     throw error;

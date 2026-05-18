@@ -16,12 +16,14 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { BlogFormValues, blogSchema } from '../validation/blog-schema';
 import { useState } from 'react';
-import { createBlogAction } from '@/actions/blog.action';
+import { createBlogAction, updateBlogAction } from '@/actions/blog.action';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 import { useAuthContext } from '@/providers/auth-provider';
+import { IBlog } from '@/types';
+import Link from 'next/link';
 
-const CreateBlogForm = () => {
+const CreateBlogForm = ({ blogData }: { blogData?: IBlog }) => {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
@@ -30,13 +32,13 @@ const CreateBlogForm = () => {
   // declare the form==>
   const form = useForm<BlogFormValues>({
     defaultValues: {
-      title: '',
-      excerpt: '',
-      content: '',
-      coverImage: '',
-      status: 'DRAFT',
-      type: 'FRONTEND',
-      author: '',
+      title: blogData?.title || '',
+      excerpt: blogData?.excerpt || '',
+      content: blogData?.content || '',
+      coverImage: blogData?.coverImage || '',
+      status: blogData?.status || 'DRAFT',
+      type: blogData?.type || 'FRONTEND',
+      author: blogData?.author || '',
     },
     resolver: zodResolver(blogSchema),
     mode: 'onChange',
@@ -48,13 +50,26 @@ const CreateBlogForm = () => {
     try {
       setLoading(true);
 
-      const response = await createBlogAction({ ...data, author: user?.id });
+      if (blogData?.id) {
+        // create blog==>
+        const response = await updateBlogAction(blogData?.id, { ...data });
 
-      if (response.success) {
-        toast.success(response.message || 'Blog Created Successfully');
-        router.push('/admin/blogs');
+        if (response.success) {
+          toast.success(response.message || 'Blog Updated Successfully');
+          router.push('/admin/blogs');
+        } else {
+          throw new Error(response.message);
+        }
       } else {
-        throw new Error(response.message);
+        // create blog===>
+        const response = await createBlogAction({ ...data, author: user?.id });
+
+        if (response.success) {
+          toast.success(response.message || 'Blog Created Successfully');
+          router.push('/admin/blogs');
+        } else {
+          throw new Error(response.message);
+        }
       }
     } catch (error: any) {
       setLoading(false);
@@ -141,9 +156,19 @@ const CreateBlogForm = () => {
             />
 
             {/* Submit */}
-            <Button loading={loading} className="w-full">
-              Create Blog
-            </Button>
+            <div className="w-full pt-2 grid grid-cols-2 gap-4">
+              <Button
+                variant="secondary"
+                className="w-full h-11"
+                asChild
+                disabled={loading}
+              >
+                <Link href="/admin/blogs">Cancel</Link>
+              </Button>
+              <Button loading={loading} className="w-full h-11">
+                {blogData?.id ? 'Edit' : 'Create'} Blog
+              </Button>
+            </div>
           </form>
         </Form>
       </CardContent>

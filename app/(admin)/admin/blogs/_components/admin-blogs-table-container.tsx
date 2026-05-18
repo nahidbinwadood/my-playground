@@ -11,45 +11,38 @@ import {
 } from '@/components/ui/alert-dialog';
 import { IBlog } from '@/types';
 import { adminBlogsColumn } from './column';
-import { useState } from 'react';
+import { useState, useTransition } from 'react';
 import { deleteBlog } from '@/actions/blog.action';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
+import { Loader2 } from 'lucide-react';
 
 const AdminBlogsTableContainer = ({ blogs }: { blogs: IBlog[] }) => {
   const [open, setOpen] = useState(false);
   const router = useRouter();
   const [selectedItem, setSelectedItem] = useState<IBlog | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [isPending, startTransition] = useTransition();
 
   //delete handler==>
-  const handleDelete = async () => {
-    if (loading || !selectedItem) return;
+  const handleDelete = () => {
+    if (isPending || !selectedItem) return;
 
-    setLoading(true);
-    try {
-      const response = await deleteBlog(selectedItem?.id);
-
-      console.log({ response });
-
-      if (response.success) {
-        toast.success(response.message || 'Blog deleted successfully');
+    startTransition(async () => {
+      try {
+        const response = await deleteBlog(selectedItem?.id);
+        if (response.success) {
+          toast.success(response.message || 'Blog deleted successfully');
+          router.refresh();
+        } else {
+          toast.error(response.message || 'Failed to delete the blog');
+        }
+      } catch (error: any) {
+        toast.error(error.message || 'Failed to delete the blog');
+      } finally {
         setSelectedItem(null);
         setOpen(false);
-        setLoading(false);
-        router.refresh();
-      } else {
-        setSelectedItem(null);
-        setOpen(false);
-        setLoading(false);
-        toast.error(response.message || 'Failed to delete the blog');
       }
-    } catch (error: any) {
-      setSelectedItem(null);
-      setOpen(false);
-      setLoading(false);
-      toast.error(error.message || 'Failed to delete the blog');
-    }
+    });
   };
 
   return (
@@ -71,9 +64,17 @@ const AdminBlogsTableContainer = ({ blogs }: { blogs: IBlog[] }) => {
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDelete}
+              disabled={isPending}
               className="bg-red-600 hover:bg-red-700"
             >
-              Delete
+              {isPending ? (
+                <span className="flex items-center gap-2">
+                  <Loader2 className="animate-spin" />
+                  Deleting...
+                </span>
+              ) : (
+                'Delete'
+              )}
             </AlertDialogAction>
           </div>
         </AlertDialogContent>

@@ -25,4 +25,6 @@ export interface IBlog {
   createdAt: string;
   updatedAt: string;
   slug: string;
+  status: 'DRAFT' | 'PUBLISHED';
+  type: 'FRONTEND' | 'BACKEND' | 'JAVASCRIPT';
 }
