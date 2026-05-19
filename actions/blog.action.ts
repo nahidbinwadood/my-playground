@@ -5,7 +5,9 @@ import { getToken } from '@/lib/getToken';
 import { revalidateTag } from 'next/cache';
 
 // create blog action==>
-export const createBlogAction = async (payload: BlogFormValues) => {
+export const createBlogAction = async (
+  payload: BlogFormValues & { isPublished: boolean }
+) => {
   const accessToken = (await getToken()).accessToken;
 
   try {
@@ -17,7 +19,6 @@ export const createBlogAction = async (payload: BlogFormValues) => {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${accessToken}`,
         },
-        credentials: 'include',
         body: JSON.stringify(payload),
       }
     );
@@ -36,7 +37,11 @@ export const createBlogAction = async (payload: BlogFormValues) => {
 };
 
 // get all blogs action==>
-export const getAllBlogs = async () => {
+export const getAllBlogs = async ({
+  enableCache = false,
+}: {
+  enableCache?: boolean;
+}) => {
   try {
     const response = await fetch(
       `${process.env.NEXT_PUBLIC_SERVER_URL}/blogs`,
@@ -45,11 +50,10 @@ export const getAllBlogs = async () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        credentials: 'include',
         next: {
           tags: ['blogs'],
         },
-        // cache: 'force-cache',
+        ...(enableCache ? { cache: 'force-cache' } : {}),
       }
     );
 
@@ -79,7 +83,6 @@ export const deleteBlog = async (id: string) => {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${accessToken}`,
         },
-        credentials: 'include',
       }
     );
 
@@ -97,7 +100,10 @@ export const deleteBlog = async (id: string) => {
 };
 
 // update blog action==>
-export const updateBlogAction = async (id: string, payload: BlogFormValues) => {
+export const updateBlogAction = async (
+  id: string,
+  payload: BlogFormValues & { isPublished: boolean }
+) => {
   const accessToken = (await getToken()).accessToken;
 
   try {
@@ -128,7 +134,7 @@ export const updateBlogAction = async (id: string, payload: BlogFormValues) => {
 };
 
 // get single blog==>
-export const singleBlogAction = async (id: string) => {
+export const singleBlogAction = async (id: string, enableCache?: boolean) => {
   try {
     const response = await fetch(
       `${process.env.NEXT_PUBLIC_SERVER_URL}/blogs/${id}`,
@@ -138,9 +144,7 @@ export const singleBlogAction = async (id: string) => {
           'Content-Type': 'application/json',
         },
         credentials: 'include',
-        // next: {
-        //   tags: ['blogs'],
-        // },
+        ...(enableCache ? { cache: 'force-cache' } : {}),
       }
     );
 

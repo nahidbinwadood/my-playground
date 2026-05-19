@@ -19,6 +19,11 @@ export function Header() {
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+  const findIsActive = (pathname: string, href: string) => {
+    if (href === '/') return pathname === '/';
+    return pathname === href || pathname.startsWith(href + '/');
+  };
+
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
       <nav className="mx-auto flex max-w-7xl items-center justify-between p-6 px-3">
@@ -43,23 +48,24 @@ export function Header() {
           </button>
         </div>
         <div className="hidden lg:flex lg:gap-x-8">
-          {navigation.map((item) => (
-            <Link
-              key={item.name}
-              href={item.href}
-              className={cn(
-                'text-sm font-medium transition-colors hover:text-primary relative py-2',
-                pathname === item.href
-                  ? 'text-foreground'
-                  : 'text-muted-foreground'
-              )}
-            >
-              {item.name}
-              {pathname === item.href && (
-                <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary" />
-              )}
-            </Link>
-          ))}
+          {navigation.map((item) => {
+            const isActive = findIsActive(pathname, item.href);
+            return (
+              <Link
+                key={item.name}
+                href={item.href}
+                className={cn(
+                  'text-sm font-medium transition-colors hover:text-primary relative py-2',
+                  isActive ? 'text-foreground' : 'text-muted-foreground'
+                )}
+              >
+                {item.name}
+                {isActive && (
+                  <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary" />
+                )}
+              </Link>
+            );
+          })}
         </div>
         <div className="hidden lg:flex lg:flex-1 lg:justify-end gap-2">
           {/* theme toggler */}
@@ -71,7 +77,7 @@ export function Header() {
               target="_blank"
               rel="noopener noreferrer"
             >
-              <Github/>
+              <Github />
             </Link>
           </Button>
 
@@ -85,21 +91,24 @@ export function Header() {
       {mobileMenuOpen && (
         <div className="lg:hidden">
           <div className="space-y-1 px-6 pb-6 pt-2">
-            {navigation.map((item) => (
-              <Link
-                key={item.name}
-                href={item.href}
-                className={cn(
-                  'block rounded-lg px-3 py-2 text-base font-semibold transition-colors',
-                  pathname === item.href
-                    ? 'bg-muted text-foreground'
-                    : 'text-muted-foreground hover:bg-muted'
-                )}
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                {item.name}
-              </Link>
-            ))}
+            {navigation.map((item) => {
+              const isActive = findIsActive(pathname, item.href);
+              return (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  className={cn(
+                    'block rounded-lg px-3 py-2 text-base font-semibold transition-colors',
+                    isActive
+                      ? 'bg-muted text-foreground'
+                      : 'text-muted-foreground hover:bg-muted'
+                  )}
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  {item.name}
+                </Link>
+              );
+            })}
           </div>
         </div>
       )}

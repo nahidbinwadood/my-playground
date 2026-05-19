@@ -5,10 +5,10 @@ import { singleBlogAction } from '@/actions/blog.action';
 const UpdateBlogPage = async ({
   params,
 }: {
-  params: Promise<{ id: string }>;
+  params: Promise<{ slug: string }>;
 }) => {
-  const { id } = await params;
-  const response = await singleBlogAction(id);
+  const { slug } = await params;
+  const response = await singleBlogAction(slug);
 
   return (
     <Fragment>

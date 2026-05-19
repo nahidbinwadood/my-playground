@@ -36,7 +36,7 @@ const CreateBlogForm = ({ blogData }: { blogData?: IBlog }) => {
       excerpt: blogData?.excerpt || '',
       content: blogData?.content || '',
       coverImage: blogData?.coverImage || '',
-      status: blogData?.status || 'DRAFT',
+      status: blogData?.isPublished ? 'PUBLISHED' : 'DRAFT',
       type: blogData?.type || 'FRONTEND',
       author: blogData?.author || '',
     },
@@ -52,7 +52,10 @@ const CreateBlogForm = ({ blogData }: { blogData?: IBlog }) => {
 
       if (blogData?.id) {
         // create blog==>
-        const response = await updateBlogAction(blogData?.id, { ...data });
+        const response = await updateBlogAction(blogData?.id, {
+          ...data,
+          isPublished: data.status === 'PUBLISHED',
+        });
 
         if (response.success) {
           toast.success(response.message || 'Blog Updated Successfully');
@@ -62,7 +65,11 @@ const CreateBlogForm = ({ blogData }: { blogData?: IBlog }) => {
         }
       } else {
         // create blog===>
-        const response = await createBlogAction({ ...data, author: user?.id });
+        const response = await createBlogAction({
+          ...data,
+          author: user?.id,
+          isPublished: data.status === 'PUBLISHED',
+        });
 
         if (response.success) {
           toast.success(response.message || 'Blog Created Successfully');

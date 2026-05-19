@@ -1,7 +1,8 @@
 import Image from 'next/image';
 import Link from 'next/link';
+import { IBlog } from '@/types';
 
-const BlogCard = ({ blog }: { blog: any }) => {
+const BlogCard = ({ blog }: { blog: IBlog }) => {
   return (
     <Link href={`/blogs/${blog.slug}`}>
       <article className="group rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-800 hover:shadow-xl transition-all duration-300">
@@ -18,20 +19,8 @@ const BlogCard = ({ blog }: { blog: any }) => {
 
         {/* Content */}
         <div className="p-5">
-          {/* Tags */}
-          <div className="flex flex-wrap gap-2 mb-3">
-            {blog.tags.slice(0, 3).map((tag: any) => (
-              <span
-                key={tag}
-                className="text-xs px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded-full text-gray-600 dark:text-gray-300"
-              >
-                #{tag}
-              </span>
-            ))}
-          </div>
-
           {/* Title */}
-          <h2 className="text-lg font-semibold leading-snug mb-2 group-hover:text-blue-600 transition-colors">
+          <h2 className="text-lg font-semibold leading-snug mb-2 group-hover:text-gray-700 transition-colors">
             {blog.title}
           </h2>
 
@@ -42,8 +31,11 @@ const BlogCard = ({ blog }: { blog: any }) => {
 
           {/* Meta */}
           <div className="flex items-center justify-between text-xs text-gray-400">
-            <span>{blog.readTime} min read</span>
-            <span>{blog.viewCount} views</span>
+            <span>{new Date(blog.createdAt).toLocaleDateString()}</span>
+
+            <span className="capitalize">
+              {blog.isPublished ? 'Published' : 'Draft'}
+            </span>
           </div>
         </div>
       </article>

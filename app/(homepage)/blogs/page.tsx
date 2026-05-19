@@ -1,6 +1,8 @@
+import { getAllBlogs } from '@/actions/blog.action';
 import AllBlogsMainWrapper from './_components/all-blogs-main-wrapper';
 
-const page = () => {
+const page = async () => {
+  const response = await getAllBlogs({ enableCache: true });
   return (
     <div className="container mx-auto py-8 px-4 max-w-7xl">
       {/* top section */}
@@ -13,7 +15,7 @@ const page = () => {
       </section>
 
       {/* blogs */}
-      <AllBlogsMainWrapper />
+      <AllBlogsMainWrapper blogs={response?.data} />
     </div>
   );
 };

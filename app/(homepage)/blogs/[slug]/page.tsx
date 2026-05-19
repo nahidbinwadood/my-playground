@@ -1,10 +1,16 @@
+import { singleBlogAction } from '@/actions/blog.action';
+import BlogDetailsMainWrapper from './_components/blog-details-main-wrapper';
+import { Fragment } from 'react';
 
 const page = async ({ params }: { params: Promise<{ slug: string }> }) => {
   const { slug } = await params;
+
+  const response = await singleBlogAction(slug, true);
+
   return (
-    <section className="container mx-auto py-8 px-4 max-w-7xl">
-      <h1>Blog slug {slug}</h1>
-    </section>
+    <Fragment>
+      <BlogDetailsMainWrapper blog={response?.data} />
+    </Fragment>
   );
 };
 
