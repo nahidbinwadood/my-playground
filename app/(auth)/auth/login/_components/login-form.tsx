@@ -44,14 +44,18 @@ const LoginForm = () => {
         });
         router.push('/admin/dashboard');
         form.reset();
+      } else {
+        toast.error('Login Failed', {
+          description: response?.message || 'Invalid credentials.',
+        });
       }
     } catch (error: any) {
-      console.log(error.message);
-      setLoading(false);
+      console.error(error);
       toast.error('Login Failed', {
-        description:
-          error?.message || 'Something went wrong. Please try again.',
+        description: 'Something went wrong. Please try again.',
       });
+    } finally {
+      setLoading(false);
     }
   };
 

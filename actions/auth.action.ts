@@ -22,7 +22,7 @@ export const loginAction = async (payload: LoginFormValues) => {
     const data = await response.json();
 
     if (!data.success) {
-      throw new Error(data.message);
+      return data;
     }
 
     const cookieList = response.headers.getSetCookie();
@@ -45,7 +45,8 @@ export const loginAction = async (payload: LoginFormValues) => {
     }
     return data;
   } catch (error) {
-    throw error;
+    console.error('loginAction error:', error);
+    return { success: false, message: 'Something went wrong. Please try again.' };
   }
 };
 
