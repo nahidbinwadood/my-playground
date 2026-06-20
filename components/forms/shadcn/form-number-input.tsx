@@ -18,6 +18,7 @@ interface IFormNumberInputProps<T extends FieldValues> {
   integerOnly?: boolean;
   decimalPlaces?: number;
   prefixText?: string;
+  className?: string;
   endIcon?: React.ReactNode;
 }
 
@@ -36,6 +37,7 @@ function FormNumberInput<T extends FieldValues>({
   decimalPlaces,
   prefixText,
   endIcon,
+  className,
 }: IFormNumberInputProps<T>) {
   const {
     field,
@@ -50,8 +52,8 @@ function FormNumberInput<T extends FieldValues>({
   const displayValue = isEditing
     ? localValue
     : field.value === undefined || field.value === null || field.value === ''
-    ? ''
-    : String(field.value);
+      ? ''
+      : String(field.value);
 
   // Update local value when field value changes externally
   useEffect(() => {
@@ -162,6 +164,7 @@ function FormNumberInput<T extends FieldValues>({
       tooltip={tooltip}
       error={error?.message}
       required={required}
+      className={className}
     >
       <div className="w-full">
         <Input

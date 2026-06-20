@@ -5,6 +5,7 @@ import DependentDropDownForm from '../_components/all-forms/dependent-dropdown-f
 import DynamicFieldsFormWrapper from '../_components/all-forms/dynamic-fields-form/dynamic-fields-form-wrapper';
 import FieldArrayFormMainWrapper from '../_components/all-forms/field-array-form/field-array-form-main-wrapper';
 import MultiFieldValidationForm from '../_components/all-forms/multi-field-validation-form/multi-field-validation-form';
+import TieredRateForm from '../_components/all-forms/tiered-rate-form/tiered-rate-form';
 import SelectInputForm from '../_components/all-forms/with-select-inputs/select-input-form';
 import { IChallenge } from '../types';
 
@@ -249,6 +250,24 @@ export const challenges: IChallenge[] = [
     ],
     // component: ControlledUncontrolledMixForm,
     completed: false,
+  },
+  {
+    id: 'tiered-rate-form',
+    title: 'Tiered Rate Builder',
+    difficulty: 'Hard',
+    description: 'Build a dynamic tiered rate form with ordering constraints between tiers.',
+    requirements: [
+      'Each tier has a Spend From and Points field',
+      'Maximum 4 tiers allowed',
+      'Spend From must be greater than the previous tier\'s Spend From',
+      'Points must be greater than the previous tier\'s Points',
+      'Show per-field errors for ordering violations',
+      'Delete button visible only when more than 1 tier exists',
+      'Confirm deletion via modal before removing a tier',
+      'Add Rate button disabled when 4 tiers reached',
+    ],
+    component: TieredRateForm,
+    completed: true,
   },
   {
     id: 'form-performance-optimization',
