@@ -1,3 +1,6 @@
+// Admin shell: sidebar + top header + scrollable content.
+// Sidebar, header, and content all share the page background (--background)
+// for a seamless unified surface; regions are divided by thin borders only.
 import ThemeToggler from '../common/theme-toggler';
 import { SidebarInset, SidebarProvider, SidebarTrigger } from '../ui/sidebar';
 import AppSidebar from './app-sidebar';
@@ -6,30 +9,26 @@ import ProfileMenu from './profile-menu';
 const AdminLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <SidebarProvider>
-      {/* sidebar  */}
+      {/* sidebar */}
       <AppSidebar />
 
-      {/* sidebar main contents */}
-      <SidebarInset>
-        {/* sidebar header */}
-        <header className="flex h-16 shrink-0 items-center gap-2  justify-between border-b px-4">
+      {/* Fill the viewport height so the content area owns the only scrollbar */}
+      <SidebarInset className="h-svh overflow-hidden">
+        {/* Header: fixed height, never scrolls */}
+        <header className="flex h-16 shrink-0 items-center justify-between border-b px-4">
           <div className="flex items-center gap-3">
-            {/* sidebar trigger */}
             <SidebarTrigger className="-ml-1" />
             <h1 className="text-xl font-semibold text-foreground">Dashboard</h1>
           </div>
 
-          {/* profile menu */}
-          <div className='flex gap-2 items-center'>
+          <div className="flex items-center gap-2">
             <ThemeToggler />
             <ProfileMenu />
           </div>
         </header>
 
-        {/* sidebar children pages */}
-        <div className="min-h-[calc(100vh-64px)] max-h-[calc(100vh-64px)] overflow-y-auto p-6">
-          {children}
-        </div>
+        {/* Single scroll container for all page content -> one scrollbar */}
+        <div className="flex-1 overflow-y-auto p-6">{children}</div>
       </SidebarInset>
     </SidebarProvider>
   );

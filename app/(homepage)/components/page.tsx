@@ -4,6 +4,7 @@ import { ComponentPreview } from '@/components/showcase/component-preview';
 import { ComponentSidebar } from '@/components/showcase/component-sidebar';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { Zap } from 'lucide-react';
 import { useState } from 'react';
 
 export type ComponentItem = {
@@ -141,6 +142,146 @@ export function StatCard() {
         </div>
       </div>
     </Card>
+  );
+}`,
+  },
+
+  // ─── Feature Card ─────────────────────────────
+  {
+    id: 'feature-card',
+    name: 'Feature Card',
+    category: 'Cards',
+    component: (
+      <Card className="max-w-sm p-6">
+        <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+          <Zap className="h-6 w-6" />
+        </div>
+        <h3 className="mb-2 font-semibold">Lightning Fast</h3>
+        <p className="text-sm text-muted-foreground">
+          Built on Next.js 16 with server components for blazing performance out
+          of the box.
+        </p>
+      </Card>
+    ),
+    code: `import { Card } from '@/components/ui/card';
+import { Zap } from 'lucide-react';
+
+export function FeatureCard() {
+  return (
+    <Card className="max-w-sm p-6">
+      <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+        <Zap className="h-6 w-6" />
+      </div>
+      <h3 className="mb-2 font-semibold">Lightning Fast</h3>
+      <p className="text-sm text-muted-foreground">
+        Built on Next.js 16 with server components for blazing performance
+        out of the box.
+      </p>
+    </Card>
+  );
+}`,
+  },
+
+  // ─── Testimonial Card ─────────────────────────
+  {
+    id: 'testimonial-card',
+    name: 'Testimonial Card',
+    category: 'Cards',
+    component: (
+      <Card className="max-w-sm p-6">
+        <p className="mb-6 text-sm leading-relaxed">
+          &ldquo;This playground saved me hours. The form challenges alone are
+          worth it.&rdquo;
+        </p>
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500/10 font-semibold text-emerald-600 dark:text-emerald-400">
+            JD
+          </div>
+          <div>
+            <p className="text-sm font-medium">Jane Doe</p>
+            <p className="text-xs text-muted-foreground">Frontend Engineer</p>
+          </div>
+        </div>
+      </Card>
+    ),
+    code: `import { Card } from '@/components/ui/card';
+
+export function TestimonialCard() {
+  return (
+    <Card className="max-w-sm p-6">
+      <p className="mb-6 text-sm leading-relaxed">
+        &ldquo;This playground saved me hours. The form challenges alone are
+        worth it.&rdquo;
+      </p>
+      <div className="flex items-center gap-3">
+        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500/10 font-semibold text-emerald-600 dark:text-emerald-400">
+          JD
+        </div>
+        <div>
+          <p className="text-sm font-medium">Jane Doe</p>
+          <p className="text-xs text-muted-foreground">Frontend Engineer</p>
+        </div>
+      </div>
+    </Card>
+  );
+}`,
+  },
+
+  // ─── Buttons & Badges ─────────────────────────
+  {
+    id: 'buttons-badges',
+    name: 'Buttons & Badges',
+    category: 'Elements',
+    component: (
+      <div className="space-y-6">
+        <div className="flex flex-wrap gap-3">
+          <Button>Primary</Button>
+          <Button variant="secondary">Secondary</Button>
+          <Button variant="outline">Outline</Button>
+          <Button variant="ghost">Ghost</Button>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <span className="rounded-full bg-linear-to-r from-emerald-500 to-teal-600 px-3 py-1 text-xs font-medium text-white">
+            Gradient
+          </span>
+          <span className="rounded-full bg-emerald-500/10 px-3 py-1 text-xs font-medium text-emerald-600 dark:text-emerald-400">
+            Success
+          </span>
+          <span className="rounded-full bg-amber-500/10 px-3 py-1 text-xs font-medium text-amber-600 dark:text-amber-400">
+            Pending
+          </span>
+          <span className="rounded-full bg-red-500/10 px-3 py-1 text-xs font-medium text-red-600 dark:text-red-400">
+            Error
+          </span>
+        </div>
+      </div>
+    ),
+    code: `import { Button } from '@/components/ui/button';
+
+export function ButtonsAndBadges() {
+  return (
+    <div className="space-y-6">
+      <div className="flex flex-wrap gap-3">
+        <Button>Primary</Button>
+        <Button variant="secondary">Secondary</Button>
+        <Button variant="outline">Outline</Button>
+        <Button variant="ghost">Ghost</Button>
+      </div>
+      <div className="flex flex-wrap gap-2">
+        <span className="rounded-full bg-linear-to-r from-emerald-500 to-teal-600 px-3 py-1 text-xs font-medium text-white">
+          Gradient
+        </span>
+        <span className="rounded-full bg-emerald-500/10 px-3 py-1 text-xs font-medium text-emerald-600 dark:text-emerald-400">
+          Success
+        </span>
+        <span className="rounded-full bg-amber-500/10 px-3 py-1 text-xs font-medium text-amber-600 dark:text-amber-400">
+          Pending
+        </span>
+        <span className="rounded-full bg-red-500/10 px-3 py-1 text-xs font-medium text-red-600 dark:text-red-400">
+          Error
+        </span>
+      </div>
+    </div>
   );
 }`,
   },

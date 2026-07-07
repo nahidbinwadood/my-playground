@@ -75,11 +75,11 @@ const ToolbarButton = ({
     onClick={onClick}
     className={cn(
       'inline-flex items-center justify-center rounded-md p-1.5 text-sm',
-      'text-gray-600 hover:bg-gray-100 hover:text-gray-900',
+      'text-muted-foreground hover:bg-muted hover:text-foreground',
       'transition-colors duration-150',
       'disabled:pointer-events-none disabled:opacity-30',
       'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
-      isActive && 'bg-gray-900 text-white hover:bg-gray-800 hover:text-white'
+      isActive && 'bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground'
     )}
   >
     {children}
@@ -89,7 +89,7 @@ const ToolbarButton = ({
 // ─── Divider ────────────────────────────────────────────────────────────────
 
 const Divider = () => (
-  <div className="mx-1 h-5 w-px shrink-0 bg-gray-200" aria-hidden />
+  <div className="mx-1 h-5 w-px shrink-0 bg-border" aria-hidden />
 );
 
 // ─── Link Dialog ────────────────────────────────────────────────────────────
@@ -122,7 +122,7 @@ const LinkDialog = ({ editor, onClose }: LinkDialogProps) => {
   };
 
   return (
-    <div className="absolute z-50 mt-1 flex items-center gap-2 rounded-lg border border-gray-200 bg-white p-2 shadow-lg">
+    <div className="absolute z-50 mt-1 flex items-center gap-2 rounded-lg border bg-popover p-2 shadow-lg">
       <input
         autoFocus
         type="url"
@@ -133,12 +133,12 @@ const LinkDialog = ({ editor, onClose }: LinkDialogProps) => {
           if (e.key === 'Escape') onClose();
         }}
         placeholder="https://example.com"
-        className="h-8 w-56 rounded-md border border-gray-300 px-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900"
+        className="h-8 w-56 rounded-md border bg-background px-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
       />
       <button
         type="button"
         onClick={apply}
-        className="h-8 rounded-md bg-gray-900 px-3 text-xs font-medium text-white hover:bg-gray-700"
+        className="h-8 rounded-md bg-primary px-3 text-xs font-medium text-primary-foreground hover:opacity-90"
       >
         Apply
       </button>
@@ -146,7 +146,7 @@ const LinkDialog = ({ editor, onClose }: LinkDialogProps) => {
         <button
           type="button"
           onClick={remove}
-          className="h-8 rounded-md border border-gray-200 px-3 text-xs font-medium text-gray-600 hover:bg-gray-100"
+          className="h-8 rounded-md border px-3 text-xs font-medium text-muted-foreground hover:bg-muted"
         >
           Remove
         </button>
@@ -167,7 +167,7 @@ const EditorToolbar = ({ editor }: { editor: Editor }) => {
   if (!editor) return null;
 
   return (
-    <div className="relative border-b border-gray-200 bg-gray-50/80 px-2 py-1.5">
+    <div className="relative border-b bg-muted/50 px-2 py-1.5">
       <div className="flex flex-wrap items-center gap-0.5">
         {/* History */}
         <ToolbarButton
@@ -427,13 +427,13 @@ function FormTextEditor<T extends FieldValues>({
           '[&_ul]:list-disc [&_ul]:pl-5 [&_ul]:mb-2',
           '[&_ol]:list-decimal [&_ol]:pl-5 [&_ol]:mb-2',
           '[&_li]:mb-0.5',
-          '[&_blockquote]:border-l-4 [&_blockquote]:border-gray-300 [&_blockquote]:pl-4 [&_blockquote]:italic [&_blockquote]:text-gray-600 [&_blockquote]:my-2',
-          '[&_code]:bg-gray-100 [&_code]:rounded [&_code]:px-1 [&_code]:py-0.5 [&_code]:text-sm [&_code]:font-mono',
-          '[&_pre]:bg-gray-900 [&_pre]:text-gray-100 [&_pre]:rounded-lg [&_pre]:p-4 [&_pre]:my-2 [&_pre]:overflow-x-auto',
+          '[&_blockquote]:border-l-4 [&_blockquote]:border-border [&_blockquote]:pl-4 [&_blockquote]:italic [&_blockquote]:text-muted-foreground [&_blockquote]:my-2',
+          '[&_code]:bg-muted [&_code]:rounded [&_code]:px-1 [&_code]:py-0.5 [&_code]:text-sm [&_code]:font-mono',
+          '[&_pre]:bg-zinc-900 [&_pre]:text-zinc-100 [&_pre]:rounded-lg [&_pre]:p-4 [&_pre]:my-2 [&_pre]:overflow-x-auto',
           '[&_pre_code]:bg-transparent [&_pre_code]:p-0',
-          '[&_hr]:my-4 [&_hr]:border-gray-200',
-          '[&_a]:text-blue-600 [&_a]:underline',
-          '[&_mark]:bg-yellow-200 [&_mark]:rounded-sm [&_mark]:px-0.5',
+          '[&_hr]:my-4 [&_hr]:border-border',
+          '[&_a]:text-blue-600 dark:[&_a]:text-blue-400 [&_a]:underline',
+          '[&_mark]:bg-yellow-200 [&_mark]:text-zinc-900 [&_mark]:rounded-sm [&_mark]:px-0.5',
           '[&_strong]:font-semibold',
           editorClassName
         ),
@@ -450,10 +450,10 @@ function FormTextEditor<T extends FieldValues>({
     >
       <div
         className={cn(
-          'rounded-md border bg-white overflow-hidden transition-colors',
+          'rounded-md border bg-background text-foreground overflow-hidden transition-colors',
           error
-            ? 'border-red-500 focus-within:border-red-500'
-            : 'border-gray-300 focus-within:border-gray-900'
+            ? 'border-destructive focus-within:border-destructive'
+            : 'border-input focus-within:border-ring'
         )}
       >
         {editor && <EditorToolbar editor={editor} />}
@@ -466,7 +466,7 @@ function FormTextEditor<T extends FieldValues>({
         />
 
         {/* Character count (optional, always visible) */}
-        <div className="border-t border-gray-100 bg-gray-50/60 px-3 py-1 text-right text-[11px] text-gray-400">
+        <div className="border-t bg-muted/40 px-3 py-1 text-right text-[11px] text-muted-foreground">
           {editor?.storage.characterCount?.characters?.() ??
             editor?.getText().length ??
             0}{' '}

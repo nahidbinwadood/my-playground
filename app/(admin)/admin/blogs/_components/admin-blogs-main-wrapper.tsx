@@ -19,33 +19,30 @@ const AdminBlogsMainWrapper = ({ blogs }: { blogs: IBlog[] }) => {
 
   return (
     <div className="space-y-6">
-      {/* Stats Cards */}
+      {/* Header row: title/breadcrumbs on the left, Add button on the right */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <PageHeader
+          title="Blog Management"
+          subtitle="Create, edit, and manage your blog posts"
+          breadcrumbs={[
+            { label: 'Dashboard', href: '/admin/dashboard' },
+            { label: 'Blogs' },
+          ]}
+          className="mb-0"
+        />
+        <Button className="gap-2 shrink-0" asChild>
+          <Link href="/admin/blogs/create-blog">
+            <Plus className="h-4 w-4" />
+            Add Blog
+          </Link>
+        </Button>
+      </div>
+
+      {/* Stats cards */}
       <AdminBlogsStatsContainer blogs={blogs} />
 
-      {/* Page Header */}
-      <PageHeader
-        title="Blog Management"
-        subtitle="Create, edit, and manage your blog posts"
-        breadcrumbs={[
-          { label: 'Dashboard', href: '/admin/dashboard' },
-          { label: 'Blogs' },
-        ]}
-      />
-
-      {/* Add Blog Button and Table */}
-      <div className="space-y-4">
-        <div className="flex justify-end">
-          <Button className="gap-2" asChild>
-            <Link href="/admin/blogs/create-blog">
-              <Plus className="h-4 w-4" />
-              Add Blog{' '}
-            </Link>
-          </Button>
-        </div>
-
-        {/* Blogs Table */}
-        <AdminBlogsTableContainer blogs={blogs} />
-      </div>
+      {/* Blogs table */}
+      <AdminBlogsTableContainer blogs={blogs} />
     </div>
   );
 };

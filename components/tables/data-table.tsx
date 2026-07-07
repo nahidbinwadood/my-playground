@@ -274,12 +274,15 @@ export function DataTable<TData, TValue = unknown>({
   );
 
   const tableHeader = (
-    <TableHeader className="bg-[#F7F7F7] border-none">
+    <TableHeader className="bg-muted border-none">
       {table.getHeaderGroups().map((headerGroup) => (
         <TableRow key={headerGroup.id}>
           {enableRowOrdering && <TableHead className="w-4" />}
           {headerGroup.headers.map((header) => (
-            <TableHead key={header.id}>
+            <TableHead
+              key={header.id}
+              className="px-2 py-3 sm:px-4 sm:py-4 text-foreground font-semibold"
+            >
               {header.isPlaceholder
                 ? null
                 : flexRender(

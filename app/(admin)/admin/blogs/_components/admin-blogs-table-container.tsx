@@ -10,6 +10,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { IBlog } from '@/types';
+import { Card } from '@/components/ui/card';
 import { adminBlogsColumn } from './column';
 import { useState, useTransition } from 'react';
 import { deleteBlog } from '@/actions/blog.action';
@@ -47,10 +48,13 @@ const AdminBlogsTableContainer = ({ blogs }: { blogs: IBlog[] }) => {
 
   return (
     <section>
-      <DataTable
-        columns={adminBlogsColumn({ setSelectedItem, setOpen })}
-        data={blogs}
-      />
+      {/* Table wrapped in a card for elevation */}
+      <Card className="p-4">
+        <DataTable
+          columns={adminBlogsColumn({ setSelectedItem, setOpen })}
+          data={blogs}
+        />
+      </Card>
 
       {/* Delete Modal */}
       <AlertDialog open={open} onOpenChange={setOpen}>

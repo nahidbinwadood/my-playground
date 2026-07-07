@@ -1,10 +1,10 @@
 'use client';
 
 import { INavItem, navItems } from '@/lib/nav-items';
-import { ChevronsUpDown, LogOut, Settings, User } from 'lucide-react';
+import { ChevronsUpDown, Settings, User } from 'lucide-react';
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
-import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
+import { usePathname } from 'next/navigation';
+import { Avatar, AvatarFallback } from '../ui/avatar';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -23,21 +23,32 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from '../ui/sidebar';
-import { logoutAction } from '@/actions/auth.action';
-import { toast } from 'sonner';
 import LogoutButton from '../common/logoutButton';
+import { useAuthContext } from '@/providers/auth-provider';
+
+// Build initials from a name, e.g. "Nahid Wadood" -> "NW". Falls back to "A".
+const getInitials = (name?: string) =>
+  name
+    ? name
+        .split(' ')
+        .map((n) => n[0])
+        .join('')
+        .slice(0, 2)
+        .toUpperCase()
+    : 'A';
 
 const AppSidebar = () => {
   const pathname = usePathname();
-
   const { isMobile } = useSidebar();
+  const { user } = useAuthContext();
 
   return (
     <Sidebar collapsible="icon">
       {/* sidebar header */}
       <SidebarHeader className="h-16 border-b px-4 flex flex-row items-center overflow-hidden">
         <div className="flex items-center gap-3">
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-primary text-primary-foreground font-bold">
+          {/* Brand tile: emerald gradient */}
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-linear-to-br from-emerald-500 to-teal-600 text-white font-bold">
             A
           </div>
           <span className="text-xl font-bold transition-all duration-300 ease-in-out group-data-[collapsible=icon]:opacity-0 group-data-[collapsible=icon]:w-0 group-data-[collapsible=icon]:invisible whitespace-nowrap">
@@ -63,9 +74,10 @@ const AppSidebar = () => {
                     isActive={isActive}
                     tooltip={item?.title}
                   >
+                    {/* Active state uses theme tokens so it works in dark mode */}
                     <Link
                       href={item?.href}
-                      className="flex flex-1 items-center gap-3 h-10 px-3 transition-all duration-200 ease-linear rounded-lg data-[active=true]:text-white! data-[active=true]:bg-black!
+                      className="flex flex-1 items-center gap-3 h-10 px-3 transition-all duration-200 ease-linear rounded-lg data-[active=true]:bg-primary! data-[active=true]:text-primary-foreground!
                       group-data-[collapsible=icon]:gap-0 group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:h-10!
                       "
                     >
@@ -93,15 +105,17 @@ const AppSidebar = () => {
                   className="group-data-[collapsible=icon]:h-12! group-data-[collapsible=icon]:w-12! group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:gap-0 group-data-[collapsible=icon]:pr-1!"
                 >
                   <Avatar className="size-8 rounded-lg shrink-0">
-                    <AvatarImage
-                      src="https://github.com/shadcn.png"
-                      alt="@shadcn"
-                    />
-                    <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+                    <AvatarFallback className="rounded-lg bg-primary/10 text-primary font-medium">
+                      {getInitials(user?.name)}
+                    </AvatarFallback>
                   </Avatar>
                   <div className="grid flex-1 text-left text-sm leading-tight transition-all duration-300 ease-in-out group-data-[collapsible=icon]:w-0 group-data-[collapsible=icon]:hidden group-data-[collapsible=icon]:invisible overflow-hidden">
-                    <span className="truncate font-medium">Admin User</span>
-                    <span className="truncate text-xs"> admin@example.com</span>
+                    <span className="truncate font-medium">
+                      {user?.name || 'Admin User'}
+                    </span>
+                    <span className="truncate text-xs text-muted-foreground">
+                      {user?.email || 'admin@example.com'}
+                    </span>
                   </div>
                   <ChevronsUpDown className="ml-auto size-4 transition-all duration-300 ease-in-out group-data-[collapsible=icon]:w-0 group-data-[collapsible=icon]:hidden group-data-[collapsible=icon]:invisible" />
                 </SidebarMenuButton>

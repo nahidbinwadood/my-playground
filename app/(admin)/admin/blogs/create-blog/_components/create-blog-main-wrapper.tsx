@@ -1,25 +1,9 @@
-import PageHeader from '@/components/common/page-header';
 import React from 'react';
 import CreateBlogForm from './create-blog-form';
 
+// The form renders its own sticky header (title + actions), so no PageHeader here.
 const CreateBlogMainWrapper = () => {
-  return (
-    <section>
-      {/* Page Header */}
-      <PageHeader
-        title="Create New Blog"
-        subtitle="Write and publish a new blog post"
-        breadcrumbs={[
-          { label: 'Dashboard', href: '/admin/dashboard' },
-          { label: 'Blogs', href: '/admin/blogs' },
-          { label: 'Create Blog' },
-        ]}
-      />
-
-      {/* Create Blog Form */}
-      <CreateBlogForm />
-    </section>
-  );
+  return <CreateBlogForm />;
 };
 
 export default CreateBlogMainWrapper;
