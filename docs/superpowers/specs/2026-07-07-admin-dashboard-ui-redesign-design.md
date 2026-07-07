@@ -49,10 +49,19 @@ stays simple, reusable, and well-commented so anyone can follow it.
 - Footer avatar/name/email: currently hardcoded "Admin User". Wire to real
   `user` from `useAuthContext` (name/email/initials fallback).
 
-### 3. Header — `components/layout/admin-layout.tsx`
-- Background already `--background`; ensure header + content share it (no change
-  needed beyond token) and border-bottom uses `--border`.
-- Keep theme toggle + profile menu. No structural change.
+### 3. Header + scroll — `components/layout/admin-layout.tsx`
+- Background already `--background`; ensure header + content share it and
+  border-bottom uses `--border`.
+- Keep theme toggle + profile menu.
+- **Bug fix (double scrollbar):** current content div has both
+  `max-h-[calc(100vh-64px)]` AND `overflow-y-auto` while the outer
+  `SidebarInset`/page also scrolls → two stacked scroll containers → two
+  scrollbars on long pages (create/edit blog).
+  Fix = ONE scroll region. Make the layout a flex column that fills the
+  viewport (`SidebarInset` is `h-svh flex flex-col`), header is `shrink-0`
+  (optionally `sticky top-0`), and the content area is the single
+  `flex-1 overflow-y-auto` scroll container. Remove the redundant
+  `min-h/max-h` combo. Result: exactly one scrollbar for children.
 
 ### 4. Stats card — `components/common/stats-card.tsx`
 - Add optional `accent` prop (`'emerald' | 'blue' | 'amber' | 'violet'`,
