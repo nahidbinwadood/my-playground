@@ -1,13 +1,12 @@
 'use server';
 
-import { BlogFormValues } from '@/app/(admin)/admin/blogs/create-blog/validation/blog-schema';
 import { getToken } from '@/lib/getToken';
 import { revalidateTag } from 'next/cache';
 
 // create blog action==>
-export const createBlogAction = async (
-  payload: BlogFormValues & { isPublished: boolean }
-) => {
+// Multipart: payload is FormData (fields + cover photo file). No explicit
+// Content-Type header — fetch sets the multipart boundary itself.
+export const createBlogAction = async (payload: FormData) => {
   const accessToken = (await getToken()).accessToken;
 
   try {
@@ -16,10 +15,9 @@ export const createBlogAction = async (
       {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
           Authorization: `Bearer ${accessToken}`,
         },
-        body: JSON.stringify(payload),
+        body: payload,
       }
     );
 
@@ -100,10 +98,9 @@ export const deleteBlog = async (id: string) => {
 };
 
 // update blog action==>
-export const updateBlogAction = async (
-  id: string,
-  payload: BlogFormValues & { isPublished: boolean }
-) => {
+// Multipart like create. When the cover photo was replaced, the FormData also
+// carries deleteImageUrl (the previous cover photo URL) for backend cleanup.
+export const updateBlogAction = async (id: string, payload: FormData) => {
   const accessToken = (await getToken()).accessToken;
 
   try {
@@ -112,11 +109,10 @@ export const updateBlogAction = async (
       {
         method: 'PATCH',
         headers: {
-          'Content-Type': 'application/json',
           Authorization: `Bearer ${accessToken}`,
         },
         credentials: 'include',
-        body: JSON.stringify(payload),
+        body: payload,
       }
     );
 

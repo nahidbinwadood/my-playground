@@ -1,15 +1,12 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
+import FormImageUploader from '@/components/forms/shadcn/form-image-uploader';
 import FormInput from '@/components/forms/shadcn/form-input';
 import FormSelect from '@/components/forms/shadcn/form-select';
 import FormTextEditor from '@/components/forms/shadcn/form-text-editor';
 import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form } from '@/components/ui/form';
 import {
   Breadcrumb,
@@ -57,12 +54,26 @@ const CreateBlogForm = ({ blogData }: { blogData?: IBlog }) => {
     try {
       setLoading(true);
 
+      // Multipart payload: plain fields + cover photo file.
+      const payload = new FormData();
+      payload.append('title', data.title);
+      payload.append('excerpt', data.excerpt ?? '');
+      payload.append('content', data.content);
+      payload.append('status', data.status);
+      payload.append('type', data.type);
+      // payload.append('isPublished', String(data.status === 'PUBLISHED'));
+      // File = new upload; string = unchanged existing URL (edit mode).
+      if (data.coverImage instanceof File) {
+        payload.append('coverImage', data.coverImage);
+      }
+
       if (blogData?.id) {
-        // create blog==>
-        const response = await updateBlogAction(blogData?.id, {
-          ...data,
-          isPublished: data.status === 'PUBLISHED',
-        });
+        // Photo replaced → tell the backend which old image to delete.
+        if (data.coverImage instanceof File && blogData.coverImage) {
+          payload.append('deleteImageUrl', blogData.coverImage);
+        }
+
+        const response = await updateBlogAction(blogData.id, payload);
 
         if (response.success) {
           toast.success(response.message || 'Blog Updated Successfully');
@@ -71,12 +82,9 @@ const CreateBlogForm = ({ blogData }: { blogData?: IBlog }) => {
           throw new Error(response.message);
         }
       } else {
-        // create blog===>
-        const response = await createBlogAction({
-          ...data,
-          author: user?.id,
-          isPublished: data.status === 'PUBLISHED',
-        });
+        payload.append('author', user?.id ?? '');
+
+        const response = await createBlogAction(payload);
 
         if (response.success) {
           toast.success(response.message || 'Blog Created Successfully');
@@ -93,8 +101,6 @@ const CreateBlogForm = ({ blogData }: { blogData?: IBlog }) => {
   };
 
   const isEdit = Boolean(blogData?.id);
-  // Live cover image URL so we can show a preview thumbnail as the user types.
-  const coverImage = form.watch('coverImage');
 
   // main component==>
   return (
@@ -117,7 +123,9 @@ const CreateBlogForm = ({ blogData }: { blogData?: IBlog }) => {
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
-              <BreadcrumbPage>{isEdit ? 'Edit Blog' : 'Add Blog'}</BreadcrumbPage>
+              <BreadcrumbPage>
+                {isEdit ? 'Edit Blog' : 'Add Blog'}
+              </BreadcrumbPage>
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
@@ -203,29 +211,12 @@ const CreateBlogForm = ({ blogData }: { blogData?: IBlog }) => {
                 <CardTitle>Media</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <FormInput
+                <FormImageUploader
                   control={form.control}
                   name="coverImage"
                   label="Cover Image"
-                  placeholder="Enter your Cover Image URL"
                   required
                 />
-                {/* Preview thumbnail when a URL is present */}
-                {coverImage ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={coverImage}
-                    alt="Cover preview"
-                    className="aspect-video w-full rounded-lg border object-cover"
-                    onError={(e) => {
-                      e.currentTarget.style.display = 'none';
-                    }}
-                  />
-                ) : (
-                  <div className="flex aspect-video w-full items-center justify-center rounded-lg border border-dashed text-xs text-muted-foreground">
-                    Cover preview
-                  </div>
-                )}
               </CardContent>
             </Card>
           </div>
