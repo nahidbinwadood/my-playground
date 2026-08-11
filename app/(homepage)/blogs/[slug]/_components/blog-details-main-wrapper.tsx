@@ -1,17 +1,9 @@
 import { IBlog } from '@/types';
-import { ArrowLeft, CalendarIcon, Clock } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import '../tiptap-content.css';
-import { Button } from '@/components/ui/button';
-import StatusPill from '@/components/common/status-pill';
 import { ImageWithLoader } from '@/components/ui/image-with-loader';
-
-// Colored badge per blog type (dark-safe).
-const typeColors: Record<string, string> = {
-  FRONTEND: 'bg-blue-500/10 text-blue-600 dark:text-blue-400',
-  BACKEND: 'bg-violet-500/10 text-violet-600 dark:text-violet-400',
-  JAVASCRIPT: 'bg-amber-500/10 text-amber-600 dark:text-amber-400',
-};
+import BlogTypeLabel from '../../_components/blog-type-label';
 
 // Rough reading time: strip HTML tags, count words, ~200 wpm.
 const readingTime = (html: string) => {
@@ -26,69 +18,84 @@ const formatDate = (value: string) =>
     day: 'numeric',
   });
 
+// Backend sometimes sends the author as a raw Mongo ObjectId — hide those.
+const isRawId = (value?: string) => /^[a-f0-9]{24}$/i.test(value ?? '');
+
 const BlogDetailsMainWrapper = ({ blog }: { blog: IBlog }) => {
   return (
-    <section className="container mx-auto max-w-4xl px-4 py-8">
-      {/* Back button */}
-      <div className="mb-6">
-        <Button asChild variant="outline" className="gap-2">
-          <Link href="/blogs">
-            <ArrowLeft className="h-4 w-4" />
-            Back to all blogs
-          </Link>
-        </Button>
-      </div>
+    <article className="relative container mx-auto max-w-3xl px-4 py-14 sm:py-20">
+      {/* Faint emerald glow behind the header, matches the site hero */}
+      <div className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-96 bg-[radial-gradient(ellipse_70%_90%_at_50%_-20%,rgba(16,185,129,0.14),transparent)]" />
+
+      {/* Back link */}
+      <Link
+        href="/blogs"
+        className="mb-10 inline-flex items-center gap-2 font-mono text-sm text-muted-foreground transition-colors hover:text-emerald-600 dark:hover:text-emerald-400"
+      >
+        <ArrowLeft className="h-4 w-4" />
+        cd ../blogs
+      </Link>
+
+      {/* Header */}
+      <header className="mb-10">
+        <div className="mb-5 flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-xs text-muted-foreground">
+          {blog.type && (
+            <>
+              <BlogTypeLabel type={blog.type} />
+              <span aria-hidden>·</span>
+            </>
+          )}
+          <span>{formatDate(blog.createdAt)}</span>
+          <span aria-hidden>·</span>
+          <span>{readingTime(blog.content)} min read</span>
+        </div>
+
+        <h1 className="text-balance text-3xl font-bold leading-tight tracking-tight sm:text-4xl md:text-5xl">
+          {blog.title}
+        </h1>
+
+        <p className="mt-6 border-l-2 border-emerald-500/60 pl-4 text-lg leading-relaxed text-muted-foreground">
+          {blog.excerpt}
+        </p>
+
+        {blog.author && !isRawId(blog.author) && (
+          <p className="mt-6 font-mono text-sm text-muted-foreground">
+            <span className="text-emerald-600 dark:text-emerald-400">
+              author:
+            </span>{' '}
+            {blog.author}
+          </p>
+        )}
+      </header>
 
       {/* Cover image */}
-      <div className="relative mb-8 h-72 overflow-hidden rounded-2xl border md:h-96">
+      <div className="relative mb-12 aspect-video overflow-hidden rounded-2xl border">
         <ImageWithLoader
           src={blog.coverImage}
           alt={blog.title}
           fill
           className="object-cover"
+          priority
         />
       </div>
-
-      {/* Meta row */}
-      <div className="mb-4 flex flex-wrap items-center gap-3">
-        {blog.type && (
-          <span
-            className={`rounded-full px-2.5 py-1 text-xs font-medium ${
-              typeColors[blog.type] ?? 'bg-muted text-muted-foreground'
-            }`}
-          >
-            {blog.type.charAt(0) + blog.type.slice(1).toLowerCase()}
-          </span>
-        )}
-        <StatusPill status={blog.isPublished} />
-        <span className="flex items-center gap-1 text-sm text-muted-foreground">
-          <CalendarIcon className="h-4 w-4" />
-          {formatDate(blog.createdAt)}
-        </span>
-        <span className="flex items-center gap-1 text-sm text-muted-foreground">
-          <Clock className="h-4 w-4" />
-          {readingTime(blog.content)} min read
-        </span>
-      </div>
-
-      {/* Title */}
-      <h1 className="mb-4 text-3xl font-bold leading-snug md:text-4xl">
-        {blog.title}
-      </h1>
-
-      {/* Excerpt */}
-      <p className="mb-8 border-l-4 border-emerald-500/50 pl-4 text-base leading-relaxed text-muted-foreground">
-        {blog.excerpt}
-      </p>
-
-      <hr className="mb-8 border-border" />
 
       {/* Blog content */}
       <div
         className="tiptap-content"
         dangerouslySetInnerHTML={{ __html: blog.content }}
       />
-    </section>
+
+      {/* Footer */}
+      <footer className="mt-16 border-t pt-8">
+        <Link
+          href="/blogs"
+          className="inline-flex items-center gap-2 font-mono text-sm text-muted-foreground transition-colors hover:text-emerald-600 dark:hover:text-emerald-400"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Back to all posts
+        </Link>
+      </footer>
+    </article>
   );
 };
 

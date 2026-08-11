@@ -7,26 +7,40 @@ export function CTASection() {
   return (
     <section className="py-24 sm:py-32">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
-        <Reveal className="relative isolate overflow-hidden bg-foreground px-6 py-24 text-center shadow-2xl sm:rounded-3xl sm:px-16">
-          <h2 className="mx-auto max-w-2xl text-3xl font-bold tracking-tight text-background sm:text-4xl">
+        <Reveal className="relative isolate overflow-hidden rounded-3xl border border-emerald-500/20 bg-card px-6 py-20 text-center sm:px-16 sm:py-24">
+          {/* Emerald grid backdrop, same language as the hero */}
+          <div className="absolute inset-0 -z-20 bg-[linear-gradient(to_right,#10b98112_1px,transparent_1px),linear-gradient(to_bottom,#10b98112_1px,transparent_1px)] bg-size-[40px_40px] mask-[radial-gradient(ellipse_70%_70%_at_50%_50%,black,transparent)]" />
+          {/* Soft glow */}
+          <div className="absolute left-1/2 top-0 -z-10 h-48 w-lg max-w-full -translate-x-1/2 rounded-full bg-emerald-500/10 blur-[100px]" />
+
+          <p className="font-mono text-sm text-emerald-600 dark:text-emerald-400">
+            {'// start-here'}
+          </p>
+
+          <h2 className="mx-auto mt-4 max-w-2xl text-3xl font-bold tracking-tight sm:text-4xl">
             Ready to start building?
           </h2>
-          <p className="mx-auto mt-6 max-w-xl text-lg leading-8 text-background/80">
-            Dive into the component library or challenge yourself with complex
-            form validation scenarios. Everything is open source and ready to
-            use.
+
+          <p className="mx-auto mt-5 max-w-xl text-lg leading-8 text-muted-foreground">
+            Explore the component library or take on a form-validation
+            challenge. Everything here is open source.
           </p>
-          <div className="mt-10 flex items-center justify-center gap-x-6">
-            <Button size="lg" variant="secondary" asChild>
+
+          <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
+            <Button
+              size="lg"
+              asChild
+              className="bg-linear-to-r from-emerald-500 to-teal-600 text-white shadow-[0_0_30px_-8px] shadow-emerald-500/60 hover:from-emerald-400 hover:to-teal-500"
+            >
               <Link href="/components">
-                Get Started
+                Explore components
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
             </Button>
             <Button
               size="lg"
               variant="outline"
-              className="bg-transparent text-background border-background hover:bg-background/10 hover:text-white"
+              className="border-emerald-500/30 bg-background/50 backdrop-blur-sm hover:border-emerald-500/60 hover:bg-emerald-500/5"
               asChild
             >
               <a
@@ -39,25 +53,6 @@ export function CTASection() {
               </a>
             </Button>
           </div>
-          <svg
-            viewBox="0 0 1024 1024"
-            className="absolute left-1/2 top-1/2 -z-10 h-256 w-5xl -translate-x-1/2 mask-[radial-gradient(closest-side,white,transparent)]"
-            aria-hidden="true"
-          >
-            <circle
-              cx="512"
-              cy="512"
-              r="512"
-              fill="url(#gradient)"
-              fillOpacity="0.7"
-            />
-            <defs>
-              <radialGradient id="gradient">
-                <stop stopColor="#ffffff" stopOpacity="0.3" />
-                <stop offset="1" stopColor="#ffffff" stopOpacity="0" />
-              </radialGradient>
-            </defs>
-          </svg>
         </Reveal>
       </div>
     </section>
