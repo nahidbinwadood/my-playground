@@ -65,8 +65,9 @@ function FormSelect<T extends FieldValues>({
         disabled={disabled}
       >
         <SelectTrigger
+          aria-invalid={error ? true : undefined}
           className={`w-full ${
-            error ? 'border-red-500 focus:ring-red-500' : ''
+            error ? 'border-fail focus-visible:ring-fail/40' : ''
           }`}
         >
           <SelectValue placeholder={placeholder} />

@@ -1,19 +1,21 @@
 'use client';
-import PageHeader from '@/components/common/page-header';
 import { useMemo, useState } from 'react';
 import { challenges } from '../data';
 import { IChallenge } from '../types';
 import ChallengesTabContainer from './challenges-tab-container';
 import ChallengesTabContentContainer from './challenges-tab-content-container';
 
+// Difficulty rides the validation palette: signal = easy, warn = medium,
+// fail = hard. Returned as a background class for a small marker dot, so the
+// color never carries meaning on its own and never sits underneath body text.
 export const getDifficultyColor = (difficulty: IChallenge['difficulty']) => {
   switch (difficulty) {
     case 'Easy':
-      return 'bg-green-500/10 text-green-700 dark:text-green-400';
+      return 'bg-signal';
     case 'Medium':
-      return 'bg-yellow-500/10 text-yellow-700 dark:text-yellow-400';
+      return 'bg-warn';
     case 'Hard':
-      return 'bg-red-500/10 text-red-700 dark:text-red-400';
+      return 'bg-fail';
   }
 };
 
@@ -29,16 +31,23 @@ const FormPlayGroundMainWrapper = () => {
   );
 
   return (
-    <section className="container mx-auto py-8 px-4 max-w-7xl">
+    <section className="mx-auto w-full max-w-7xl px-5 pt-12 pb-20 sm:px-8 sm:pt-16 sm:pb-28">
       {/* ====Page Header==== */}
-      <PageHeader
-        title="Form Playground"
-        subtitle=" Master complex form validation with React Hook Form challenges"
-      />
+      <header className="border-b border-line pb-8">
+        <p className="label-mono">/form-playground</p>
+        <h1 className="mt-3 text-4xl font-semibold tracking-[-0.03em] sm:text-6xl">
+          Form challenges
+        </h1>
+        <p className="mt-4 max-w-2xl text-sm leading-relaxed text-muted-foreground sm:text-base">
+          Every challenge states the rules a form has to enforce, then hands you
+          the working version built with React Hook Form and Zod. Type an invalid
+          value into one and watch it fail.
+        </p>
+      </header>
 
       {/* === Main Contents=== */}
-      <div className="grid gap-6 lg:grid-cols-12  ">
-        <div className="lg:col-span-4">
+      <div className="mt-8 grid gap-6 lg:mt-10 lg:grid-cols-12 lg:gap-8">
+        <div className="lg:col-span-4 xl:col-span-3">
           {/* ===Challenges Tab Container=== */}
           <ChallengesTabContainer
             selectedChallengeId={selectedChallengeId}
@@ -46,7 +55,7 @@ const FormPlayGroundMainWrapper = () => {
           />
         </div>
 
-        <div className="lg:col-span-8">
+        <div className="lg:col-span-8 xl:col-span-9">
           {/* ===Challenges Tab Content Container=== */}
           <ChallengesTabContentContainer
             selectedChallenge={selectedChallenge}

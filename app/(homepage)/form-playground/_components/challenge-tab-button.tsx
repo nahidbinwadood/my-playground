@@ -1,8 +1,9 @@
-import { Badge } from '@/components/ui/badge';
-import { CheckCircle2, Circle } from 'lucide-react';
-import { memo, useCallback } from 'react';
+'use client';
+
+import { cn } from '@/lib/utils';
+import { motion } from 'motion/react';
+import { memo, useCallback, useEffect, useRef } from 'react';
 import { IChallenge } from '../types';
-import { getDifficultyColor } from './form-playground-main-wrapper';
 
 const ChallengeTabButton = memo(
   ({
@@ -14,35 +15,82 @@ const ChallengeTabButton = memo(
     isSelected: boolean;
     onSelect: (id: string) => void;
   }) => {
+    const buttonRef = useRef<HTMLButtonElement>(null);
+    const hasMounted = useRef(false);
+
     const handleTabChange = useCallback(() => {
       onSelect(challenge.id);
     }, [onSelect, challenge.id]);
+
+    // Keep the active challenge in view — the mobile strip scrolls sideways and
+    // the desktop rail scrolls down. Skipped on first paint so opening the page
+    // never scrolls it for you.
+    useEffect(() => {
+      if (!hasMounted.current) {
+        hasMounted.current = true;
+        return;
+      }
+      if (!isSelected) return;
+      buttonRef.current?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'nearest',
+        inline: 'nearest',
+      });
+    }, [isSelected]);
+
     return (
       <button
-        key={challenge.id}
+        ref={buttonRef}
+        type="button"
+        role="tab"
+        id={`challenge-tab-${challenge.id}`}
+        aria-selected={isSelected}
+        aria-controls="challenge-panel"
+        tabIndex={isSelected ? 0 : -1}
+        data-challenge-id={challenge.id}
         onClick={handleTabChange}
-        className={`w-full cursor-pointer text-left p-4 rounded-lg border transition-all ${
-          isSelected
-            ? 'border-primary bg-primary/5'
-            : 'border-border hover:border-primary/50 hover:bg-muted/50'
-        }`}
+        className={cn(
+          'relative w-52 shrink-0 snap-start cursor-pointer rounded-md py-2.5 pr-3 pl-4 text-left transition-colors',
+          'lg:w-full lg:snap-align-none',
+          isSelected ? 'bg-accent' : 'hover:bg-accent/60'
+        )}
       >
-        <div className="flex items-start justify-between mb-2">
-          <div className="flex-1">
-            <h3 className="font-semibold text-sm">{challenge.title}</h3>
-          </div>
-          {challenge.completed ? (
-            <CheckCircle2 className="h-5 w-5 text-green-600 shrink-0 ml-2" />
-          ) : (
-            <Circle className="h-5 w-5 text-muted-foreground shrink-0 ml-2" />
+        {/* Active marker slides between challenges instead of blinking on. */}
+        {isSelected && (
+          <motion.span
+            layoutId="challenge-tab-marker"
+            aria-hidden="true"
+            transition={{ duration: 0.25, ease: 'easeOut' as const }}
+            className="pointer-events-none absolute inset-y-1.5 left-0 w-[2px] rounded-full bg-signal"
+          />
+        )}
+
+        <span
+          className={cn(
+            'block font-mono text-[0.8125rem] leading-snug font-medium tracking-tight',
+            isSelected
+              ? 'text-foreground'
+              : challenge.completed
+                ? 'text-foreground/85'
+                : 'text-muted-foreground'
           )}
-        </div>
-        <Badge
-          className={getDifficultyColor(challenge.difficulty)}
-          variant="secondary"
         >
-          {challenge.difficulty}
-        </Badge>
+          {challenge.title}
+        </span>
+
+        <span className="mt-1 flex flex-wrap items-center gap-x-1.5 font-mono text-[0.6875rem] tracking-[0.12em] text-muted-foreground uppercase">
+          <span>{challenge.difficulty}</span>
+          <span aria-hidden="true">/</span>
+          <span className="tabular-nums">
+            {challenge.requirements.length} rules
+          </span>
+          {!challenge.completed && (
+            <>
+              <span aria-hidden="true">/</span>
+              <span>todo</span>
+            </>
+          )}
+        </span>
       </button>
     );
   }

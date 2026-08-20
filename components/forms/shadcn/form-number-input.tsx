@@ -178,20 +178,20 @@ function FormNumberInput<T extends FieldValues>({
           className={cn(
             'w-full',
             inputClassName,
-            error && 'border-red-500 ',
+            error && 'border-fail focus-visible:ring-fail/40',
             disabled && 'cursor-not-allowed opacity-50'
           )}
           disabled={disabled}
         />
 
         {prefixText && localValue !== '' && (
-          <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm whitespace-nowrap text-gray-800">
+          <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm whitespace-nowrap text-muted-foreground">
             {prefixText}
           </span>
         )}
 
         {endIcon && (
-          <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm whitespace-nowrap text-gray-800">
+          <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm whitespace-nowrap text-muted-foreground">
             {endIcon}
           </span>
         )}

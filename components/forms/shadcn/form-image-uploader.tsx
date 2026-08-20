@@ -2,7 +2,8 @@
 
 import { cn } from '@/lib/utils';
 import { ImagePlus, X } from 'lucide-react';
-import { useEffect, useMemo, useRef } from 'react';
+import Image from 'next/image';
+import { useEffect, useId, useMemo, useRef } from 'react';
 import { Control, FieldValues, Path, useController } from 'react-hook-form';
 import { FormFieldWrapper } from './form-field-wrapper';
 
@@ -15,6 +16,25 @@ interface FormImageUploaderProps<T extends FieldValues> {
   disabled?: boolean;
   className?: string;
 }
+
+// Byte count in the mono file line. Kilobytes until it stops being readable.
+const formatBytes = (bytes: number) => {
+  if (!Number.isFinite(bytes) || bytes <= 0) return '0 KB';
+  const mb = bytes / (1024 * 1024);
+  if (mb >= 1) return `${mb.toFixed(1)} MB`;
+  return `${Math.max(1, Math.round(bytes / 1024))} KB`;
+};
+
+// Display name for an image that is already stored on the post.
+const nameFromUrl = (url: string) => {
+  const path = url.split('?')[0].split('#')[0];
+  const last = path.split('/').filter(Boolean).pop() ?? 'cover-image';
+  try {
+    return decodeURIComponent(last);
+  } catch {
+    return last;
+  }
+};
 
 // Image picker with preview. Field value is a File (new upload) or a string
 // URL (existing image in edit mode); empty string = no image.
@@ -34,6 +54,7 @@ function FormImageUploader<T extends FieldValues>({
 
   const inputRef = useRef<HTMLInputElement>(null);
   const value = field.value as File | string | undefined;
+  const errorId = useId();
 
   const previewUrl = useMemo(
     () => (value instanceof File ? URL.createObjectURL(value) : value || ''),
@@ -51,11 +72,18 @@ function FormImageUploader<T extends FieldValues>({
     if (inputRef.current) inputRef.current.value = '';
   };
 
+  const isNewFile = value instanceof File;
+  const fileName = isNewFile
+    ? value.name
+    : previewUrl
+    ? nameFromUrl(previewUrl)
+    : '';
+  const fileMeta = isNewFile ? formatBytes(value.size) : 'Already uploaded';
+
   return (
     <FormFieldWrapper
       label={label}
       tooltip={tooltip}
-      error={error?.message}
       required={required}
       className={className}
     >
@@ -64,6 +92,7 @@ function FormImageUploader<T extends FieldValues>({
         type="file"
         accept="image/*"
         className="hidden"
+        tabIndex={-1}
         disabled={disabled}
         onChange={(e) => {
           const file = e.target.files?.[0];
@@ -72,36 +101,82 @@ function FormImageUploader<T extends FieldValues>({
       />
 
       {previewUrl ? (
-        <div className="relative overflow-hidden rounded-lg border">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={previewUrl}
-            alt="Cover preview"
-            className="aspect-video w-full object-cover"
-          />
-          <button
-            type="button"
-            aria-label="Remove image"
-            disabled={disabled}
-            onClick={clear}
-            className="absolute right-2 top-2 cursor-pointer rounded-full bg-black/60 p-1.5 text-white transition-colors hover:bg-black/80"
-          >
-            <X className="h-4 w-4" />
-          </button>
+        <div className="overflow-hidden rounded-lg border border-line bg-surface">
+          <div className="relative aspect-video w-full">
+            <Image
+              src={previewUrl}
+              alt={
+                fileName
+                  ? `Cover image preview: ${fileName}`
+                  : 'Cover image preview'
+              }
+              fill
+              unoptimized
+              sizes="(min-width: 1280px) 22rem, 100vw"
+              className="object-cover"
+            />
+          </div>
+
+          <div className="flex items-center justify-between gap-3 border-t border-line px-3 py-2">
+            <div className="min-w-0">
+              <p
+                title={fileName}
+                className="truncate font-mono text-xs text-foreground"
+              >
+                {fileName}
+              </p>
+              <p className="font-mono text-[0.6875rem] tabular-nums text-muted-foreground">
+                {fileMeta}
+              </p>
+            </div>
+
+            <div className="flex shrink-0 items-center gap-1">
+              <button
+                type="button"
+                disabled={disabled}
+                onClick={() => inputRef.current?.click()}
+                className="rounded-md border border-line px-2 py-1 font-mono text-[0.6875rem] uppercase tracking-[0.14em] text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:pointer-events-none disabled:opacity-50"
+              >
+                Replace
+              </button>
+              <button
+                type="button"
+                aria-label="Remove cover image"
+                disabled={disabled}
+                onClick={clear}
+                className="inline-flex h-7 w-7 items-center justify-center rounded-md border border-line text-muted-foreground transition-colors hover:border-fail/50 hover:text-fail disabled:pointer-events-none disabled:opacity-50"
+              >
+                <X className="h-3.5 w-3.5" aria-hidden="true" />
+              </button>
+            </div>
+          </div>
         </div>
       ) : (
         <button
           type="button"
           disabled={disabled}
           onClick={() => inputRef.current?.click()}
+          aria-invalid={error ? true : undefined}
+          aria-describedby={error ? errorId : undefined}
           className={cn(
-            'flex aspect-video w-full cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border border-dashed text-muted-foreground transition-colors hover:bg-muted/50 disabled:pointer-events-none disabled:opacity-50',
-            error && 'border-red-500'
+            'flex aspect-video w-full cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-line bg-surface px-4 text-center transition-colors hover:border-foreground/30 disabled:pointer-events-none disabled:opacity-50',
+            error && 'border-fail'
           )}
         >
-          <ImagePlus className="h-6 w-6" />
-          <span className="text-xs">Click to upload an image</span>
+          <ImagePlus className="h-5 w-5 text-muted-foreground" aria-hidden="true" />
+          <span className="font-mono text-[0.6875rem] uppercase tracking-[0.18em] text-foreground">
+            Choose an image
+          </span>
+          <span className="text-xs text-muted-foreground">
+            PNG or JPG, 16:9 crops best
+          </span>
         </button>
+      )}
+
+      {error?.message && (
+        <p id={errorId} className="text-sm font-medium text-fail">
+          {error.message}
+        </p>
       )}
     </FormFieldWrapper>
   );

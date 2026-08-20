@@ -3,6 +3,8 @@ import type { SVGProps } from 'react';
 export const Logo = (props: SVGProps<SVGSVGElement>) => {
   return (
     <svg
+      aria-hidden="true"
+      focusable="false"
       fill="currentColor"
       height="200"
       viewBox="0 0 200 200"

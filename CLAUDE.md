@@ -30,11 +30,22 @@ Env: `NEXT_PUBLIC_SERVER_URL` — external backend base URL (auth + blogs API). 
 
 ## Route groups (`app/`)
 
-- `(homepage)/` — public. `page.tsx` landing, `blogs/` + `blogs/[slug]`,
-  `components/` (showcase), `form-playground/` (validation challenges).
+- `(homepage)/` — public. `page.tsx` landing (hero centerpiece is
+  `components/home/validation-console.tsx`, a live Zod `safeParse` demo),
+  `blogs/` + `blogs/[slug]`, `components/` (showcase; specimens live in
+  `components/_components/`), `form-playground/` (validation challenges).
 - `(admin)/admin/` — protected. `dashboard/`, `blogs/` (table + create + edit),
   own `layout.tsx` (sidebar shell).
 - `(auth)/auth/` — `login/`, `signup/`. Zod schemas colocated in `schema/`.
+
+## Design
+
+**`docs/design-system.md` is binding — read it before any UI change.** Direction is
+"working spec sheet": instrument-like, mono-led, hairline rules, one accent moment
+per viewport. Use semantic tokens only (`signal` / `warn` / `fail` / `iris` /
+`surface` / `line`) — never `emerald-500`, `zinc-950`, or raw hex. Type is one
+superfamily: IBM Plex Sans for headings and prose, IBM Plex Mono for machine text
+(paths, labels, numbers, code). Mono means a machine produced it — never prose.
 
 ## Conventions
 
@@ -60,5 +71,5 @@ Env: `NEXT_PUBLIC_SERVER_URL` — external backend base URL (auth + blogs API). 
 
 ## Notes
 
-- `docs/superpowers/specs/` — design specs for redesigns.
+- `docs/design-system.md` — tokens, type scale, motion budget, quality floor.
 - Blog sample seed: `app/(homepage)/blogs/data/blogs.json`.

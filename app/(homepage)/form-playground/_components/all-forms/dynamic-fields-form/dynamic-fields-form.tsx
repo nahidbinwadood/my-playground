@@ -56,7 +56,7 @@ const DynamicFieldsForm = ({
                     type="button"
                     onClick={() => handleRemove(index)}
                     disabled={fields.length <= 1 || !!defaultValues}
-                    className="p-2 disabled:text-gray-400 disabled:cursor-not-allowed"
+                    className="p-2 disabled:text-muted-foreground disabled:cursor-not-allowed"
                     title={
                       fields.length <= 1
                         ? 'At least one reward is required'

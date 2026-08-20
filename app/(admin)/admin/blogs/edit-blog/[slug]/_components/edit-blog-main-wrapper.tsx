@@ -1,7 +1,8 @@
-import CreateBlogForm from '../../../create-blog/_components/create-blog-form';
 import { IBlog } from '@/types';
+import CreateBlogForm from '../../../create-blog/_components/create-blog-form';
 
-// The form renders its own sticky header (title + actions), so no PageHeader here.
+// Same authoring form as /create-blog; passing blogData switches it to edit
+// mode (breadcrumb, heading and submit label all follow from that).
 const EditBlogMainWrapper = ({ blogData }: { blogData: IBlog }) => {
   return <CreateBlogForm blogData={blogData} />;
 };

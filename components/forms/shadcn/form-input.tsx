@@ -71,12 +71,13 @@ function FormInput<T extends FieldValues>({
           type={inputType}
           maxLength={maxLength}
           placeholder={placeholder}
+          aria-invalid={error ? true : undefined}
           {...field}
           className={cn(
             'h-10',
             startIcon && 'pl-10',
             (endIcon || isPasswordType) && 'pr-10',
-            error ? 'border-red-500' : 'border-gray-300',
+            error && 'border-fail focus-visible:ring-fail/40',
             inputClassName
           )}
         />
@@ -97,9 +98,9 @@ function FormInput<T extends FieldValues>({
             className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer disabled:pointer-events-none"
           >
             {showPassword ? (
-              <EyeIcon className="h-5 w-5 text-gray-400" />
+              <EyeIcon className="h-5 w-5 text-muted-foreground" />
             ) : (
-              <EyeOff className="h-5 w-5 text-gray-400" />
+              <EyeOff className="h-5 w-5 text-muted-foreground" />
             )}
           </button>
         )}

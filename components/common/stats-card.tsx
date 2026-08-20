@@ -1,22 +1,56 @@
 import { cn } from '@/lib/utils';
+import { ArrowDownRight, ArrowUpRight, Minus } from 'lucide-react';
 import { Card, CardContent } from '../ui/card';
 
-// Accent colors for the icon tile. Each entry is a Tailwind bg + text pair
-// that works in both light and dark mode. Add more here if needed.
+type Tone = 'signal' | 'warn' | 'fail' | 'iris';
+
+// The old palette names stay as keys so existing call sites keep compiling,
+// but each one resolves to a semantic design-system token. The tone only
+// colors the delta line — the card itself stays neutral so a grid of stats
+// reads as one datasheet instead of four competing accents.
 const accents = {
-  emerald: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400',
-  blue: 'bg-blue-500/10 text-blue-600 dark:text-blue-400',
-  amber: 'bg-amber-500/10 text-amber-600 dark:text-amber-400',
-  violet: 'bg-violet-500/10 text-violet-600 dark:text-violet-400',
+  emerald: 'signal',
+  blue: 'iris',
+  amber: 'warn',
+  violet: 'iris',
+  signal: 'signal',
+  warn: 'warn',
+  fail: 'fail',
+  iris: 'iris',
 } as const;
+
+// Tokens mixed toward the foreground so 11–12px text clears 4.5:1 against
+// bg-card in both themes (raw text-signal on paper does not).
+const toneText: Record<Tone, string> = {
+  signal: 'text-[color:color-mix(in_oklch,var(--signal)_60%,var(--foreground))]',
+  warn: 'text-[color:color-mix(in_oklch,var(--warn)_60%,var(--foreground))]',
+  fail: 'text-[color:color-mix(in_oklch,var(--fail)_60%,var(--foreground))]',
+  iris: 'text-[color:color-mix(in_oklch,var(--iris)_60%,var(--foreground))]',
+};
+
+const trendTone: Record<'up' | 'down' | 'flat', Tone> = {
+  up: 'signal',
+  down: 'fail',
+  flat: 'warn',
+};
+
+const trendIcon = {
+  up: ArrowUpRight,
+  down: ArrowDownRight,
+  flat: Minus,
+};
 
 interface StatsCardProps {
   title: string;
   value: string | number;
   description?: string;
   icon?: React.ReactNode;
-  accent?: keyof typeof accents; // color of the icon tile, default emerald
+  accent?: keyof typeof accents; // tone of the delta line, default emerald
   className?: string;
+  /** Change since the previous period, e.g. "+12 this week". */
+  delta?: string;
+  /** Direction of the delta. Sets the delta color and its arrow. */
+  trend?: 'up' | 'down' | 'flat';
 }
 
 const StatsCard = ({
@@ -26,29 +60,57 @@ const StatsCard = ({
   icon,
   accent = 'emerald',
   className,
+  delta,
+  trend,
 }: StatsCardProps) => {
+  const tone: Tone = trend ? trendTone[trend] : accents[accent];
+  const TrendIcon = trend ? trendIcon[trend] : null;
+
   return (
     <Card
       className={cn(
-        'transition-shadow hover:shadow-md',
+        'gap-0 rounded-lg border-border bg-card py-0 shadow-none',
         className
       )}
     >
       <CardContent className="flex items-start justify-between gap-4 p-5">
-        <div className="space-y-1">
-          <p className="text-sm font-medium text-muted-foreground">{title}</p>
-          <p className="text-3xl font-bold tracking-tight">{value}</p>
-          {description && (
-            <p className="text-xs text-muted-foreground">{description}</p>
+        <div className="min-w-0 space-y-2">
+          <p className="label-mono truncate">{title}</p>
+          <p className="font-mono text-3xl font-semibold tabular-nums tracking-tight">
+            {value}
+          </p>
+          {(delta || description) && (
+            <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+              {delta && (
+                <span
+                  className={cn(
+                    'inline-flex items-center gap-1 font-mono text-xs tabular-nums',
+                    toneText[tone]
+                  )}
+                >
+                  {TrendIcon && (
+                    <TrendIcon
+                      className="size-3 shrink-0"
+                      aria-hidden="true"
+                    />
+                  )}
+                  {delta}
+                </span>
+              )}
+              {description && (
+                <span className="text-xs text-muted-foreground">
+                  {description}
+                </span>
+              )}
+            </div>
           )}
         </div>
-        {/* Tinted icon tile in the card's accent color */}
+
+        {/* Instrument well: bordered square, neutral icon, no colored fill. */}
         {icon && (
           <div
-            className={cn(
-              'flex h-11 w-11 shrink-0 items-center justify-center rounded-xl',
-              accents[accent]
-            )}
+            aria-hidden="true"
+            className="pointer-events-none flex size-10 shrink-0 items-center justify-center rounded-md border border-border bg-surface text-muted-foreground"
           >
             {icon}
           </div>

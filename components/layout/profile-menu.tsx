@@ -1,7 +1,9 @@
 'use client';
 
-import { LogOut, Settings, User } from 'lucide-react';
-import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
+import { useAuthContext } from '@/providers/auth-provider';
+import { Settings, User } from 'lucide-react';
+import LogoutButton from '../common/logoutButton';
+import { Avatar, AvatarFallback } from '../ui/avatar';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,39 +11,63 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '../ui/dropdown-menu';
-import LogoutButton from '../common/logoutButton';
+
+// Build initials from a name, e.g. "Nahid Wadood" -> "NW". Falls back to "A".
+const getInitials = (name?: string) =>
+  name
+    ? name
+        .split(' ')
+        .map((n) => n[0])
+        .join('')
+        .slice(0, 2)
+        .toUpperCase()
+    : 'A';
 
 const ProfileMenu = () => {
+  const { user } = useAuthContext();
+  const name = user?.name || 'Admin';
+  const email = user?.email;
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button className="rounded-full outline-none ring-2 ring-transparent transition-all hover:ring-primary focus-visible:ring-primary">
-          <Avatar>
-            <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
-            <AvatarFallback>AD</AvatarFallback>
+        <button
+          type="button"
+          aria-label={`Account menu for ${name}`}
+          className="group rounded-md"
+        >
+          <Avatar className="size-9 rounded-md border border-line transition-colors group-hover:border-signal/40">
+            <AvatarFallback className="rounded-md bg-surface font-mono text-xs font-medium tracking-tight text-foreground">
+              {getInitials(user?.name)}
+            </AvatarFallback>
           </Avatar>
         </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-56">
-        <div className="flex items-center gap-2 px-2 py-1.5">
-          <Avatar className="h-8 w-8">
-            <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
-            <AvatarFallback>AD</AvatarFallback>
+
+      <DropdownMenuContent align="end" sideOffset={8} className="w-60">
+        <div className="flex items-center gap-2.5 px-2 py-2">
+          <Avatar className="size-8 shrink-0 rounded-md border border-line">
+            <AvatarFallback className="rounded-md bg-surface font-mono text-[0.6875rem] font-medium tracking-tight text-foreground">
+              {getInitials(user?.name)}
+            </AvatarFallback>
           </Avatar>
-          <div className="flex flex-col gap-0.5">
-            <p className="text-sm font-medium leading-none">Admin User</p>
-            <p className="text-xs leading-none text-muted-foreground">
-              admin@example.com
-            </p>
+          <div className="grid min-w-0 gap-1">
+            <p className="truncate text-sm leading-none font-medium">{name}</p>
+            {email && (
+              <p className="truncate font-mono text-[0.6875rem] leading-none text-muted-foreground">
+                {email}
+              </p>
+            )}
           </div>
         </div>
+
         <DropdownMenuSeparator />
-        <DropdownMenuItem>
-          <User className="mr-2 h-4 w-4" />
+        <DropdownMenuItem className="font-mono text-xs tracking-tight">
+          <User aria-hidden="true" className="size-4" />
           <span>Profile</span>
         </DropdownMenuItem>
-        <DropdownMenuItem>
-          <Settings className="mr-2 h-4 w-4" />
+        <DropdownMenuItem className="font-mono text-xs tracking-tight">
+          <Settings aria-hidden="true" className="size-4" />
           <span>Settings</span>
         </DropdownMenuItem>
         <DropdownMenuSeparator />

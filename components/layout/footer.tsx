@@ -1,66 +1,68 @@
-import { Code2, Github, Linkedin, Twitter } from 'lucide-react';
+import { Code2 } from 'lucide-react';
 import Link from 'next/link';
 
-const footerLinks = {
-  product: [
-    { name: 'Components', href: '/components' },
-    { name: 'Form Playground', href: '/form-playground' },
-  ],
-  resources: [
-    { name: 'Documentation', href: '#' },
-    { name: 'GitHub', href: '#' },
-    { name: 'Blog', href: '#' },
-  ],
-  legal: [
-    { name: 'Privacy', href: '#' },
-    { name: 'Terms', href: '#' },
-  ],
-};
+// Only routes that exist. A footer full of `#` links is worse than a short one.
+const REPO_URL = 'https://github.com/nahidbinwadood/my-playground';
 
-const socialLinks = [
-  { name: 'GitHub', href: '#', icon: Github },
-  { name: 'Twitter', href: '#', icon: Twitter },
-  { name: 'LinkedIn', href: '#', icon: Linkedin },
+const footerColumns = [
+  {
+    heading: 'Playground',
+    links: [
+      { name: 'Components', href: '/components' },
+      { name: 'Form challenges', href: '/form-playground' },
+      { name: 'Blog', href: '/blogs' },
+    ],
+  },
+  {
+    heading: 'Elsewhere',
+    links: [
+      { name: 'Source on GitHub', href: REPO_URL, external: true },
+      { name: 'Sign in', href: '/auth/login' },
+    ],
+  },
 ];
+
+const stack = ['Next.js 16', 'TypeScript', 'Tailwind 4'];
 
 export function Footer() {
   return (
-    <footer className="border-t bg-muted/40">
-      <div className="mx-auto max-w-7xl px-6 py-12 lg:px-3">
-        <div className="xl:grid xl:grid-cols-3 xl:gap-8">
-          <div className="space-y-4">
-            <Link href="/" className="flex items-center space-x-2">
-              <Code2 className="h-6 w-6" />
-              <span className="font-bold text-xl">DevPlayground</span>
+    <footer className="border-t border-line bg-surface">
+      <div className="mx-auto w-full max-w-7xl px-5 sm:px-8">
+        <div className="grid gap-10 py-14 md:grid-cols-12 md:gap-8 sm:py-16">
+          {/* Identity */}
+          <div className="md:col-span-4 lg:col-span-5">
+            <Link
+              href="/"
+              className="inline-flex items-center gap-2 rounded-sm transition-colors"
+            >
+              <Code2 className="size-5 text-signal" aria-hidden="true" />
+              <span className="font-mono text-base font-semibold tracking-tight">
+                DevPlayground
+              </span>
             </Link>
-            <p className="text-sm leading-6 text-muted-foreground max-w-xs">
-              A modern playground for experimenting with React components,
-              forms, and best practices. Built with Next.js, TypeScript, and
-              Tailwind CSS.
+            <p className="mt-4 max-w-xs text-sm leading-relaxed text-muted-foreground">
+              Live React components and form-validation experiments. Every
+              example here runs in the browser — nothing is a screenshot.
             </p>
-            <div className="flex space-x-4">
-              {socialLinks.map((item) => (
-                <a
-                  key={item.name}
-                  href={item.href}
-                  className="text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  <span className="sr-only">{item.name}</span>
-                  <item.icon className="h-5 w-5" />
-                </a>
-              ))}
-            </div>
           </div>
-          <div className="mt-16 grid grid-cols-2 gap-8 xl:col-span-2 xl:mt-0">
-            <div className="md:grid md:grid-cols-2 md:gap-8">
-              <div>
-                <h3 className="text-sm font-semibold leading-6">Product</h3>
-                <ul role="list" className="mt-6 space-y-4">
-                  {footerLinks.product.map((item) => (
+
+          {/* Link columns */}
+          <nav
+            aria-label="Footer"
+            className="grid grid-cols-2 gap-x-6 gap-y-9 md:col-span-8 lg:col-span-7"
+          >
+            {footerColumns.map((column) => (
+              <div key={column.heading}>
+                <h3 className="label-mono">{column.heading}</h3>
+                <ul role="list" className="mt-4 space-y-2.5">
+                  {column.links.map((item) => (
                     <li key={item.name}>
                       <Link
                         href={item.href}
-                        className="text-sm leading-6 text-muted-foreground hover:text-foreground transition-colors"
+                        {...('external' in item && item.external
+                          ? { target: '_blank', rel: 'noopener noreferrer' }
+                          : {})}
+                        className="rounded-sm text-sm text-muted-foreground transition-colors hover:text-foreground"
                       >
                         {item.name}
                       </Link>
@@ -68,45 +70,15 @@ export function Footer() {
                   ))}
                 </ul>
               </div>
-              <div className="mt-10 md:mt-0">
-                <h3 className="text-sm font-semibold leading-6">Resources</h3>
-                <ul role="list" className="mt-6 space-y-4">
-                  {footerLinks.resources.map((item) => (
-                    <li key={item.name}>
-                      <Link
-                        href={item.href}
-                        className="text-sm leading-6 text-muted-foreground hover:text-foreground transition-colors"
-                      >
-                        {item.name}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-            <div className="md:grid md:grid-cols-2 md:gap-8">
-              <div>
-                <h3 className="text-sm font-semibold leading-6">Legal</h3>
-                <ul role="list" className="mt-6 space-y-4">
-                  {footerLinks.legal.map((item) => (
-                    <li key={item.name}>
-                      <Link
-                        href={item.href}
-                        className="text-sm leading-6 text-muted-foreground hover:text-foreground transition-colors"
-                      >
-                        {item.name}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-          </div>
+            ))}
+          </nav>
         </div>
-        <div className="mt-16 border-t pt-8 sm:mt-20 lg:mt-24">
-          <p className="text-xs leading-5 text-muted-foreground text-center">
-            &copy; {new Date().getFullYear()} DevPlayground. Built with Next.js,
-            TypeScript, and Tailwind CSS.
+
+        {/* Bottom bar */}
+        <div className="flex flex-col gap-2 border-t border-line py-6 font-mono text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
+          <p className="tracking-tight">{stack.join(' · ')}</p>
+          <p className="tabular-nums tracking-tight">
+            &copy; {new Date().getFullYear()} DevPlayground
           </p>
         </div>
       </div>

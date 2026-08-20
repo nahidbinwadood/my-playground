@@ -1,152 +1,287 @@
 @reference "tailwindcss";
 
-/* ───────────────── Typography Scale ───────────────── */
-.tiptap-content h1 {
-  @apply text-4xl font-bold tracking-tight mb-6 mt-10;
+/* Rendered TipTap article body. Reading-first: comfortable measure, 1.7 leading,
+   mono display face for headings, everything themed through tokens so light and
+   dark are handled by the same rules. No hardcoded colors below this line. */
+
+.tiptap-content {
   color: var(--foreground);
+  font-size: 1rem;
+  line-height: 1.7;
+  overflow-wrap: break-word;
+}
+
+/* ───────────────── Headings — sans display face ───────────────── */
+.tiptap-content h1,
+.tiptap-content h2,
+.tiptap-content h3,
+.tiptap-content h4,
+.tiptap-content h5,
+.tiptap-content h6 {
+  @apply font-semibold;
+  color: var(--foreground);
+  line-height: 1.25;
+  text-wrap: balance;
+  scroll-margin-top: 5rem;
+}
+
+.tiptap-content h1 {
+  @apply text-3xl tracking-[-0.03em];
+  line-height: 1.2;
+  margin-top: 3rem;
+  margin-bottom: 1.25rem;
 }
 
 .tiptap-content h2 {
-  @apply text-3xl font-semibold tracking-tight mb-5 mt-9;
-  color: var(--foreground);
+  @apply text-2xl tracking-[-0.02em];
+  line-height: 1.25;
+  margin-top: 3rem;
+  margin-bottom: 1rem;
 }
 
 .tiptap-content h3 {
-  @apply text-2xl font-semibold mb-4 mt-7;
-  color: var(--foreground);
+  @apply text-xl tracking-[-0.01em];
+  line-height: 1.3;
+  margin-top: 2.25rem;
+  margin-bottom: 0.75rem;
 }
 
 .tiptap-content h4 {
-  @apply text-xl font-semibold mb-3 mt-6;
-  color: var(--foreground);
+  @apply text-base;
+  line-height: 1.4;
+  margin-top: 1.75rem;
+  margin-bottom: 0.5rem;
 }
 
-/* ───────────────── Body Text ───────────────── */
-.tiptap-content p {
-  @apply text-base leading-8 mb-6;
+.tiptap-content h5,
+.tiptap-content h6 {
+  @apply text-sm uppercase tracking-[0.14em];
   color: var(--muted-foreground);
+  margin-top: 1.75rem;
+  margin-bottom: 0.5rem;
+}
+
+/* ───────────────── Body text ───────────────── */
+.tiptap-content p {
+  line-height: 1.7;
+  margin-bottom: 1.5rem;
+  text-wrap: pretty;
+}
+
+.tiptap-content p:last-child {
+  margin-bottom: 0;
 }
 
 /* ───────────────── Lists ───────────────── */
+.tiptap-content ul,
+.tiptap-content ol {
+  margin-block: 1.5rem;
+  padding-left: 1.4rem;
+}
+
 .tiptap-content ul {
-  @apply list-disc list-outside ml-6 mb-6 space-y-2;
+  list-style: disc outside;
 }
 
 .tiptap-content ol {
-  @apply list-decimal list-outside ml-6 mb-6 space-y-2;
+  list-style: decimal outside;
 }
 
 .tiptap-content li {
-  @apply text-base leading-7;
+  line-height: 1.7;
+  margin-block: 0.5rem;
+  padding-left: 0.25rem;
+}
+
+.tiptap-content li::marker {
   color: var(--muted-foreground);
+  font-size: 0.9em;
 }
 
 .tiptap-content li p {
-  @apply mb-0;
+  margin-bottom: 0.5rem;
 }
 
-/* ───────────────── Inline Formatting ───────────────── */
+.tiptap-content li > ul,
+.tiptap-content li > ol {
+  margin-block: 0.5rem;
+}
+
+/* ───────────────── Inline formatting ───────────────── */
 .tiptap-content strong {
-  @apply font-semibold;
+  font-weight: 600;
   color: var(--foreground);
 }
 
-.tiptap-content em { @apply italic; }
+.tiptap-content em {
+  font-style: italic;
+}
 
-.tiptap-content s { @apply line-through opacity-70; }
+.tiptap-content s {
+  text-decoration: line-through;
+  color: var(--muted-foreground);
+}
 
-.tiptap-content u { @apply underline underline-offset-4; }
+.tiptap-content u {
+  text-decoration: underline;
+  text-underline-offset: 0.25em;
+}
+
+.tiptap-content mark {
+  background: var(--surface);
+  color: var(--foreground);
+  padding: 0.05em 0.25em;
+  border-radius: calc(var(--radius) - 4px);
+}
 
 /* ───────────────── Links ───────────────── */
 .tiptap-content a {
-  @apply underline underline-offset-4 font-medium transition-all duration-150;
-  color: var(--primary);
-  text-decoration-color: var(--border);
+  color: var(--foreground);
+  font-weight: 500;
+  text-decoration: underline;
+  text-decoration-color: var(--signal);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.25em;
+  transition: color 0.2s ease-out, text-decoration-thickness 0.2s ease-out;
 }
 
 .tiptap-content a:hover {
-  opacity: 0.8;
-  text-decoration-color: var(--primary);
+  color: var(--signal);
+  text-decoration-thickness: 2px;
 }
 
 /* ───────────────── Blockquote ───────────────── */
 .tiptap-content blockquote {
-  @apply relative pl-6 my-8 italic text-base leading-8 py-5 pr-5 rounded-r-lg;
-  border-left: 4px solid var(--primary);
-  background: var(--muted);
-  color: var(--muted-foreground);
+  margin-block: 2rem;
+  padding: 1.25rem 1.5rem;
+  border-left: 2px solid var(--signal);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  background: var(--surface);
+  color: var(--foreground);
+  font-style: normal;
+}
+
+.tiptap-content blockquote p:last-child {
+  margin-bottom: 0;
 }
 
 /* ───────────────── Divider ───────────────── */
 .tiptap-content hr {
-  @apply my-10;
+  margin-block: 3rem;
   border: 0;
-  border-top: 1px solid var(--border);
+  border-top: 1px solid var(--line);
 }
 
-/* ───────────────── Code Block ───────────────── */
+/* ───────────────── Code — inline ───────────────── */
+.tiptap-content code {
+  @apply font-mono;
+  font-size: 0.875em;
+  padding: 0.1em 0.375em;
+  border-radius: calc(var(--radius) - 4px);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  color: var(--foreground);
+}
+
+/* ───────────────── Code — block ───────────────── */
 .tiptap-content pre {
-  @apply relative rounded-xl p-5 overflow-x-auto my-8 text-sm leading-7;
-  background: var(--card);
-  border: 1px solid var(--border);
+  @apply font-mono;
+  margin-block: 2rem;
+  padding: 1.25rem;
+  border-radius: var(--radius);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  color: var(--foreground);
+  font-size: 0.875rem;
+  line-height: 1.65;
+  max-width: 100%;
+  overflow-x: auto;
+  tab-size: 2;
 }
 
 .tiptap-content pre code {
-  @apply font-mono text-sm;
   background: transparent;
-  color: var(--card-foreground);
-  padding: 0;
   border: 0;
-}
-
-/* ───────────────── Inline Code ───────────────── */
-.tiptap-content code {
-  @apply font-mono text-sm px-2 py-0.5 rounded-md;
-  background: var(--muted);
-  color: var(--foreground);
-  border: 1px solid var(--border);
+  padding: 0;
+  font-size: inherit;
+  color: inherit;
+  white-space: pre;
 }
 
 /* ───────────────── Images ───────────────── */
 .tiptap-content img {
-  @apply rounded-xl max-w-full w-full my-8 object-cover;
-  border: 1px solid var(--border);
+  display: block;
+  width: 100%;
+  height: auto;
+  margin-block: 2rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
 }
 
-/* ───────────────── Tables ───────────────── */
+.tiptap-content figcaption {
+  @apply font-mono;
+  margin-top: -1rem;
+  margin-bottom: 2rem;
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+}
+
+/* ───────────────── Tables — scroll contained ───────────────── */
 .tiptap-content table {
-  @apply w-full border-collapse my-8 text-sm overflow-hidden rounded-lg;
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  margin-block: 2rem;
+  overflow-x: auto;
+  border-collapse: collapse;
+  font-size: 0.875rem;
 }
 
 .tiptap-content thead {
-  background: var(--muted);
+  background: var(--surface);
 }
 
 .tiptap-content th {
-  @apply font-semibold px-4 py-3 text-left;
-  color: var(--foreground);
-  border-bottom: 2px solid var(--border);
+  @apply font-mono font-semibold uppercase tracking-[0.12em];
+  font-size: 0.6875rem;
+  padding: 0.75rem 1rem;
+  text-align: left;
+  white-space: nowrap;
+  color: var(--muted-foreground);
+  border-bottom: 1px solid var(--line);
 }
 
 .tiptap-content td {
-  @apply px-4 py-3;
-  color: var(--muted-foreground);
-  border-bottom: 1px solid var(--border);
-}
-
-.tiptap-content tbody tr:hover {
-  background: var(--muted);
+  padding: 0.75rem 1rem;
+  color: var(--foreground);
+  border-bottom: 1px solid var(--line);
 }
 
 .tiptap-content tbody tr:last-child td {
-  border-bottom: none;
+  border-bottom: 0;
 }
 
-/* ───────────────── Content Spacing Fix ───────────────── */
+/* ───────────────── Wide break-out ─────────────────
+   Code, images and tables step outside the 68ch reading column once there is
+   room for it. The bleed stays inside the article shell at every width. */
+@media (min-width: 768px) {
+  .tiptap-content pre,
+  .tiptap-content table {
+    margin-inline: -2rem;
+  }
+
+  .tiptap-content img {
+    margin-inline: -2rem;
+    width: calc(100% + 4rem);
+    max-width: calc(100% + 4rem);
+  }
+}
+
+/* ───────────────── Edge spacing ───────────────── */
 .tiptap-content > *:first-child {
-  margin-top: 0 !important;
+  margin-top: 0;
 }
 
 .tiptap-content > *:last-child {
-  margin-bottom: 0 !important;
+  margin-bottom: 0;
 }

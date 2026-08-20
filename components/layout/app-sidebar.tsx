@@ -1,9 +1,11 @@
 'use client';
 
 import { INavItem, navItems } from '@/lib/nav-items';
-import { ChevronsUpDown, Settings, User } from 'lucide-react';
+import { useAuthContext } from '@/providers/auth-provider';
+import { ChevronsUpDown, Code2, Settings, User } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import LogoutButton from '../common/logoutButton';
 import { Avatar, AvatarFallback } from '../ui/avatar';
 import {
   DropdownMenu,
@@ -17,14 +19,13 @@ import {
   SidebarContent,
   SidebarFooter,
   SidebarGroup,
+  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
   useSidebar,
 } from '../ui/sidebar';
-import LogoutButton from '../common/logoutButton';
-import { useAuthContext } from '@/providers/auth-provider';
 
 // Build initials from a name, e.g. "Nahid Wadood" -> "NW". Falls back to "A".
 const getInitials = (name?: string) =>
@@ -39,28 +40,40 @@ const getInitials = (name?: string) =>
 
 const AppSidebar = () => {
   const pathname = usePathname();
-  const { isMobile } = useSidebar();
+  const { isMobile, setOpenMobile } = useSidebar();
   const { user } = useAuthContext();
 
   return (
     <Sidebar collapsible="icon">
-      {/* sidebar header */}
-      <SidebarHeader className="h-16 border-b px-4 flex flex-row items-center overflow-hidden">
-        <div className="flex items-center gap-3">
-          {/* Brand tile: emerald gradient */}
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-linear-to-br from-emerald-500 to-teal-600 text-white font-bold">
-            A
-          </div>
-          <span className="text-xl font-bold transition-all duration-300 ease-in-out group-data-[collapsible=icon]:opacity-0 group-data-[collapsible=icon]:w-0 group-data-[collapsible=icon]:invisible whitespace-nowrap">
-            Admin
+      {/* Wordmark: same mono logotype as the public header. Collapsed state
+          keeps the mark and drops the text, so the rail stays 4rem wide. */}
+      <SidebarHeader className="h-14 shrink-0 flex-row items-center overflow-hidden border-b border-line px-3 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0">
+        <Link
+          href="/"
+          aria-label="DevPlayground home"
+          className="flex items-center gap-2.5 rounded-md"
+        >
+          <span
+            aria-hidden="true"
+            className="flex size-7 shrink-0 items-center justify-center rounded-md border border-line bg-surface"
+          >
+            <Code2 className="size-4" />
           </span>
-        </div>
+          <span className="whitespace-nowrap font-mono text-sm font-semibold tracking-[-0.03em] group-data-[collapsible=icon]:hidden">
+            DevPlayground
+          </span>
+        </Link>
       </SidebarHeader>
 
-      {/* sidebar contents */}
+      {/* Nav — driven by lib/nav-items.ts */}
       <SidebarContent>
-        <SidebarGroup>
-          <SidebarMenu className="gap-2 mt-2">
+        <SidebarGroup className="px-2 py-3">
+          {/* Section heading names the real route this group maps to */}
+          <SidebarGroupLabel className="label-mono mb-1 h-6 px-2 text-[0.6875rem] text-muted-foreground">
+            /admin
+          </SidebarGroupLabel>
+
+          <SidebarMenu className="gap-0.5">
             {navItems?.map((item: INavItem) => {
               const Icon = item?.icon;
               const isActive = pathname.startsWith(item.href);
@@ -69,20 +82,28 @@ const AppSidebar = () => {
                   key={item?.href}
                   className="group-data-[collapsible=icon]:flex group-data-[collapsible=icon]:justify-center"
                 >
+                  {/* Active marker: a signal left-rule, not a filled pill */}
+                  {isActive && (
+                    <span
+                      aria-hidden="true"
+                      className="pointer-events-none absolute top-1/2 left-0 z-10 h-4 w-[2px] -translate-y-1/2 rounded-full bg-signal group-data-[collapsible=icon]:hidden"
+                    />
+                  )}
                   <SidebarMenuButton
                     asChild
                     isActive={isActive}
                     tooltip={item?.title}
+                    className="h-9 gap-2.5 rounded-md px-2.5 font-mono text-[0.8125rem] tracking-tight text-muted-foreground hover:bg-accent hover:text-foreground data-[active=true]:bg-accent data-[active=true]:font-medium data-[active=true]:text-foreground"
                   >
-                    {/* Active state uses theme tokens so it works in dark mode */}
                     <Link
                       href={item?.href}
-                      className="flex flex-1 items-center gap-3 h-10 px-3 transition-all duration-200 ease-linear rounded-lg data-[active=true]:bg-primary! data-[active=true]:text-primary-foreground!
-                      group-data-[collapsible=icon]:gap-0 group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:h-10!
-                      "
+                      onClick={() => isMobile && setOpenMobile(false)}
                     >
-                      <Icon className="size-5! shrink-0" />
-                      <span className="font-medium transition-all duration-300 ease-in-out group-data-[collapsible=icon]:opacity-0 group-data-[collapsible=icon]:w-0 group-data-[collapsible=icon]:invisible whitespace-nowrap">
+                      <Icon
+                        aria-hidden="true"
+                        className="size-4 shrink-0 text-muted-foreground"
+                      />
+                      <span className="group-data-[collapsible=icon]:hidden">
                         {item?.title}
                       </span>
                     </Link>
@@ -94,30 +115,33 @@ const AppSidebar = () => {
         </SidebarGroup>
       </SidebarContent>
 
-      {/* sidebar footer */}
-      <SidebarFooter>
+      {/* Signed-in account */}
+      <SidebarFooter className="border-t border-line p-2">
         <SidebarMenu>
-          <SidebarMenuItem className="">
+          <SidebarMenuItem className="group-data-[collapsible=icon]:flex group-data-[collapsible=icon]:justify-center">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <SidebarMenuButton
                   size="lg"
-                  className="group-data-[collapsible=icon]:h-12! group-data-[collapsible=icon]:w-12! group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:gap-0 group-data-[collapsible=icon]:pr-1!"
+                  className="h-12 gap-2.5 rounded-md px-2 hover:bg-accent data-[state=open]:bg-accent"
                 >
-                  <Avatar className="size-8 rounded-lg shrink-0">
-                    <AvatarFallback className="rounded-lg bg-primary/10 text-primary font-medium">
+                  <Avatar className="size-8 shrink-0 rounded-md border border-line">
+                    <AvatarFallback className="rounded-md bg-surface font-mono text-[0.6875rem] font-medium tracking-tight text-foreground">
                       {getInitials(user?.name)}
                     </AvatarFallback>
                   </Avatar>
-                  <div className="grid flex-1 text-left text-sm leading-tight transition-all duration-300 ease-in-out group-data-[collapsible=icon]:w-0 group-data-[collapsible=icon]:hidden group-data-[collapsible=icon]:invisible overflow-hidden">
-                    <span className="truncate font-medium">
-                      {user?.name || 'Admin User'}
+                  <div className="grid min-w-0 flex-1 text-left leading-tight group-data-[collapsible=icon]:hidden">
+                    <span className="truncate text-[0.8125rem] font-medium">
+                      {user?.name || 'Admin'}
                     </span>
-                    <span className="truncate text-xs text-muted-foreground">
-                      {user?.email || 'admin@example.com'}
+                    <span className="truncate font-mono text-[0.6875rem] text-muted-foreground">
+                      {user?.email || 'Not signed in'}
                     </span>
                   </div>
-                  <ChevronsUpDown className="ml-auto size-4 transition-all duration-300 ease-in-out group-data-[collapsible=icon]:w-0 group-data-[collapsible=icon]:hidden group-data-[collapsible=icon]:invisible" />
+                  <ChevronsUpDown
+                    aria-hidden="true"
+                    className="ml-auto size-3.5 shrink-0 text-muted-foreground group-data-[collapsible=icon]:hidden"
+                  />
                 </SidebarMenuButton>
               </DropdownMenuTrigger>
               <DropdownMenuContent
@@ -126,12 +150,21 @@ const AppSidebar = () => {
                 align="end"
                 sideOffset={4}
               >
-                <DropdownMenuItem>
-                  <User className="mr-2 h-4 w-4" />
+                <div className="grid gap-1 px-2 py-1.5">
+                  <p className="truncate text-sm leading-none font-medium">
+                    {user?.name || 'Admin'}
+                  </p>
+                  <p className="truncate font-mono text-[0.6875rem] leading-none text-muted-foreground">
+                    {user?.email || 'Not signed in'}
+                  </p>
+                </div>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem className="font-mono text-xs tracking-tight">
+                  <User aria-hidden="true" className="size-4" />
                   <span>Profile</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <Settings className="mr-2 h-4 w-4" />
+                <DropdownMenuItem className="font-mono text-xs tracking-tight">
+                  <Settings aria-hidden="true" className="size-4" />
                   <span>Settings</span>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />

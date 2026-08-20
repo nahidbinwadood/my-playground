@@ -42,7 +42,7 @@ const PhoneNumberInputWrapper = ({ index }: { index: number }) => {
                 remove(idx);
               }}
               disabled={fields.length == 1}
-              className="mt-5 p-2 w-fit disabled:text-gray-400 disabled:cursor-not-allowed"
+              className="mt-5 p-2 w-fit disabled:text-muted-foreground disabled:cursor-not-allowed"
             >
               <Trash size={18} />
             </Button>

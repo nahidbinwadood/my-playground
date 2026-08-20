@@ -1,8 +1,6 @@
 'use client';
 
-import StatsCard from '@/components/common/stats-card';
 import { IBlog } from '@/types';
-import { BarChart, Eye, FileText, LucideIcon, TrendingUp } from 'lucide-react';
 
 const AdminBlogsStatsContainer = ({ blogs }: { blogs: IBlog[] }) => {
   const stats = {
@@ -10,55 +8,42 @@ const AdminBlogsStatsContainer = ({ blogs }: { blogs: IBlog[] }) => {
     published: blogs.filter((b) => b.isPublished).length,
     drafts: blogs.filter((b) => !b.isPublished).length,
   };
-  const blogsStats: {
-    title: string;
-    value: number;
-    description: string;
-    icon: LucideIcon;
-    accent: 'emerald' | 'blue' | 'amber' | 'violet';
-  }[] = [
+
+  // Counts only — every number here is derived from the rows below it.
+  const blogsStats: { label: string; value: number; hint: string }[] = [
     {
-      title: 'Total Blogs',
+      label: 'All posts',
       value: stats.total,
-      description: 'All published and draft blogs',
-      icon: FileText,
-      accent: 'emerald',
+      hint: 'Drafts and published together',
     },
     {
-      title: 'Published',
+      label: 'Published',
       value: stats.published,
-      description: 'Live blogs',
-      icon: TrendingUp,
-      accent: 'blue',
+      hint: 'Readable at /blogs',
     },
     {
-      title: 'Drafts',
+      label: 'Drafts',
       value: stats.drafts,
-      description: 'Work in progress',
-      icon: BarChart,
-      accent: 'amber',
-    },
-    {
-      title: 'Total Views',
-      value: 0,
-      description: 'Combined views',
-      icon: Eye,
-      accent: 'violet',
+      hint: 'Not public yet',
     },
   ];
+
   return (
-    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+    <dl className="grid grid-cols-1 divide-y divide-line overflow-hidden rounded-lg border border-border bg-card sm:grid-cols-3 sm:divide-x sm:divide-y-0">
       {blogsStats?.map((item) => (
-        <StatsCard
-          key={item?.title}
-          title={item?.title}
-          value={item?.value}
-          description={item?.description}
-          accent={item?.accent}
-          icon={<item.icon className="h-5 w-5" />}
-        />
+        <div key={item?.label} className="px-5 py-4 sm:py-5">
+          <dt className="label-mono">{item?.label}</dt>
+          <dd className="mt-2">
+            <span className="block font-mono text-3xl font-semibold tracking-tight tabular-nums text-foreground">
+              {item?.value}
+            </span>
+            <span className="mt-1 block text-xs text-muted-foreground">
+              {item?.hint}
+            </span>
+          </dd>
+        </div>
       ))}
-    </div>
+    </dl>
   );
 };
 

@@ -72,7 +72,7 @@ const FieldArrayForm = ({
                       remove(index);
                     }}
                     disabled={contactFields.length == 1}
-                    className="p-2 disabled:text-gray-400 disabled:cursor-not-allowed"
+                    className="p-2 disabled:text-muted-foreground disabled:cursor-not-allowed"
                   >
                     <Trash size={18} />
                   </Button>

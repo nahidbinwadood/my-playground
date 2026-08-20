@@ -6,7 +6,6 @@ import {
   getSortedRowModel,
   useReactTable,
   type Cell,
-  type ColumnDef,
   type Row,
   type SortingState,
   type VisibilityState,
@@ -30,7 +29,7 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 
-import { Skeleton } from "../ui/skeleton";
+import { Skeleton } from '../ui/skeleton';
 import {
   TableBody,
   TableCell,
@@ -40,9 +39,10 @@ import {
   Table as UITable,
 } from '../ui/table';
 import { CSS } from '@dnd-kit/utilities';
-import { Ellipsis, MoveUpRight } from 'lucide-react';
+import { Ellipsis, Inbox, MoveUpRight } from 'lucide-react';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
+import { cn } from '@/lib/utils';
 import { Card, CardContent } from '../ui/card';
 import { Dialog, DialogContent, DialogTitle } from '../ui/dialog';
 import {
@@ -50,22 +50,30 @@ import {
   FlexibleDataTableProps,
   SortableRowProps,
 } from './data-table-types';
- 
 
 import Toolbar from './toolbar';
 import { DataTablePagination } from './data-table-pagination';
 import { DataTableViewOptions } from './data-table-view-options';
 import Link from 'next/link';
 
+/** Shared cell rhythm: generous padding so rows read as data, not as chips. */
+const CELL_CLASS = 'px-4 py-3.5 align-middle text-sm';
+/** Hairlines do the separating — no shadows, no zebra striping. */
+const ROW_CLASS = 'border-b border-line last:border-0 hover:bg-accent/50';
+
 function DragHandle({ listeners, attributes }: DragHandleProps) {
   return (
     <div
-      className="flex h-full w-full cursor-grab items-center justify-center bg-transparent min-w-20"
+      className="flex h-full w-full min-w-10 cursor-grab items-center justify-center bg-transparent"
       {...listeners}
       {...attributes}
     >
-      <button type="button" className="cursor-pointer p-2">
-        <Ellipsis />
+      <button
+        type="button"
+        aria-label="Reorder row"
+        className="cursor-grab rounded-md p-2 text-muted-foreground transition-colors hover:text-foreground"
+      >
+        <Ellipsis className="h-4 w-4" aria-hidden="true" />
       </button>
     </div>
   );
@@ -98,13 +106,13 @@ const SortableRow = React.memo(function SortableRow<TData>({
         (isDragging && 'dragging') ||
         undefined
       }
-      className={isDragging ? 'bg-muted' : ''}
+      className={cn(ROW_CLASS, isDragging && 'bg-surface')}
     >
-      <TableCell className="w-4 p-0 text-gray-400">
+      <TableCell className="w-4 p-0 text-muted-foreground">
         <DragHandle listeners={listeners} attributes={attributes} />
       </TableCell>
       {row.getVisibleCells().map((cell: Cell<TData, unknown>) => (
-        <TableCell key={cell.id}>
+        <TableCell key={cell.id} className={CELL_CLASS}>
           {flexRender(cell.column.columnDef.cell, cell.getContext())}
         </TableCell>
       ))}
@@ -118,14 +126,18 @@ const DragOverlayRow = React.memo(function DragOverlayRow<TData>({
   row: Row<TData>;
 }) {
   return (
-    <TableRow className="border bg-background shadow-md">
-      <TableCell className="w-4">
-        <button type="button" className="cursor-pointer p-2">
-          <Ellipsis />
+    <TableRow className="rounded-lg border border-line bg-card">
+      <TableCell className="w-4 text-muted-foreground">
+        <button
+          type="button"
+          aria-label="Reorder row"
+          className="cursor-grabbing p-2"
+        >
+          <Ellipsis className="h-4 w-4" aria-hidden="true" />
         </button>
       </TableCell>
       {row.getVisibleCells().map((cell: Cell<TData, unknown>) => (
-        <TableCell key={cell.id}>
+        <TableCell key={cell.id} className={CELL_CLASS}>
           {flexRender(cell.column.columnDef.cell, cell.getContext())}
         </TableCell>
       ))}
@@ -273,42 +285,76 @@ export function DataTable<TData, TValue = unknown>({
     [currentRows, data, dragEnd]
   );
 
+  // Header row sits on the recessed surface with a hairline rule beneath it.
   const tableHeader = (
-    <TableHeader className="bg-muted border-none">
+    <TableHeader className="bg-surface">
       {table.getHeaderGroups().map((headerGroup) => (
-        <TableRow key={headerGroup.id}>
+        <TableRow
+          key={headerGroup.id}
+          className="border-line hover:bg-transparent"
+        >
           {enableRowOrdering && <TableHead className="w-4" />}
-          {headerGroup.headers.map((header) => (
-            <TableHead
-              key={header.id}
-              className="px-2 py-3 sm:px-4 sm:py-4 text-foreground font-semibold"
-            >
-              {header.isPlaceholder
-                ? null
-                : flexRender(
-                    header.column.columnDef.header,
-                    header.getContext()
-                  )}
-            </TableHead>
-          ))}
+          {headerGroup.headers.map((header) => {
+            const sorted = header.column.getIsSorted();
+            return (
+              <TableHead
+                key={header.id}
+                aria-sort={
+                  header.column.getCanSort()
+                    ? sorted === 'asc'
+                      ? 'ascending'
+                      : sorted === 'desc'
+                        ? 'descending'
+                        : 'none'
+                    : undefined
+                }
+                className="label-mono h-auto px-4 py-3 whitespace-nowrap text-muted-foreground"
+              >
+                {header.isPlaceholder
+                  ? null
+                  : flexRender(
+                      header.column.columnDef.header,
+                      header.getContext()
+                    )}
+              </TableHead>
+            );
+          })}
         </TableRow>
       ))}
     </TableHeader>
   );
 
+  // Skeleton mirrors the real row: checkbox, two-line title, data cells, actions.
   const renderSkeletonRows = () => {
-    const skeletonRows = Array.from({ length: 5 });
+    const columnCount = columns?.length ?? 0;
 
-    return skeletonRows.map((_, rowIndex) => (
-      <TableRow key={rowIndex}>
+    return Array.from({ length: 5 }).map((_, rowIndex) => (
+      <TableRow
+        key={rowIndex}
+        className="border-b border-line last:border-0 hover:bg-transparent"
+      >
         {enableRowOrdering && (
-          <TableCell className="w-4">
-            <Skeleton className="h-10 w-5" />
+          <TableCell className="w-4 px-4 py-3.5">
+            <Skeleton className="h-4 w-4" />
           </TableCell>
         )}
-        {columns.map((column: ColumnDef<TData, TValue>, colIndex: number) => (
-          <TableCell key={colIndex}>
-            <Skeleton className="h-10 w-full" />
+        {Array.from({ length: columnCount }).map((__, colIndex) => (
+          <TableCell key={colIndex} className={CELL_CLASS}>
+            {colIndex === 0 ? (
+              <Skeleton className="h-4 w-4 rounded-sm" />
+            ) : colIndex === 1 ? (
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-48" />
+                <Skeleton className="h-3 w-28" />
+              </div>
+            ) : colIndex === columnCount - 1 ? (
+              <div className="flex justify-end gap-1.5">
+                <Skeleton className="h-8 w-8" />
+                <Skeleton className="h-8 w-8" />
+              </div>
+            ) : (
+              <Skeleton className="h-4 w-24" />
+            )}
           </TableCell>
         ))}
       </TableRow>
@@ -316,31 +362,46 @@ export function DataTable<TData, TValue = unknown>({
   };
 
   const emptyTableBody = (
-    <TableRow>
+    <TableRow className="hover:bg-transparent">
       <TableCell
         colSpan={columns?.length + (enableRowOrdering ? 1 : 0)}
-        className="h-24 text-center"
+        className="px-4 py-14 text-center whitespace-normal"
       >
-        {emptyMessage}
+        <div className="flex flex-col items-center gap-3">
+          <span
+            aria-hidden="true"
+            className="flex h-10 w-10 items-center justify-center rounded-md border border-line bg-surface text-muted-foreground"
+          >
+            <Inbox className="h-4 w-4" />
+          </span>
+          <p className="font-mono text-sm tracking-tight text-foreground">
+            {emptyMessage}
+          </p>
+        </div>
       </TableCell>
     </TableRow>
   );
 
   return (
     <>
-      <Card className={` ${hideDefaultClassname && 'shadow-none border-none'}`}>
-        <CardContent className='p-2 lg:p-6'>
+      <Card
+        className={cn(
+          'gap-0 overflow-hidden rounded-lg border-border bg-card py-0 shadow-none',
+          hideDefaultClassname && 'border-none'
+        )}
+      >
+        <CardContent className="p-3 lg:p-6">
           <div className="space-y-3 sm:space-y-4">
             {customHeader ? (
-              <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
+              <div className="flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
                 <div className="w-full sm:max-w-[50%]">
                   {tableTitle && (
-                    <h1 className="text-lg sm:text-xl font-semibold text-foreground">
+                    <h2 className="font-mono text-base font-semibold tracking-tight text-foreground sm:text-lg">
                       {tableTitle}
-                    </h1>
+                    </h2>
                   )}
                   {tableDescription && (
-                    <p className="text-sm text-muted-foreground mt-1">
+                    <p className="mt-1 text-sm text-muted-foreground">
                       {tableDescription}
                     </p>
                   )}
@@ -349,36 +410,37 @@ export function DataTable<TData, TValue = unknown>({
                 {href && (
                   <Link
                     href={href}
-                    className="border rounded-full p-1.5 sm:p-2 ml-auto sm:ml-0"
+                    aria-label="Open the full table"
+                    className="ml-auto rounded-md border border-line p-2 text-muted-foreground transition-colors hover:border-border hover:text-foreground sm:ml-0"
                   >
-                    <MoveUpRight className="h-5 w-5 sm:h-6 sm:w-6 text-foreground" />
+                    <MoveUpRight className="h-4 w-4" aria-hidden="true" />
                   </Link>
                 )}
               </div>
             ) : (
-              <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
+              <div className="flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
                 <div className="w-full sm:w-auto sm:max-w-[50%]">
                   {tableTitle && (
-                    <h1 className="text-lg sm:text-xl font-semibold text-foreground">
+                    <h2 className="font-mono text-base font-semibold tracking-tight text-foreground sm:text-lg">
                       {tableTitle}
-                    </h1>
+                    </h2>
                   )}
                   {tableDescription && (
-                    <p className="text-sm text-muted-foreground mt-1">
+                    <p className="mt-1 text-sm text-muted-foreground">
                       {tableDescription}
                     </p>
                   )}
                   {tableHeaderRenderProps && tableHeaderRenderProps}
                 </div>
 
-                <div className="flex flex-wrap items-center overflow-hidden gap-2 sm:gap-3">
+                <div className="flex flex-wrap items-center gap-2 overflow-hidden sm:gap-3">
                   {toolbar && (
-                    <div className="flex-1  ">
+                    <div className="flex-1">
                       <Toolbar
                         table={table}
                         config={toolbar}
                         onParamsChange={onParamsChange}
-                        tabbarClass="flex-1  min-w-[300px] overflow-hidden"
+                        tabbarClass="flex-1 min-w-[300px] overflow-hidden"
                       />
                     </div>
                   )}
@@ -389,10 +451,12 @@ export function DataTable<TData, TValue = unknown>({
                   )}
                   {isEnableTablePopup && (
                     <button
+                      type="button"
                       onClick={() => setModalOpen(true)}
-                      className="border rounded-full p-1.5 sm:p-2"
+                      aria-label="Open the table in a larger view"
+                      className="rounded-md border border-line p-2 text-muted-foreground transition-colors hover:border-border hover:text-foreground"
                     >
-                      <MoveUpRight className="h-5 w-5 sm:h-6 sm:w-6 text-foreground" />
+                      <MoveUpRight className="h-4 w-4" aria-hidden="true" />
                     </button>
                   )}
                 </div>
@@ -401,16 +465,19 @@ export function DataTable<TData, TValue = unknown>({
 
             {loading ? (
               <div className="space-y-3 sm:space-y-4">
-                <div className="flex gap-2 sm:gap-3 items-center justify-end">
+                <div className="flex items-center justify-end gap-2 sm:gap-3">
                   {isViewOption && (
                     <div className="hidden sm:block">
                       <DataTableViewOptions table={table} />
                     </div>
                   )}
                 </div>
-                <div className="rounded-md border overflow-hidden">
+                <div
+                  aria-busy="true"
+                  className="overflow-hidden rounded-lg border border-line"
+                >
                   <div className="overflow-x-auto">
-                    <UITable>
+                    <UITable className="min-w-full">
                       {tableHeader}
                       <TableBody>{renderSkeletonRows()}</TableBody>
                     </UITable>
@@ -418,7 +485,7 @@ export function DataTable<TData, TValue = unknown>({
                 </div>
               </div>
             ) : (
-              <div className="rounded-md border overflow-hidden">
+              <div className="overflow-hidden rounded-lg border border-line">
                 <div className="overflow-x-auto">
                   {enableRowOrdering ? (
                     <DndContext
@@ -450,7 +517,7 @@ export function DataTable<TData, TValue = unknown>({
                       </UITable>
                       <DragOverlay>
                         {activeRow ? (
-                          <div className="table-wrapper overflow-x-auto">
+                          <div className="table-wrapper overflow-x-auto rounded-lg border border-line bg-card">
                             <table className="w-full min-w-full">
                               <tbody>
                                 <DragOverlayRow row={activeRow} />
@@ -463,21 +530,21 @@ export function DataTable<TData, TValue = unknown>({
                   ) : (
                     <UITable className="min-w-full">
                       {tableHeader}
-                      <TableBody className="border-t-none">
+                      <TableBody>
                         {currentRows?.length === 0
                           ? emptyTableBody
                           : currentRows.map((row) => (
                               <TableRow
                                 key={row.id}
                                 data-state={row.getIsSelected() && 'selected'}
-                                className="border-none"
+                                className={ROW_CLASS}
                               >
                                 {row
                                   .getVisibleCells()
                                   .map((cell: Cell<TData, unknown>) => (
                                     <TableCell
                                       key={cell.id}
-                                      className="px-2 py-3 sm:px-4 sm:py-4 text-sm"
+                                      className={CELL_CLASS}
                                     >
                                       {flexRender(
                                         cell.column.columnDef.cell,
@@ -503,62 +570,76 @@ export function DataTable<TData, TValue = unknown>({
         </CardContent>
       </Card>
 
-      {/* Modal component */}
+      {/* Expanded view of the same table */}
       <Dialog open={isModalOpen} onOpenChange={setModalOpen}>
-        <DialogContent className="sm:max-w-[85%] max-h-[90vh] overflow-y-scroll hide-scroll">
-          <DialogTitle className='hidden' />
-          <div className="o  max-h-[calc(90vh-120px)]">
-            <div className="space-y-4 p-4">
-              {/* Modal content similar to main table */}
-              <div className="flex gap-3 items-center justify-end">
-                <div className="max-w-4/12">
+        <DialogContent className="hide-scrollbar max-h-[90vh] overflow-y-auto sm:max-w-[85%]">
+          <DialogTitle className="sr-only">
+            {tableTitle || 'Table view'}
+          </DialogTitle>
+          <div className="max-h-[calc(90vh-120px)]">
+            <div className="space-y-4">
+              <div className="flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
+                <div className="w-full sm:max-w-[50%]">
                   {tableTitle && (
-                    <h1 className="text-xl font-semibold text-foreground">
+                    <h2 className="font-mono text-base font-semibold tracking-tight text-foreground sm:text-lg">
                       {tableTitle}
-                    </h1>
+                    </h2>
                   )}
-                  {tableDescription && <p>{tableDescription}</p>}
+                  {tableDescription && (
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      {tableDescription}
+                    </p>
+                  )}
                   {tableHeaderRenderProps && tableHeaderRenderProps}
                 </div>
-                {toolbar && (
-                  <Toolbar
-                    table={table}
-                    config={toolbar}
-                    onParamsChange={onParamsChange}
-                    tabbarClass="flex-1"
-                  />
-                )}
-                {isViewOption && <DataTableViewOptions table={table} />}
+                <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                  {toolbar && (
+                    <Toolbar
+                      table={table}
+                      config={toolbar}
+                      onParamsChange={onParamsChange}
+                      tabbarClass="flex-1"
+                    />
+                  )}
+                  {isViewOption && <DataTableViewOptions table={table} />}
+                </div>
               </div>
-              <div className="rounded-md border overflow-hidden">
-                <UITable>
-                  {tableHeader}
-                  <TableBody>
-                    {currentRows?.length === 0
-                      ? emptyTableBody
-                      : currentRows.map((row) => (
-                          <TableRow
-                            key={row.id}
-                            data-state={row.getIsSelected() && 'selected'}
-                            className="border-none"
-                          >
-                            {row
-                              .getVisibleCells()
-                              .map((cell: Cell<TData, unknown>) => (
-                                <TableCell key={cell.id}>
-                                  {flexRender(
-                                    cell.column.columnDef.cell,
-                                    cell.getContext()
-                                  )}
-                                </TableCell>
-                              ))}
-                          </TableRow>
-                        ))}
-                  </TableBody>
-                </UITable>
+              <div className="overflow-hidden rounded-lg border border-line">
+                <div className="overflow-x-auto">
+                  <UITable className="min-w-full">
+                    {tableHeader}
+                    <TableBody>
+                      {currentRows?.length === 0
+                        ? emptyTableBody
+                        : currentRows.map((row) => (
+                            <TableRow
+                              key={row.id}
+                              data-state={row.getIsSelected() && 'selected'}
+                              className={ROW_CLASS}
+                            >
+                              {row
+                                .getVisibleCells()
+                                .map((cell: Cell<TData, unknown>) => (
+                                  <TableCell
+                                    key={cell.id}
+                                    className={CELL_CLASS}
+                                  >
+                                    {flexRender(
+                                      cell.column.columnDef.cell,
+                                      cell.getContext()
+                                    )}
+                                  </TableCell>
+                                ))}
+                            </TableRow>
+                          ))}
+                    </TableBody>
+                  </UITable>
+                </div>
               </div>
               {!hidePaginationInModal && (
-                <DataTablePagination table={table} totalItems={totalRows} />
+                <div className="overflow-x-auto">
+                  <DataTablePagination table={table} totalItems={totalRows} />
+                </div>
               )}
             </div>
           </div>

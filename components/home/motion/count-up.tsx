@@ -28,10 +28,18 @@ export function CountUp({
     return () => controls.stop();
   }, [inView, value, duration]);
 
+  // The ticking figure is decorative once the real value is exposed to
+  // assistive tech — that also keeps the number correct before JS runs.
   return (
     <span ref={ref}>
-      {display}
-      {suffix}
+      <span aria-hidden="true">
+        {display}
+        {suffix}
+      </span>
+      <span className="sr-only">
+        {value}
+        {suffix}
+      </span>
     </span>
   );
 }

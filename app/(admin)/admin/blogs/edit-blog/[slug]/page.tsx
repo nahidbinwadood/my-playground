@@ -1,7 +1,7 @@
-import { Fragment } from 'react';
-import EditBlogMainWrapper from './_components/edit-blog-main-wrapper';
 import { singleBlogAction } from '@/actions/blog.action';
+import EditBlogMainWrapper from './_components/edit-blog-main-wrapper';
 
+// Thin route shell: fetch the post, hand it to the wrapper.
 const UpdateBlogPage = async ({
   params,
 }: {
@@ -10,11 +10,7 @@ const UpdateBlogPage = async ({
   const { slug } = await params;
   const response = await singleBlogAction(slug);
 
-  return (
-    <Fragment>
-      <EditBlogMainWrapper blogData={response?.data} />
-    </Fragment>
-  );
+  return <EditBlogMainWrapper blogData={response?.data} />;
 };
 
 export default UpdateBlogPage;

@@ -11,42 +11,60 @@ const formatDate = (value: string) =>
     day: 'numeric',
   });
 
-// Latest post — editorial split: image left, content right.
+// Rough reading time: strip HTML tags, count words, ~200 wpm.
+const readingTime = (html?: string) => {
+  const words = (html ?? '')
+    .replace(/<[^>]+>/g, ' ')
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean).length;
+  return Math.max(1, Math.round(words / 200));
+};
+
+// Latest post — same card vocabulary at larger scale: image left, content
+// right on lg, stacked below. One link, nothing interactive nested inside.
 const FeaturedBlogCard = ({ blog }: { blog: IBlog }) => {
   return (
-    <Link href={`/blogs/${blog.slug}`} className="group block">
-      <article className="grid overflow-hidden rounded-2xl border bg-card transition-colors hover:border-emerald-500/40 md:grid-cols-2">
-        <div className="relative aspect-video overflow-hidden md:aspect-auto md:min-h-80">
+    <Link href={`/blogs/${blog.slug}`} className="group block rounded-lg">
+      <article className="grid overflow-hidden rounded-lg border border-border bg-card transition-[border-color,translate] duration-300 ease-out group-hover:-translate-y-0.5 group-hover:border-signal/40 lg:grid-cols-2">
+        <div className="relative aspect-[16/10] overflow-hidden border-b border-line lg:aspect-auto lg:min-h-96 lg:border-r lg:border-b-0">
           <ImageWithLoader
             src={blog.coverImage}
-            alt={blog.title}
+            alt={`Cover image for ${blog.title}`}
             fill
             priority
-            className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+            sizes="(max-width: 1024px) 100vw, 50vw"
+            className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03]"
           />
         </div>
 
-        <div className="flex flex-col justify-center p-6 sm:p-10">
-          <div className="mb-4 flex items-center gap-3 font-mono text-xs text-muted-foreground">
-            <span className="rounded-full border border-emerald-500/30 bg-emerald-500/5 px-2.5 py-0.5 text-emerald-600 dark:text-emerald-400">
-              Latest
-            </span>
+        <div className="flex flex-col justify-center gap-4 p-5 sm:p-8 lg:p-10">
+          <div className="flex items-center gap-3">
+            <span className="label-mono">Featured</span>
+            <span aria-hidden="true" className="h-px flex-1 bg-line" />
             <BlogTypeLabel type={blog.type} />
-            <span>{formatDate(blog.createdAt)}</span>
           </div>
 
-          <h2 className="text-2xl font-bold leading-snug tracking-tight transition-colors group-hover:text-emerald-600 dark:group-hover:text-emerald-400 sm:text-3xl">
+          <h2 className="text-xl font-semibold leading-snug tracking-[-0.02em] break-words sm:text-2xl lg:text-[1.75rem]">
             {blog.title}
           </h2>
 
-          <p className="mt-4 line-clamp-3 leading-relaxed text-muted-foreground">
+          <p className="line-clamp-3 text-sm leading-relaxed text-muted-foreground sm:text-base">
             {blog.excerpt}
           </p>
 
-          <span className="mt-6 inline-flex items-center gap-2 text-sm font-medium text-emerald-600 dark:text-emerald-400">
-            Read post
-            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-          </span>
+          <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-2 border-t border-line pt-4 font-mono text-xs tabular-nums text-muted-foreground">
+            <time dateTime={blog.createdAt}>{formatDate(blog.createdAt)}</time>
+            <span aria-hidden="true">/</span>
+            <span>{readingTime(blog.content)} min read</span>
+            <span className="ml-auto inline-flex items-center gap-1.5 text-foreground">
+              Read post
+              <ArrowRight
+                aria-hidden="true"
+                className="h-3.5 w-3.5 transition-transform duration-300 ease-out group-hover:translate-x-0.5"
+              />
+            </span>
+          </div>
         </div>
       </article>
     </Link>

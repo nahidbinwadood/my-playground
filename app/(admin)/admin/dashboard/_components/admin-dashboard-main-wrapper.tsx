@@ -1,19 +1,63 @@
 import PageHeader from '@/components/common/page-header';
 import blogs from '../../../../(homepage)/blogs/data/blogs.json';
-import { BarChart, Clock, Eye, FileText, LucideIcon, TrendingUp } from 'lucide-react';
+import { Clock, Eye, FileText, LucideIcon, Plus, TrendingUp } from 'lucide-react';
 import StatsCard from '@/components/common/stats-card';
 import StatusPill from '@/components/common/status-pill';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 
-type Accent = 'emerald' | 'blue' | 'amber' | 'violet';
+// Hairline panel with a mono header strip naming what the panel shows.
+// Local to the dashboard — the shell is the same for every region below the KPIs.
+const Panel = ({
+  label,
+  meta,
+  className,
+  children,
+}: {
+  label: string;
+  meta?: string;
+  className?: string;
+  children: React.ReactNode;
+}) => (
+  <section
+    className={cn(
+      'flex flex-col overflow-hidden rounded-lg border border-border bg-card',
+      className
+    )}
+  >
+    <header className="flex items-center justify-between gap-3 border-b border-line bg-muted/40 px-4 py-2.5">
+      <h2 className="font-mono text-[0.6875rem] uppercase tracking-[0.18em] text-foreground">
+        {label}
+      </h2>
+      {meta && (
+        <span className="font-mono text-[0.6875rem] uppercase tracking-[0.18em] tabular-nums text-muted-foreground">
+          {meta}
+        </span>
+      )}
+    </header>
+    <div className="flex-1 p-2 sm:p-3">{children}</div>
+  </section>
+);
+
+// Empty regions state what to do next rather than just reporting nothing.
+const EmptyRegion = ({ title, hint }: { title: string; hint: string }) => (
+  <div className="flex h-full flex-col items-center justify-center gap-2 px-4 py-10 text-center">
+    <p className="font-mono text-xs uppercase tracking-[0.14em] text-muted-foreground">
+      {title}
+    </p>
+    <p className="max-w-xs text-sm text-muted-foreground">{hint}</p>
+    <Link
+      href="/admin/blogs/create-blog"
+      className="mt-1 text-sm font-medium text-foreground underline underline-offset-4 hover:text-muted-foreground"
+    >
+      Write a post
+    </Link>
+  </div>
+);
+
+// ISO date, not a locale string: this is a datasheet and the value must be stable.
+const formatDate = (value: string) => new Date(value).toISOString().slice(0, 10);
 
 const AdminDashboardMainWrapper = () => {
   const stats = {
@@ -23,41 +67,35 @@ const AdminDashboardMainWrapper = () => {
     draftBlogs: blogs.filter((b) => b.status === 'draft').length,
   };
 
-  // Each stat card gets its own accent color for a colorful analytics feel.
   const dashboardStats: {
     title: string;
     value: number;
     description: string;
     icon: LucideIcon;
-    accent: Accent;
   }[] = [
     {
-      title: 'Total Blogs',
+      title: 'Posts',
       value: stats.totalBlogs,
-      description: 'All published and draft blogs',
+      description: 'Drafts and published',
       icon: FileText,
-      accent: 'emerald',
     },
     {
       title: 'Published',
       value: stats.publishedBlogs,
-      description: 'Live blogs',
+      description: 'Live on /blogs',
       icon: TrendingUp,
-      accent: 'blue',
     },
     {
       title: 'Drafts',
       value: stats.draftBlogs,
-      description: 'Work in progress',
-      icon: BarChart,
-      accent: 'amber',
+      description: 'Not published yet',
+      icon: Clock,
     },
     {
-      title: 'Total Views',
+      title: 'Views',
       value: stats.totalViews,
-      description: 'Combined views',
+      description: 'Across all posts',
       icon: Eye,
-      accent: 'violet',
     },
   ];
 
@@ -70,110 +108,184 @@ const AdminDashboardMainWrapper = () => {
 
   const topBlogs = [...blogs].sort((a, b) => b.viewCount - a.viewCount).slice(0, 5);
 
-  return (
-    <section className="space-y-6">
-      {/* Page header */}
-      <PageHeader
-        title="Dashboard"
-        subtitle="Welcome to your admin dashboard. Manage your blog content and view analytics."
-        className="mb-0"
-      />
+  const draftBlogs = blogs.filter((b) => b.status === 'draft');
 
-      {/* Stats cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+  // Views summed per category — read off the same seed data as the counters above.
+  const viewsByCategory = Object.entries(
+    blogs.reduce<Record<string, number>>((acc, blog) => {
+      acc[blog.category] = (acc[blog.category] ?? 0) + blog.viewCount;
+      return acc;
+    }, {})
+  )
+    .map(([category, views]) => ({ category, views }))
+    .sort((a, b) => b.views - a.views);
+
+  const peakCategoryViews = Math.max(1, ...viewsByCategory.map((c) => c.views));
+
+  return (
+    <section className="space-y-8">
+      {/* Header row: route label + title on the left, the one primary action on the right */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p className="label-mono mb-2">/admin/dashboard</p>
+          <PageHeader
+            title="Content overview"
+            subtitle="What is published, what is still a draft, and what gets read."
+            className="mb-0"
+          />
+        </div>
+        <Button className="w-full gap-2 sm:w-auto" asChild>
+          <Link href="/admin/blogs/create-blog">
+            <Plus className="h-4 w-4" aria-hidden="true" />
+            New post
+          </Link>
+        </Button>
+      </div>
+
+      {/* Counters */}
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {dashboardStats.map((item) => (
           <StatsCard
             key={item.title}
             title={item.title}
             value={item.value}
             description={item.description}
-            accent={item.accent}
-            icon={<item.icon className="h-5 w-5" />}
+            icon={<item.icon className="h-5 w-5" aria-hidden="true" />}
           />
         ))}
       </div>
 
-      {/* Recent + Top blogs */}
-      <div className="grid gap-4 md:grid-cols-2">
-        {/* Recent blogs */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Clock className="h-4 w-4 text-muted-foreground" />
-              Recent Blogs
-            </CardTitle>
-            <CardDescription>Latest published blogs</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-1">
-            {recentBlogs.length > 0 ? (
-              <>
-                {recentBlogs.map((blog) => (
-                  <div
-                    key={blog.id}
-                    className="flex items-center justify-between gap-3 rounded-lg px-2 py-2.5 transition-colors hover:bg-muted/50"
-                  >
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-medium">
-                        {blog.title}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {new Date(blog.createdAt).toLocaleDateString()}
-                      </p>
-                    </div>
-                    <StatusPill status={blog.status} />
+      {/* Panels */}
+      <div className="grid gap-4 lg:grid-cols-2">
+        <Panel
+          label="Recently created"
+          meta={`${recentBlogs.length} of ${stats.totalBlogs}`}
+        >
+          {recentBlogs.length > 0 ? (
+            <ul className="divide-y divide-line">
+              {recentBlogs.map((blog) => (
+                <li
+                  key={blog.id}
+                  className="flex items-center justify-between gap-3 px-2 py-3"
+                >
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-medium">{blog.title}</p>
+                    <p className="mt-1 font-mono text-xs tabular-nums text-muted-foreground">
+                      <time dateTime={blog.createdAt}>
+                        {formatDate(blog.createdAt)}
+                      </time>
+                      <span aria-hidden="true"> · </span>
+                      {blog.category}
+                    </p>
                   </div>
-                ))}
-                <Button variant="outline" className="mt-3 w-full" asChild>
-                  <Link href="/admin/blogs">View All</Link>
-                </Button>
-              </>
-            ) : (
-              <p className="text-sm text-muted-foreground">No blogs yet</p>
-            )}
-          </CardContent>
-        </Card>
+                  <StatusPill status={blog.status} className="shrink-0" />
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <EmptyRegion
+              title="No posts"
+              hint="Nothing has been created yet. Write the first post and it lands here."
+            />
+          )}
+        </Panel>
 
-        {/* Top blogs by views */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <TrendingUp className="h-4 w-4 text-muted-foreground" />
-              Top Blogs
-            </CardTitle>
-            <CardDescription>Most viewed blogs</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-1">
-            {topBlogs.length > 0 ? (
-              <>
-                {topBlogs.map((blog, i) => (
-                  <div
-                    key={blog.id}
-                    className="flex items-center justify-between gap-3 rounded-lg px-2 py-2.5 transition-colors hover:bg-muted/50"
+        <Panel label="Most read" meta="Views">
+          {topBlogs.length > 0 ? (
+            <ul className="divide-y divide-line">
+              {topBlogs.map((blog, i) => (
+                <li key={blog.id} className="flex items-center gap-3 px-2 py-3">
+                  <span
+                    aria-hidden="true"
+                    className="flex h-6 w-6 shrink-0 items-center justify-center rounded border border-line bg-surface font-mono text-[0.6875rem] tabular-nums text-muted-foreground"
                   >
-                    <div className="flex min-w-0 flex-1 items-center gap-3">
-                      {/* Rank badge */}
-                      <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary">
-                        {i + 1}
-                      </span>
-                      <p className="truncate text-sm font-medium">
-                        {blog.title}
-                      </p>
-                    </div>
-                    <span className="flex shrink-0 items-center gap-1 text-xs text-muted-foreground">
-                      <Eye className="h-3.5 w-3.5" />
-                      {blog.viewCount}
-                    </span>
+                    {i + 1}
+                  </span>
+                  <p className="min-w-0 flex-1 truncate text-sm font-medium">
+                    {blog.title}
+                  </p>
+                  <span className="shrink-0 font-mono text-xs tabular-nums text-muted-foreground">
+                    {blog.viewCount}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <EmptyRegion
+              title="No reads"
+              hint="View counts appear once a post is published and opened."
+            />
+          )}
+        </Panel>
+
+        <Panel label="Views by category" meta={`${viewsByCategory.length} groups`}>
+          {viewsByCategory.length > 0 ? (
+            <dl className="space-y-4 px-2 py-2">
+              {viewsByCategory.map((row) => (
+                <div key={row.category}>
+                  <div className="flex items-baseline justify-between gap-3">
+                    <dt className="truncate font-mono text-xs uppercase tracking-[0.14em]">
+                      {row.category}
+                    </dt>
+                    <dd className="shrink-0 font-mono text-xs tabular-nums text-muted-foreground">
+                      {row.views} views
+                    </dd>
                   </div>
-                ))}
-                <Button variant="outline" className="mt-3 w-full" asChild>
-                  <Link href="/admin/blogs">View All</Link>
-                </Button>
-              </>
-            ) : (
-              <p className="text-sm text-muted-foreground">No blogs yet</p>
-            )}
-          </CardContent>
-        </Card>
+                  {/* Bar repeats the number beside it, so it stays decorative. */}
+                  <div
+                    aria-hidden="true"
+                    className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-muted"
+                  >
+                    <div
+                      className="h-full rounded-full bg-chart-5"
+                      style={{
+                        width: `${Math.max(
+                          4,
+                          Math.round((row.views / peakCategoryViews) * 100)
+                        )}%`,
+                      }}
+                    />
+                  </div>
+                </div>
+              ))}
+            </dl>
+          ) : (
+            <EmptyRegion
+              title="No categories"
+              hint="Categories appear once a post is filed under one."
+            />
+          )}
+        </Panel>
+
+        <Panel label="Drafts" meta={`${draftBlogs.length} waiting`}>
+          {draftBlogs.length > 0 ? (
+            <ul className="divide-y divide-line">
+              {draftBlogs.map((blog) => (
+                <li
+                  key={blog.id}
+                  className="flex items-center justify-between gap-3 px-2 py-3"
+                >
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-medium">{blog.title}</p>
+                    <p className="mt-1 font-mono text-xs tabular-nums text-muted-foreground">
+                      <time dateTime={blog.updatedAt}>
+                        {formatDate(blog.updatedAt)}
+                      </time>
+                      <span aria-hidden="true"> · </span>
+                      {blog.readTime} min read
+                    </p>
+                  </div>
+                  <StatusPill status={blog.status} className="shrink-0" />
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <EmptyRegion
+              title="Nothing in draft"
+              hint="Every post is published. Save a post without publishing it and it queues up here."
+            />
+          )}
+        </Panel>
       </div>
     </section>
   );

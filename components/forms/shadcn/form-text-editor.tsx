@@ -12,7 +12,7 @@ import Highlight from '@tiptap/extension-highlight';
 import { Control, FieldValues, Path, useController } from 'react-hook-form';
 import { FormFieldWrapper } from './form-field-wrapper';
 import { cn } from '@/lib/utils';
-import { useEffect, useCallback, useState } from 'react';
+import { useEffect, useCallback, useId, useState } from 'react';
 import {
   Bold,
   Italic,
@@ -61,6 +61,8 @@ interface ToolbarButtonProps {
 
 // ─── Toolbar Button ─────────────────────────────────────────────────────────
 
+// Mono/icon key in the toolbar strip. `title` doubles as the accessible name,
+// and toggles report their state through aria-pressed.
 const ToolbarButton = ({
   onClick,
   isActive,
@@ -71,15 +73,16 @@ const ToolbarButton = ({
   <button
     type="button"
     title={title}
+    aria-label={title}
+    aria-pressed={typeof isActive === 'boolean' ? isActive : undefined}
     disabled={disabled}
     onClick={onClick}
     className={cn(
-      'inline-flex items-center justify-center rounded-md p-1.5 text-sm',
+      'inline-flex h-7 w-7 items-center justify-center rounded-sm border border-transparent',
       'text-muted-foreground hover:bg-muted hover:text-foreground',
       'transition-colors duration-150',
       'disabled:pointer-events-none disabled:opacity-30',
-      'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
-      isActive && 'bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground'
+      isActive && 'border-line bg-foreground/10 text-foreground'
     )}
   >
     {children}
@@ -89,7 +92,7 @@ const ToolbarButton = ({
 // ─── Divider ────────────────────────────────────────────────────────────────
 
 const Divider = () => (
-  <div className="mx-1 h-5 w-px shrink-0 bg-border" aria-hidden />
+  <div className="mx-1 h-5 w-px shrink-0 bg-line" aria-hidden="true" />
 );
 
 // ─── Link Dialog ────────────────────────────────────────────────────────────
@@ -122,10 +125,11 @@ const LinkDialog = ({ editor, onClose }: LinkDialogProps) => {
   };
 
   return (
-    <div className="absolute z-50 mt-1 flex items-center gap-2 rounded-lg border bg-popover p-2 shadow-lg">
+    <div className="absolute z-50 mt-1 flex items-center gap-2 rounded-lg border border-line bg-popover p-2 shadow-lg">
       <input
         autoFocus
         type="url"
+        aria-label="Link address"
         value={url}
         onChange={(e) => setUrl(e.target.value)}
         onKeyDown={(e) => {
@@ -133,12 +137,12 @@ const LinkDialog = ({ editor, onClose }: LinkDialogProps) => {
           if (e.key === 'Escape') onClose();
         }}
         placeholder="https://example.com"
-        className="h-8 w-56 rounded-md border bg-background px-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+        className="h-8 w-56 rounded-md border border-line bg-background px-2 font-mono text-xs"
       />
       <button
         type="button"
         onClick={apply}
-        className="h-8 rounded-md bg-primary px-3 text-xs font-medium text-primary-foreground hover:opacity-90"
+        className="h-8 rounded-md bg-foreground px-3 font-mono text-[0.6875rem] uppercase tracking-[0.14em] text-background transition-opacity hover:opacity-90"
       >
         Apply
       </button>
@@ -146,7 +150,7 @@ const LinkDialog = ({ editor, onClose }: LinkDialogProps) => {
         <button
           type="button"
           onClick={remove}
-          className="h-8 rounded-md border px-3 text-xs font-medium text-muted-foreground hover:bg-muted"
+          className="h-8 rounded-md border border-line px-3 font-mono text-[0.6875rem] uppercase tracking-[0.14em] text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
         >
           Remove
         </button>
@@ -167,8 +171,12 @@ const EditorToolbar = ({ editor }: { editor: Editor }) => {
   if (!editor) return null;
 
   return (
-    <div className="relative border-b bg-muted/50 px-2 py-1.5">
-      <div className="flex flex-wrap items-center gap-0.5">
+    <div className="relative border-b border-line bg-surface px-2 py-1.5">
+      <div
+        role="group"
+        aria-label="Formatting"
+        className="flex flex-wrap items-center gap-0.5"
+      >
         {/* History */}
         <ToolbarButton
           title="Undo (Ctrl+Z)"
@@ -255,7 +263,7 @@ const EditorToolbar = ({ editor }: { editor: Editor }) => {
           <Highlighter className="h-3.5 w-3.5" />
         </ToolbarButton>
         <ToolbarButton
-          title="Inline Code"
+          title="Inline code"
           onClick={() => editor.chain().focus().toggleCode().run()}
           isActive={editor.isActive('code')}
         >
@@ -266,21 +274,21 @@ const EditorToolbar = ({ editor }: { editor: Editor }) => {
 
         {/* Text alignment */}
         <ToolbarButton
-          title="Align Left"
+          title="Align left"
           onClick={() => editor.chain().focus().setTextAlign('left').run()}
           isActive={editor.isActive({ textAlign: 'left' })}
         >
           <AlignLeft className="h-3.5 w-3.5" />
         </ToolbarButton>
         <ToolbarButton
-          title="Align Center"
+          title="Align center"
           onClick={() => editor.chain().focus().setTextAlign('center').run()}
           isActive={editor.isActive({ textAlign: 'center' })}
         >
           <AlignCenter className="h-3.5 w-3.5" />
         </ToolbarButton>
         <ToolbarButton
-          title="Align Right"
+          title="Align right"
           onClick={() => editor.chain().focus().setTextAlign('right').run()}
           isActive={editor.isActive({ textAlign: 'right' })}
         >
@@ -298,14 +306,14 @@ const EditorToolbar = ({ editor }: { editor: Editor }) => {
 
         {/* Lists */}
         <ToolbarButton
-          title="Bullet List"
+          title="Bullet list"
           onClick={() => editor.chain().focus().toggleBulletList().run()}
           isActive={editor.isActive('bulletList')}
         >
           <List className="h-3.5 w-3.5" />
         </ToolbarButton>
         <ToolbarButton
-          title="Ordered List"
+          title="Numbered list"
           onClick={() => editor.chain().focus().toggleOrderedList().run()}
           isActive={editor.isActive('orderedList')}
         >
@@ -323,14 +331,14 @@ const EditorToolbar = ({ editor }: { editor: Editor }) => {
           <Quote className="h-3.5 w-3.5" />
         </ToolbarButton>
         <ToolbarButton
-          title="Code Block"
+          title="Code block"
           onClick={() => editor.chain().focus().toggleCodeBlock().run()}
           isActive={editor.isActive('codeBlock')}
         >
           <SquareCode className="h-3.5 w-3.5" />
         </ToolbarButton>
         <ToolbarButton
-          title="Horizontal Rule"
+          title="Horizontal rule"
           onClick={() => editor.chain().focus().setHorizontalRule().run()}
         >
           <Minus className="h-3.5 w-3.5" />
@@ -341,7 +349,7 @@ const EditorToolbar = ({ editor }: { editor: Editor }) => {
         {/* Link */}
         <div className="relative">
           <ToolbarButton
-            title="Insert Link"
+            title="Insert link"
             onClick={toggleLink}
             isActive={editor.isActive('link') || showLink}
           >
@@ -356,7 +364,7 @@ const EditorToolbar = ({ editor }: { editor: Editor }) => {
 
         {/* Clear formatting */}
         <ToolbarButton
-          title="Clear Formatting"
+          title="Clear formatting"
           onClick={() =>
             editor.chain().focus().clearNodes().unsetAllMarks().run()
           }
@@ -385,6 +393,9 @@ function FormTextEditor<T extends FieldValues>({
     fieldState: { error },
   } = useController({ name, control });
 
+  const errorId = useId();
+  const errorMessage = error?.message;
+
   const editor = useEditor({
     immediatelyRender: false, // avoids SSR hydration mismatch in Next.js
     extensions: [
@@ -400,7 +411,7 @@ function FormTextEditor<T extends FieldValues>({
       TextAlign.configure({ types: ['heading', 'paragraph'] }),
       Link.configure({
         openOnClick: false,
-        HTMLAttributes: { class: 'text-blue-600 underline cursor-pointer' },
+        HTMLAttributes: { class: 'underline cursor-pointer' },
       }),
       Placeholder.configure({ placeholder }),
     ],
@@ -416,24 +427,28 @@ function FormTextEditor<T extends FieldValues>({
     },
     editorProps: {
       attributes: {
-        // These Tailwind classes style the rendered content inside the editor
+        // The editable region needs its own accessible name — the field label
+        // sits outside the contenteditable node.
+        'aria-label': label,
+        // These Tailwind classes style the rendered content inside the editor.
+        // Headings use the mono display face, matching the published article.
         class: cn(
           'focus:outline-none px-4 py-3',
           // Prose-like styles without requiring @tailwindcss/typography plugin
-          '[&_h1]:text-2xl [&_h1]:font-bold [&_h1]:mb-2 [&_h1]:mt-4',
-          '[&_h2]:text-xl [&_h2]:font-semibold [&_h2]:mb-2 [&_h2]:mt-3',
-          '[&_h3]:text-lg [&_h3]:font-semibold [&_h3]:mb-1 [&_h3]:mt-3',
+          '[&_h1]:text-2xl [&_h1]:font-semibold [&_h1]:tracking-tight [&_h1]:mb-2 [&_h1]:mt-4',
+          '[&_h2]:text-xl [&_h2]:font-semibold [&_h2]:tracking-tight [&_h2]:mb-2 [&_h2]:mt-3',
+          '[&_h3]:text-lg [&_h3]:font-semibold [&_h3]:tracking-tight [&_h3]:mb-1 [&_h3]:mt-3',
           '[&_p]:mb-2 [&_p]:leading-relaxed',
           '[&_ul]:list-disc [&_ul]:pl-5 [&_ul]:mb-2',
           '[&_ol]:list-decimal [&_ol]:pl-5 [&_ol]:mb-2',
           '[&_li]:mb-0.5',
-          '[&_blockquote]:border-l-4 [&_blockquote]:border-border [&_blockquote]:pl-4 [&_blockquote]:italic [&_blockquote]:text-muted-foreground [&_blockquote]:my-2',
-          '[&_code]:bg-muted [&_code]:rounded [&_code]:px-1 [&_code]:py-0.5 [&_code]:text-sm [&_code]:font-mono',
-          '[&_pre]:bg-zinc-900 [&_pre]:text-zinc-100 [&_pre]:rounded-lg [&_pre]:p-4 [&_pre]:my-2 [&_pre]:overflow-x-auto',
-          '[&_pre_code]:bg-transparent [&_pre_code]:p-0',
-          '[&_hr]:my-4 [&_hr]:border-border',
-          '[&_a]:text-blue-600 dark:[&_a]:text-blue-400 [&_a]:underline',
-          '[&_mark]:bg-yellow-200 [&_mark]:text-zinc-900 [&_mark]:rounded-sm [&_mark]:px-0.5',
+          '[&_blockquote]:border-l-2 [&_blockquote]:border-line [&_blockquote]:pl-4 [&_blockquote]:text-muted-foreground [&_blockquote]:my-2',
+          '[&_code]:bg-surface [&_code]:border [&_code]:border-line [&_code]:rounded [&_code]:px-1 [&_code]:py-0.5 [&_code]:text-sm [&_code]:font-mono',
+          '[&_pre]:bg-surface [&_pre]:text-foreground [&_pre]:border [&_pre]:border-line [&_pre]:font-mono [&_pre]:rounded-lg [&_pre]:p-4 [&_pre]:my-2 [&_pre]:overflow-x-auto',
+          '[&_pre_code]:bg-transparent [&_pre_code]:border-0 [&_pre_code]:p-0',
+          '[&_hr]:my-4 [&_hr]:border-line',
+          '[&_a]:text-iris [&_a]:underline [&_a]:underline-offset-2',
+          '[&_mark]:bg-warn/25 [&_mark]:text-foreground [&_mark]:rounded-sm [&_mark]:px-0.5',
           '[&_strong]:font-semibold',
           editorClassName
         ),
@@ -441,19 +456,27 @@ function FormTextEditor<T extends FieldValues>({
     },
   });
 
+  // Invalid state lives on the contenteditable node itself, which TipTap owns,
+  // so it is mirrored there whenever the field error changes.
+  useEffect(() => {
+    const dom = editor?.view.dom;
+    if (!dom) return;
+    if (errorMessage) {
+      dom.setAttribute('aria-invalid', 'true');
+      dom.setAttribute('aria-describedby', errorId);
+    } else {
+      dom.removeAttribute('aria-invalid');
+      dom.removeAttribute('aria-describedby');
+    }
+  }, [editor, errorMessage, errorId]);
+
   return (
-    <FormFieldWrapper
-      label={label}
-      tooltip={tooltip}
-      error={error?.message}
-      required={required}
-    >
+    <FormFieldWrapper label={label} tooltip={tooltip} required={required}>
       <div
         className={cn(
           'rounded-md border bg-background text-foreground overflow-hidden transition-colors',
-          error
-            ? 'border-destructive focus-within:border-destructive'
-            : 'border-input focus-within:border-ring'
+          'focus-within:border-ring focus-within:ring-[3px] focus-within:ring-ring/40',
+          errorMessage ? 'border-fail' : 'border-line'
         )}
       >
         {editor && <EditorToolbar editor={editor} />}
@@ -465,14 +488,20 @@ function FormTextEditor<T extends FieldValues>({
           onClick={() => editor?.commands.focus()}
         />
 
-        {/* Character count (optional, always visible) */}
-        <div className="border-t bg-muted/40 px-3 py-1 text-right text-[11px] text-muted-foreground">
+        {/* Live character count — data, so mono and tabular. */}
+        <div className="border-t border-line bg-surface px-3 py-1.5 text-right font-mono text-[0.6875rem] tabular-nums text-muted-foreground">
           {editor?.storage.characterCount?.characters?.() ??
             editor?.getText().length ??
             0}{' '}
           chars
         </div>
       </div>
+
+      {errorMessage && (
+        <p id={errorId} className="text-sm font-medium text-fail">
+          {errorMessage}
+        </p>
+      )}
     </FormFieldWrapper>
   );
 }
