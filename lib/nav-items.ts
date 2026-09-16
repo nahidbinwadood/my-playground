@@ -1,12 +1,6 @@
 import {
-  BarChart3,
-  Ellipsis,
-  FileText,
-  Layers,
   LayoutDashboard,
   LucideIcon,
-  MessageSquare,
-  Navigation,
   Package,
 } from 'lucide-react';
 

@@ -4,22 +4,15 @@ import { cn } from '@/lib/utils';
 import { X } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useMemo, useState } from 'react';
-// import { DataTableFacetedFilter } from '../tables/data-table-faceted-filter';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
-// import SingleSelectSearchOption from './SingleSelectSearchOption';
-// import DateFilter from './DateFilter';
-// import RangeDateFilter from './RangeDateFilter';
 import { ToolbarConfig } from './data-table-types';
-
 
 export default function Toolbar({
   tabbarClass,
-  table,
   config,
   onParamsChange,
 }: {
-  table: any;
   config: ToolbarConfig;
   onParamsChange?: (params: URLSearchParams) => void;
   tabbarClass?: string;
@@ -30,9 +23,9 @@ export default function Toolbar({
   const [searchTerm, setSearchTerm] = useState(
     searchParams.get(config.searchKey || 'search') || ''
   );
-  const [activeFilters, setActiveFilters] = useState<Record<string, any>>(
+  const [, setActiveFilters] = useState<Record<string, string[]>>(
     () => {
-      const filters: Record<string, any> = {};
+      const filters: Record<string, string[]> = {};
       config.filters?.forEach((filter) => {
         const queryKey = filter.queryKey || filter.columnKey;
         const value = searchParams.get(queryKey);
@@ -63,7 +56,6 @@ export default function Toolbar({
         }
       });
 
-      // Reset to first page when filters change
       if (Object.keys(updates).some((key) => key !== 'page')) {
         params.delete('page');
       }
@@ -81,19 +73,6 @@ export default function Toolbar({
       updateUrlParams({ [searchKey]: value || null });
     },
     [config.searchKey, updateUrlParams]
-  );
-
-  const handleFilterChange = useCallback(
-    (columnKey: string, value: string[]) => {
-      const filter = config.filters?.find((f) => f.columnKey === columnKey);
-      const queryKey = filter?.queryKey || columnKey;
-      const newFilters = { ...activeFilters, [columnKey]: value };
-      setActiveFilters(newFilters);
-      updateUrlParams({
-        [queryKey]: value.length > 0 ? value : null,
-      });
-    },
-    [activeFilters, config.filters, updateUrlParams]
   );
 
   const handleReset = useCallback(() => {
@@ -175,7 +154,6 @@ export default function Toolbar({
             />
           )}
 
-          {/* Custom Filters with automatic URL sync */}
           {config.customFilters?.map((customFilter) => (
             <div key={customFilter.queryKey} className="shrink-0">
               {customFilter.component}
@@ -184,7 +162,7 @@ export default function Toolbar({
 
           {config.enableSingleFilter &&
             config.singleFilters?.map((item, index) => (
-              <div key={index} className="shrink-0 ">
+              <div key={item.queryKey ?? index} className="shrink-0">
                 {/* <SingleSelectSearchOption
                   options={item.options}
                   placeholder={item.placeholder}
@@ -247,47 +225,41 @@ export default function Toolbar({
           />
         )}
 
-        {/* Custom Filters with automatic URL sync */}
         {config.customFilters?.map((customFilter) => (
           <div key={customFilter.queryKey}>{customFilter.component}</div>
         ))}
 
         {config.enableSingleFilter &&
           config.singleFilters?.map((item, index) => (
-            <div>
-
+            <div key={item.queryKey ?? index}>
+              {/* <SingleSelectSearchOption
+                key={index}
+                options={item.options}
+                placeholder={item.placeholder}
+                queryKey={item.queryKey}
+                size="sm"
+                insideIcon={item.insideIcon || null}
+                outsideIcon={item.outsideIcon || null}
+                defaultValue={item?.defaultValue}
+              /> */}
             </div>
-            // <SingleSelectSearchOption
-            //   key={index}
-            //   options={item.options}
-            //   placeholder={item.placeholder}
-            //   queryKey={item.queryKey}
-            //   size="sm"
-            //   insideIcon={item.insideIcon || null}
-            //   outsideIcon={item.outsideIcon || null}
-            //   defaultValue={item?.defaultValue}
-            // />
           ))}
 
         {config.enableFilters &&
           config.filters?.map((filter) => (
-            <div>
-
+            <div key={filter.columnKey}>
+              {/* <DataTableFacetedFilter
+                key={filter.columnKey}
+                column={{
+                  getFilterValue: () => activeFilters[filter.columnKey] || [],
+                  setFilterValue: (value: string[]) =>
+                    handleFilterChange(filter.columnKey, value),
+                }}
+                title={filter.title}
+                options={filter.options}
+              /> */}
             </div>
-            // <DataTableFacetedFilter
-            //   key={filter.columnKey}
-            //   column={{
-            //     getFilterValue: () => activeFilters[filter.columnKey] || [],
-            //     setFilterValue: (value: string[]) =>
-            //       handleFilterChange(filter.columnKey, value),
-            //   }}
-            //   title={filter.title}
-            //   options={filter.options}
-            // />
           ))}
-
-        {/* {config.enableDateFilter && <DateFilter size="sm" />}
-        {config.enableRangeDateFilter && <RangeDateFilter size="sm" />} */}
 
         {config.enableReset && isFiltered && (
           <Button

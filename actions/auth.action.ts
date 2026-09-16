@@ -108,7 +108,7 @@ export const getProfileAction = async () => {
     }
 
     return data;
-  } catch (error) {
+  } catch {
     // clear invalid cookies
     cookieStore.delete('accessToken');
     cookieStore.delete('refreshToken');

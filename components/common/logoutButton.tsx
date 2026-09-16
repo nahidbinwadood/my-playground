@@ -22,11 +22,9 @@ const LogoutButton = () => {
         });
         router.push('/auth/login');
       }
-    } catch (error: any) {
-      toast.error('Logout failed', {
-        description:
-          error?.message || 'The server did not respond. Try again.',
-      });
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'The server did not respond. Try again.';
+      toast.error('Logout failed', { description: message });
     }
   };
 

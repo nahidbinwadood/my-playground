@@ -62,8 +62,8 @@ const LoginForm = () => {
           description: response?.message || 'Invalid credentials.',
         });
       }
-    } catch (error: any) {
-      console.error(error);
+    } catch (error: unknown) {
+      console.error(error instanceof Error ? error : new Error(String(error)));
       toast.error('Login Failed', {
         description: 'Something went wrong. Please try again.',
       });

@@ -11,10 +11,11 @@ const formatDate = (value: string) =>
     day: 'numeric',
   });
 
-// Rough reading time: strip HTML tags, count words, ~200 wpm.
-const readingTime = (html?: string) => {
-  const words = (html ?? '')
+// Rough reading time: strip markdown syntax, count words, ~200 wpm.
+const readingTime = (md?: string) => {
+  const words = (md ?? '')
     .replace(/<[^>]+>/g, ' ')
+    .replace(/[#*_~`>\-\[\]()!]/g, ' ')
     .trim()
     .split(/\s+/)
     .filter(Boolean).length;

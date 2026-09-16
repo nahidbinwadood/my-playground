@@ -11,7 +11,7 @@ import AdminBlogsStatsContainer from './admin-blogs-stats-container';
 import AdminBlogsTableContainer from './admin-blogs-table-container';
 
 const AdminBlogsMainWrapper = ({ blogs }: { blogs: IBlog[] }) => {
-  const [isPending, startTransition] = useTransition();
+  const [isPending] = useTransition();
 
   if (isPending) {
     return <AdminBlogsSkeleton />;

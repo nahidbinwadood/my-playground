@@ -4,13 +4,20 @@ import { IBlog } from '@/types';
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { motion, useScroll, useSpring } from 'motion/react';
-import '../tiptap-content.css';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import '../markdown-content.css';
 import { ImageWithLoader } from '@/components/ui/image-with-loader';
 import BlogTypeLabel from '../../_components/blog-type-label';
 
-// Rough reading time: strip HTML tags, count words, ~200 wpm.
-const readingTime = (html: string) => {
-  const words = html.replace(/<[^>]+>/g, ' ').trim().split(/\s+/).length;
+// Rough reading time: strip markdown syntax, count words, ~200 wpm.
+const readingTime = (md: string) => {
+  const words = md
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/[#*_~`>\-\[\]()!]/g, ' ')
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean).length;
   return Math.max(1, Math.round(words / 200));
 };
 
@@ -119,10 +126,11 @@ const BlogDetailsMainWrapper = ({ blog }: { blog: IBlog }) => {
           </figure>
         )}
 
-        <div
-          className="tiptap-content mx-auto mt-12 max-w-[68ch]"
-          dangerouslySetInnerHTML={{ __html: blog.content }}
-        />
+        <div className="markdown-content mx-auto mt-12 max-w-[68ch]">
+          <ReactMarkdown remarkPlugins={[remarkGfm]}>
+            {blog.content}
+          </ReactMarkdown>
+        </div>
 
         <footer className="mx-auto mt-16 max-w-[68ch] border-t border-line pt-8">
           <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3">

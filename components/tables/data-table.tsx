@@ -437,7 +437,6 @@ export function DataTable<TData, TValue = unknown>({
                   {toolbar && (
                     <div className="flex-1">
                       <Toolbar
-                        table={table}
                         config={toolbar}
                         onParamsChange={onParamsChange}
                         tabbarClass="flex-1 min-w-[300px] overflow-hidden"
@@ -595,7 +594,6 @@ export function DataTable<TData, TValue = unknown>({
                 <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                   {toolbar && (
                     <Toolbar
-                      table={table}
                       config={toolbar}
                       onParamsChange={onParamsChange}
                       tabbarClass="flex-1"

@@ -1,23 +1,12 @@
 'use client';
 
 import FormNumberInput from '@/components/forms/shadcn/form-number-input';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { Form } from '@/components/ui/form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Plus, Trash, Trash2 } from 'lucide-react';
-import { useEffect, useState } from 'react';
-import { useFieldArray, useForm, useWatch } from 'react-hook-form';
+import { Plus, Trash } from 'lucide-react';
+import { useState } from 'react';
+import { useFieldArray, useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import CommonAlertModal from '@/components/modal/common-alert-modal';
 import { tieredRateSchema, TieredRateFormValues } from './schema';
@@ -42,7 +31,7 @@ const TieredRateForm = () => {
   const [selectedTierIndex, setSelectedTierIndex] = useState<null | number>(
     null
   );
-  const rewards: any = [];
+  const rewards: { spendFrom: number; points: number }[] = [];
   const form = useForm<TieredRateFormValues>({
     defaultValues: {
       rates: !!rewards?.length
