@@ -6,7 +6,7 @@ import PageHeader from '@/components/common/page-header';
 import FormImageUploader from '@/components/forms/shadcn/form-image-uploader';
 import FormInput from '@/components/forms/shadcn/form-input';
 import FormSelect from '@/components/forms/shadcn/form-select';
-import FormTextEditor from '@/components/forms/shadcn/form-text-editor';
+import FormMarkdownEditor from '@/components/forms/shadcn/form-markdown-editor';
 import { Button } from '@/components/ui/button';
 import { Form } from '@/components/ui/form';
 import { cn } from '@/lib/utils';
@@ -18,12 +18,11 @@ import { useRouter } from 'next/navigation';
 import { ReactNode, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { BlogFormValues, blogSchema } from '../validation/blog-schema';
+import '../../../../../(homepage)/blogs/[slug]/markdown-content.css';
 
-/**
- * Bordered panel with a mono header strip — the spec-sheet device used across
- * the admin. Purely presentational.
- */
 const Panel = ({
   label,
   hint,
@@ -50,7 +49,6 @@ const Panel = ({
   </section>
 );
 
-/** One labelled group of fields inside a panel, separated by a hairline rule. */
 const FieldGroup = ({
   label,
   children,
@@ -72,7 +70,6 @@ const CreateBlogForm = ({ blogData }: { blogData?: IBlog }) => {
 
   const { user } = useAuthContext();
 
-  // declare the form==>
   const form = useForm<BlogFormValues>({
     defaultValues: {
       title: blogData?.title || '',
@@ -87,27 +84,23 @@ const CreateBlogForm = ({ blogData }: { blogData?: IBlog }) => {
     mode: 'onChange',
   });
 
-  //submit handler==>
   const onSubmit = async (data: BlogFormValues) => {
     if (loading) return;
     try {
       setLoading(true);
 
-      // Multipart payload: plain fields + cover photo file.
       const payload = new FormData();
       payload.append('title', data.title);
       payload.append('excerpt', data.excerpt ?? '');
       payload.append('content', data.content);
       payload.append('status', data.status);
       payload.append('type', data.type);
-      // payload.append('isPublished', String(data.status === 'PUBLISHED'));
-      // File = new upload; string = unchanged existing URL (edit mode).
+
       if (data.coverImage instanceof File) {
         payload.append('coverImage', data.coverImage);
       }
 
       if (blogData?.id) {
-        // Photo replaced → tell the backend which old image to delete.
         if (data.coverImage instanceof File && blogData.coverImage) {
           payload.append('deleteImageUrl', blogData.coverImage);
         }
@@ -141,13 +134,11 @@ const CreateBlogForm = ({ blogData }: { blogData?: IBlog }) => {
 
   const isEdit = Boolean(blogData?.id);
 
-  // Read-only reads for the action bar copy — no effect on submission.
   const status = form.watch('status');
+  const content = form.watch('content');
   const willPublish = status === 'PUBLISHED';
   const errorCount = Object.keys(form.formState.errors).length;
 
-  // Button keeps the same verb through the flow; the -ing form is the pending
-  // label and `min-w` stops the swap from resizing the button.
   const submitLabel = isEdit
     ? 'Save changes'
     : willPublish
@@ -159,11 +150,9 @@ const CreateBlogForm = ({ blogData }: { blogData?: IBlog }) => {
     ? 'Publishing'
     : 'Saving draft';
 
-  // main component==>
   return (
     <Form {...form}>
-      {/* pb-24 leaves room so the sticky bottom bar never covers form content */}
-      <form onSubmit={form.handleSubmit(onSubmit)} className="pb-24">
+      <form onSubmit={form.handleSubmit(onSubmit)}>
         <PageHeader
           title={isEdit ? 'Edit post' : 'New post'}
           subtitle={
@@ -178,80 +167,104 @@ const CreateBlogForm = ({ blogData }: { blogData?: IBlog }) => {
           ]}
         />
 
-        {/* Authoring layout: editor column + publishing column, side by side
-            from xl up, stacked below it. */}
-        <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
-          {/* Editor column */}
-          <Panel label="Editor" hint="Post body">
-            <FieldGroup label="Headline">
-              <FormInput
-                control={form.control}
-                name="title"
-                label="Title"
-                placeholder="Debouncing a search input in React"
-                required
-              />
-              <FormInput
-                control={form.control}
-                name="excerpt"
-                label="Excerpt"
-                placeholder="One or two sentences shown in the blog list"
-              />
-            </FieldGroup>
+        <div className="grid items-start gap-6 xl:grid-cols-2">
+          {/* Left column — all form inputs */}
+          <div className="space-y-6">
+            {/* Title + Excerpt */}
+            <Panel label="Headline" hint="Required">
+              <FieldGroup label="">
+                <FormInput
+                  control={form.control}
+                  name="title"
+                  label="Title"
+                  placeholder="Debouncing a search input in React"
+                  required
+                />
+                <FormInput
+                  control={form.control}
+                  name="excerpt"
+                  label="Excerpt"
+                  placeholder="One or two sentences shown in the blog list"
+                />
+              </FieldGroup>
+            </Panel>
 
-            <FieldGroup label="Content" className="border-t border-line">
-              <FormTextEditor
-                label="Body"
-                placeholder="Write the post. Headings, code blocks and links are in the toolbar."
-                control={form.control}
-                name="content"
-                required
-              />
-            </FieldGroup>
-          </Panel>
+            {/* Publish settings — compact horizontal row */}
+            <Panel label="Publish" hint={isEdit ? 'Update' : 'New'}>
+              <div className="grid gap-4 p-4 sm:p-5 sm:grid-cols-2">
+                <FormSelect
+                  control={form.control}
+                  name="status"
+                  label="Status"
+                  placeholder="Select a status"
+                  options={[
+                    { label: 'Draft', value: 'DRAFT' },
+                    { label: 'Published', value: 'PUBLISHED' },
+                  ]}
+                  required
+                />
+                <FormSelect
+                  control={form.control}
+                  name="type"
+                  label="Type"
+                  placeholder="Select a type"
+                  options={[
+                    { label: 'Frontend', value: 'FRONTEND' },
+                    { label: 'Backend', value: 'BACKEND' },
+                    { label: 'Javascript', value: 'JAVASCRIPT' },
+                  ]}
+                  required
+                />
+              </div>
 
-          {/* Publishing column */}
-          <Panel label="Publishing" hint={isEdit ? 'Update' : 'New'}>
-            <FieldGroup label="Visibility">
-              <FormSelect
-                control={form.control}
-                name="status"
-                label="Status"
-                placeholder="Select a status"
-                options={[
-                  { label: 'Draft', value: 'DRAFT' },
-                  { label: 'Published', value: 'PUBLISHED' },
-                ]}
-                required
-              />
-              <FormSelect
-                control={form.control}
-                name="type"
-                label="Topic"
-                placeholder="Select a topic"
-                options={[
-                  { label: 'Frontend', value: 'FRONTEND' },
-                  { label: 'Backend', value: 'BACKEND' },
-                  { label: 'Javascript', value: 'JAVASCRIPT' },
-                ]}
-                required
-              />
-            </FieldGroup>
+              <div className="border-t border-line p-4 sm:p-5">
+                <FormImageUploader
+                  control={form.control}
+                  name="coverImage"
+                  label="Cover image"
+                  required
+                />
+              </div>
+            </Panel>
 
-            <FieldGroup label="Media" className="border-t border-line">
-              <FormImageUploader
-                control={form.control}
-                name="coverImage"
-                label="Cover image"
-                required
-              />
-            </FieldGroup>
-          </Panel>
+            {/* Markdown Editor */}
+            <Panel label="Content" hint="Markdown">
+              <FieldGroup label="">
+                <FormMarkdownEditor
+                  label="Body"
+                  placeholder="Paste or write markdown here..."
+                  control={form.control}
+                  name="content"
+                  required
+                />
+              </FieldGroup>
+            </Panel>
+          </div>
+
+          {/* Right column — sticky live preview */}
+          <div className="sticky top-6 hidden xl:block">
+            <Panel label="Preview" hint="Live" className="h-[calc(100vh-6rem)]">
+              <div className="h-[calc(100%-2.75rem)] overflow-y-auto p-4 sm:p-5">
+                {content?.trim() ? (
+                  <div className="markdown-content">
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                      {content}
+                    </ReactMarkdown>
+                  </div>
+                ) : (
+                  <div className="flex h-full items-center justify-center">
+                    <p className="text-sm italic text-muted-foreground">
+                      Start writing to see a live preview.
+                    </p>
+                  </div>
+                )}
+              </div>
+            </Panel>
+          </div>
         </div>
 
-        {/* Sticky action bar: Cancel/Save always reachable while scrolling.
-            -mx-6/-mb-6 cancel the admin shell's p-6 so the bar spans full width. */}
-        <div className="sticky bottom-0 z-20 -mx-6 -mb-6 mt-6 border-t border-line bg-background/90 px-6 py-3 backdrop-blur">
+        {/* Sticky action bar */}
+        <div className="sticky bottom-0 z-20 -mx-4 -mb-4 bg-background/90 px-6 py-3 backdrop-blur sm:-mx-6 sm:-mb-6">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             {errorCount > 0 ? (
               <p

@@ -1,5 +1,6 @@
 'use client';
 
+import { toggleBlogStatus } from '@/actions/blog.action';
 import { DataTable } from '@/components/tables/data-table';
 import {
   AlertDialog,
@@ -24,11 +25,12 @@ import { adminBlogsColumn } from './column';
 
 const AdminBlogsTableContainer = ({ blogs }: { blogs: IBlog[] }) => {
   const [open, setOpen] = useState(false);
+  const [toggleOpen, setToggleOpen] = useState(false);
   const router = useRouter();
   const [selectedItem, setSelectedItem] = useState<IBlog | null>(null);
+  const [toggleItem, setToggleItem] = useState<IBlog | null>(null);
   const [isPending, startTransition] = useTransition();
 
-  //delete handler==>
   const handleDelete = () => {
     if (isPending || !selectedItem) return;
 
@@ -41,11 +43,36 @@ const AdminBlogsTableContainer = ({ blogs }: { blogs: IBlog[] }) => {
         } else {
           toast.error(response.message || 'Failed to delete the blog');
         }
-      } catch (error: any) {
-        toast.error(error.message || 'Failed to delete the blog');
+      } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : 'Failed to delete the blog';
+        toast.error(message);
       } finally {
         setSelectedItem(null);
         setOpen(false);
+      }
+    });
+  };
+
+  const handleToggleStatus = () => {
+    if (isPending || !toggleItem) return;
+
+    const newStatus = toggleItem.isPublished ? 'DRAFT' : 'PUBLISHED';
+
+    startTransition(async () => {
+      try {
+        const response = await toggleBlogStatus(toggleItem.id, newStatus);
+        if (response.success) {
+          toast.success(response.message || `Blog ${newStatus === 'PUBLISHED' ? 'published' : 'unpublished'} successfully`);
+          router.refresh();
+        } else {
+          toast.error(response.message || 'Failed to update blog status');
+        }
+      } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : 'Failed to update blog status';
+        toast.error(message);
+      } finally {
+        setToggleItem(null);
+        setToggleOpen(false);
       }
     });
   };
@@ -55,7 +82,6 @@ const AdminBlogsTableContainer = ({ blogs }: { blogs: IBlog[] }) => {
   return (
     <section>
       {hasBlogs ? (
-        // Dimmed while a delete is in flight so the row list reads as stale.
         <div
           aria-busy={isPending}
           className={cn(
@@ -64,7 +90,7 @@ const AdminBlogsTableContainer = ({ blogs }: { blogs: IBlog[] }) => {
           )}
         >
           <DataTable
-            columns={adminBlogsColumn({ setSelectedItem, setOpen })}
+            columns={adminBlogsColumn({ setSelectedItem, setOpen, setToggleItem, setToggleOpen })}
             data={blogs}
             tableTitle="All posts"
             tableDescription="Sort by any column header. Drafts stay out of the public list until you publish them."
@@ -72,7 +98,6 @@ const AdminBlogsTableContainer = ({ blogs }: { blogs: IBlog[] }) => {
           />
         </div>
       ) : (
-        // First-run state: say what is missing and where to go next.
         <div className="rounded-lg border border-border bg-card">
           <div className="flex flex-col items-center gap-4 px-5 py-16 text-center sm:px-8">
             <span
@@ -126,6 +151,41 @@ const AdminBlogsTableContainer = ({ blogs }: { blogs: IBlog[] }) => {
                 </span>
               ) : (
                 'Delete post'
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Publish / unpublish confirmation */}
+      <AlertDialog open={toggleOpen} onOpenChange={setToggleOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="font-mono text-lg font-semibold tracking-tight">
+              {toggleItem?.isPublished ? 'Unpublish this post?' : 'Publish this post?'}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {toggleItem?.isPublished
+                ? `\u201c${toggleItem?.title}\u201d will be moved back to drafts and will no longer be visible at /blogs.`
+                : `\u201c${toggleItem?.title}\u201d will be published and become visible at /blogs.`}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleToggleStatus}
+              disabled={isPending}
+              className={toggleItem?.isPublished ? 'bg-warn text-background hover:bg-warn/90' : 'bg-signal text-background hover:bg-signal/90'}
+            >
+              {isPending ? (
+                <span className="flex items-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+                  Updating
+                </span>
+              ) : toggleItem?.isPublished ? (
+                'Unpublish'
+              ) : (
+                'Publish'
               )}
             </AlertDialogAction>
           </AlertDialogFooter>

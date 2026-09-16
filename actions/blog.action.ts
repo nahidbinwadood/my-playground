@@ -129,6 +129,35 @@ export const updateBlogAction = async (id: string, payload: FormData) => {
   }
 };
 
+// toggle blog publish status==>
+export const toggleBlogStatus = async (id: string, status: 'DRAFT' | 'PUBLISHED') => {
+  const accessToken = (await getToken()).accessToken;
+
+  try {
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_SERVER_URL}/blogs/${id}`,
+      {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({ status }),
+      }
+    );
+
+    const data = await response.json();
+
+    if (!data.success) {
+      throw new Error(data.message);
+    }
+    revalidateTag('blogs', 'max');
+    return data;
+  } catch (error) {
+    throw error;
+  }
+};
+
 // get single blog==>
 export const singleBlogAction = async (id: string, enableCache?: boolean) => {
   try {

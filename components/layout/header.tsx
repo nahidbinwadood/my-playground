@@ -76,11 +76,9 @@ export function Header() {
                 >
                   {item.name}
                   {isActive && (
-                    <motion.span
-                      layoutId="header-nav-active"
+                    <span
                       aria-hidden="true"
                       className="pointer-events-none absolute inset-x-3 -bottom-0.5 h-0.5 rounded-full bg-signal"
-                      transition={{ duration: 0.25, ease: 'easeOut' }}
                     />
                   )}
                 </Link>
@@ -91,7 +89,6 @@ export function Header() {
 
         {/* Desktop actions */}
         <div className="hidden items-center gap-1.5 lg:flex">
-          {/* theme toggler */}
           <ThemeToggler />
 
           <Button variant="outline" size="icon-sm" asChild>
@@ -102,16 +99,6 @@ export function Header() {
             >
               <Github aria-hidden="true" />
               <span className="sr-only">Source on GitHub</span>
-            </Link>
-          </Button>
-
-          <Button variant="outline" size="sm" asChild>
-            <Link
-              href="/auth/login"
-              rel="noopener noreferrer"
-              className="font-mono text-xs"
-            >
-              Login
             </Link>
           </Button>
         </div>
@@ -176,7 +163,6 @@ export function Header() {
                 </ul>
 
                 <div className="mt-3 flex items-center gap-1.5 border-t border-line pt-3">
-                  {/* theme toggler */}
                   <ThemeToggler />
 
                   <Button variant="outline" size="icon-sm" asChild>
@@ -187,22 +173,6 @@ export function Header() {
                     >
                       <Github aria-hidden="true" />
                       <span className="sr-only">Source on GitHub</span>
-                    </Link>
-                  </Button>
-
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="ml-auto"
-                    asChild
-                  >
-                    <Link
-                      href="/auth/login"
-                      rel="noopener noreferrer"
-                      onClick={() => setMobileMenuOpen(false)}
-                      className="font-mono text-xs"
-                    >
-                      Login
                     </Link>
                   </Button>
                 </div>
