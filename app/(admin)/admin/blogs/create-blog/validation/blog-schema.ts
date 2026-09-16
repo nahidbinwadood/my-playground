@@ -1,5 +1,7 @@
 import z from 'zod';
 
+export const MAX_COVER_IMAGE_BYTES = 500 * 1024;
+
 export const blogSchema = z.object({
   title: z
     .string()
@@ -8,10 +10,15 @@ export const blogSchema = z.object({
   excerpt: z.string().optional(),
   content: z.string().min(1, 'Content is required'),
   // New upload = File, existing image in edit mode = URL string.
-  coverImage: z.union([
-    z.instanceof(File, { message: 'Cover Image is required' }),
-    z.string().min(1, 'Cover Image is required'),
-  ]),
+  coverImage: z
+    .union([
+      z.instanceof(File, { message: 'Cover Image is required' }),
+      z.string().min(1, 'Cover Image is required'),
+    ])
+    .refine(
+      (v) => !(v instanceof File) || v.size <= MAX_COVER_IMAGE_BYTES,
+      'Cover Image must be 500 KB or smaller'
+    ),
   status: z.enum(['DRAFT', 'PUBLISHED'], `Status must be DRAFT or PUBLISHED`),
   type: z.enum(
     ['FRONTEND', 'BACKEND', 'JAVASCRIPT'],
