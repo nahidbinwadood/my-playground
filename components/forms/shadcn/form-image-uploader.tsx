@@ -168,7 +168,7 @@ function FormImageUploader<T extends FieldValues>({
             Choose an image
           </span>
           <span className="text-xs text-muted-foreground">
-            PNG or JPG, 16:9 crops best, max 500 KB
+            PNG or JPG, 16:9 crops best, max 1MB
           </span>
         </button>
       )}

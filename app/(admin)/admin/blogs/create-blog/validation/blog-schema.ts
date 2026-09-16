@@ -1,6 +1,6 @@
 import z from 'zod';
 
-export const MAX_COVER_IMAGE_BYTES = 500 * 1024;
+export const MAX_COVER_IMAGE_BYTES = 1000 * 1024;
 
 export const blogSchema = z.object({
   title: z
@@ -17,7 +17,7 @@ export const blogSchema = z.object({
     ])
     .refine(
       (v) => !(v instanceof File) || v.size <= MAX_COVER_IMAGE_BYTES,
-      'Cover Image must be 500 KB or smaller'
+      'Cover Image must be 1MB or smaller'
     ),
   status: z.enum(['DRAFT', 'PUBLISHED'], `Status must be DRAFT or PUBLISHED`),
   type: z.enum(
