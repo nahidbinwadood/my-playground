@@ -4,6 +4,8 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { SignupFormValues, signupSchema } from '../schema';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { signupAction } from '@/actions/auth.action';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import {
   Form,
@@ -24,10 +26,12 @@ const LABEL_CLASS =
 const SignupForm = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [showPassword, setShowPassword] = useState<boolean>(false);
+  const router = useRouter();
 
   // declaring the form==>
   const form = useForm<SignupFormValues>({
     defaultValues: {
+      name: '',
       email: '',
       password: '',
     },
@@ -40,15 +44,28 @@ const SignupForm = () => {
     if (loading) return;
     try {
       setLoading(true);
-      console.log(values);
-      await new Promise((res) => setTimeout(res, 2000));
-      toast.success('🎉 Welcome To Playground!', {
-        description: 'Your signup completed successfully',
-      });
-      form.reset();
+
+      // /auth/create requires a role; signup is self-service 'user' only
+      const response = await signupAction({ ...values, role: 'user' });
+
+      if (response?.success) {
+        toast.success('🎉 Welcome To Playground!', {
+          description:
+            response?.message || 'Your signup completed successfully',
+        });
+        // the create endpoint returns no tokens — finish via login
+        router.push('/auth/login');
+        form.reset();
+      } else {
+        toast.error('Failed to signup', {
+          description: response?.message || 'Please check your details.',
+        });
+      }
     } catch (error) {
-      console.log(error);
-      toast.error('Failed to signup');
+      console.error(error instanceof Error ? error : new Error(String(error)));
+      toast.error('Failed to signup', {
+        description: 'Something went wrong. Please try again.',
+      });
     } finally {
       setLoading(false);
     }
@@ -58,6 +75,28 @@ const SignupForm = () => {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+        <FormField
+          control={form.control}
+          name="name"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className={LABEL_CLASS}>Name</FormLabel>
+              <FormControl>
+                <Input
+                  {...field}
+                  type="text"
+                  autoComplete="name"
+                  spellCheck={false}
+                  placeholder="Your name"
+                  disabled={loading}
+                  className="h-10 font-mono text-sm"
+                />
+              </FormControl>
+              <FormMessage className="text-fail" />
+            </FormItem>
+          )}
+        />
+
         <FormField
           control={form.control}
           name="email"

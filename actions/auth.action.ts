@@ -1,8 +1,34 @@
 'use server';
 
 import { LoginFormValues } from '@/app/(auth)/auth/login/schema';
+import { SignupPayload } from '@/app/(auth)/auth/signup/schema';
 import { getToken } from '@/lib/getToken';
 import { cookies } from 'next/headers';
+
+export const signupAction = async (payload: SignupPayload) => {
+  try {
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_SERVER_URL}/auth/create`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+        cache: 'no-store',
+      }
+    );
+
+    const data = await response.json();
+
+    // surface the backend's message ("user already exists", validation
+    // failures…) instead of a generic one
+    return data;
+  } catch (error) {
+    console.error('signupAction error:', error);
+    return { success: false, message: 'Something went wrong. Please try again.' };
+  }
+};
 
 export const loginAction = async (payload: LoginFormValues) => {
   try {

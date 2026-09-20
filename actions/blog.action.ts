@@ -35,19 +35,33 @@ export const createBlogAction = async (payload: FormData) => {
 };
 
 // get all blogs action==>
+// Public pages get published blogs only (the backend now filters drafts out).
+// Admin surfaces pass includeDrafts: true, which hits the admin-only /blogs/all
+// endpoint so their tables and pickers still show unpublished entries.
 export const getAllBlogs = async ({
   enableCache = false,
+  includeDrafts = false,
 }: {
   enableCache?: boolean;
+  includeDrafts?: boolean;
 }) => {
   try {
+    const url = includeDrafts
+      ? `${process.env.NEXT_PUBLIC_SERVER_URL}/blogs/all`
+      : `${process.env.NEXT_PUBLIC_SERVER_URL}/blogs`;
+
+    const headers: HeadersInit = { 'Content-Type': 'application/json' };
+
+    if (includeDrafts) {
+      const accessToken = (await getToken()).accessToken;
+      headers.Authorization = `Bearer ${accessToken}`;
+    }
+
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_SERVER_URL}/blogs`,
+      url,
       {
         method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers,
         next: {
           tags: ['blogs'],
         },

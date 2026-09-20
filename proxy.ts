@@ -1,15 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const protectedRoutes = ['/admin/dashboard', '/admin/blogs'];
-const authRoutes = ['/auth/login', 'auth/signup'];
+// Prefix matching, not exact matching — an explicit list silently leaves nested
+// routes (e.g. /admin/blogs/create-blog) unprotected. A route matches its own
+// prefix or anything nested beneath it.
+const protectedRoutes = ['/admin'];
+const authRoutes = ['/auth/login', '/auth/signup'];
+
+const matchesRoute = (pathname: string, routes: string[]) =>
+  routes.some(
+    (route) => pathname === route || pathname.startsWith(`${route}/`)
+  );
 
 export default async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // check if this is the protected route or not==>
 
-  const isProtectedRoute = protectedRoutes.includes(pathname);
-  const isAuthRoute = authRoutes.includes(pathname);
+  const isProtectedRoute = matchesRoute(pathname, protectedRoutes);
+  const isAuthRoute = matchesRoute(pathname, authRoutes);
 
   const accessToken = request.cookies.get('accessToken');
 

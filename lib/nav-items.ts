@@ -1,6 +1,7 @@
 import {
   LayoutDashboard,
   LucideIcon,
+  NotebookPen,
   Package,
 } from 'lucide-react';
 
@@ -21,5 +22,10 @@ export const navItems: INavItem[] = [
     title: 'Blogs',
     href: '/admin/blogs',
     icon: Package,
+  },
+  {
+    title: 'Notes',
+    href: '/admin/notes',
+    icon: NotebookPen,
   },
 ];

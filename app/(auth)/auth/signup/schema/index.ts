@@ -1,6 +1,13 @@
 import z from 'zod';
 
 export const signupSchema = z.object({
+  // /auth/create requires name and role — name is collected here, role is
+  // sent as a constant 'user' by the form (signup is self-service; admin is
+  // seeded on the backend)
+  name: z
+    .string()
+    .min(1, 'Name is required')
+    .max(80, 'Name cannot exceed 80 characters'),
   email: z
     .string()
     .min(1, 'Email is required')
@@ -23,3 +30,6 @@ export const signupSchema = z.object({
 });
 
 export type SignupFormValues = z.infer<typeof signupSchema>;
+
+// what actually goes on the wire to /auth/create
+export type SignupPayload = SignupFormValues & { role: 'user' };
