@@ -109,8 +109,6 @@ export const logoutAction = async () => {
 };
 
 export const getProfileAction = async () => {
-  const cookieStore = await cookies();
-
   const accessToken = (await getToken()).accessToken;
 
   try {
@@ -134,11 +132,9 @@ export const getProfileAction = async () => {
     }
 
     return data;
+  // NOTE: no cookie writes here — this is read during Server Component
+  // render (admin layout), where cookie mutation is forbidden
   } catch {
-    // clear invalid cookies
-    cookieStore.delete('accessToken');
-    cookieStore.delete('refreshToken');
-
     return null;
   }
 };

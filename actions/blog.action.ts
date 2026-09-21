@@ -69,11 +69,23 @@ export const getAllBlogs = async ({
       }
     );
 
-    const data = await response.json();
+    // The backend is expected to reply JSON ({ success, statusCode, … }) but
+    // can return plain-text error pages (5xx/gateway). Parse defensively so a
+    // non-JSON body surfaces as a readable error instead of a JSON.parse
+    // SyntaxError crashing the page render.
+    const contentType = response.headers.get('content-type') ?? '';
+    let data: Record<string, unknown> | null = null;
+
+    if (contentType.toLowerCase().includes('application/json')) {
+      data = await response.json();
+    }
 
     // throw error if the response doesn't return success==>
-    if (!data.success) {
-      throw new Error(data.message);
+    if (!data?.success) {
+      const fallback = `Blogs API ${response.status} ${response.statusText}: expected a JSON response`;
+      throw new Error(
+        typeof data?.message === 'string' ? data.message : fallback
+      );
     }
 
     return data;
