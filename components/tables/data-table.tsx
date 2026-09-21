@@ -204,8 +204,12 @@ export function DataTable<TData, TValue = unknown>({
     }
   }, [initialData, paginationData]);
 
-  // Calculate pageCount correctly with optional chaining
-  const totalRows = paginationData?.totalDocs ?? paginationData?.total ?? 0;
+  // Calculate pageCount correctly with optional chaining. Fall back to the
+  // loaded row count, not 0: tables without server-side pagination (the admin
+  // blogs table) still render their rows, and reporting "Total Items 0"
+  // beside six visible rows reads as a bug in the data.
+  const totalRows =
+    paginationData?.totalDocs ?? paginationData?.total ?? data.length;
   const pageCount = useMemo(() => {
     if (paginationData?.totalPages) {
       return paginationData.totalPages;
@@ -396,7 +400,7 @@ export function DataTable<TData, TValue = unknown>({
               <div className="flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
                 <div className="w-full sm:max-w-[50%]">
                   {tableTitle && (
-                    <h2 className="font-mono text-base font-semibold tracking-tight text-foreground sm:text-lg">
+                    <h2 className="text-base font-semibold tracking-tight text-foreground sm:text-lg">
                       {tableTitle}
                     </h2>
                   )}
@@ -421,7 +425,7 @@ export function DataTable<TData, TValue = unknown>({
               <div className="flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
                 <div className="w-full sm:w-auto sm:max-w-[50%]">
                   {tableTitle && (
-                    <h2 className="font-mono text-base font-semibold tracking-tight text-foreground sm:text-lg">
+                    <h2 className="text-base font-semibold tracking-tight text-foreground sm:text-lg">
                       {tableTitle}
                     </h2>
                   )}
@@ -580,7 +584,7 @@ export function DataTable<TData, TValue = unknown>({
               <div className="flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
                 <div className="w-full sm:max-w-[50%]">
                   {tableTitle && (
-                    <h2 className="font-mono text-base font-semibold tracking-tight text-foreground sm:text-lg">
+                    <h2 className="text-base font-semibold tracking-tight text-foreground sm:text-lg">
                       {tableTitle}
                     </h2>
                   )}

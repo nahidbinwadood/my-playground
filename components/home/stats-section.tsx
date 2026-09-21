@@ -1,17 +1,14 @@
+import { getAllBlogs } from '@/actions/blog.action';
 import { cn } from '@/lib/utils';
-import blogs from '../../app/(homepage)/blogs/data/blogs.json';
+import { IBlog } from '@/types';
 import { CountUp } from './motion/count-up';
 import { Reveal } from './motion/reveal';
 
-// Datasheet rows. Every figure is counted from what is actually in this repo:
-// 5 previews registered in the showcase page, 9 of the 19 specified challenges
-// have a working form, the blog seed length, and the shadcn primitives folder.
-const entries = [
-  { label: 'Components', value: 5, source: '/components' },
-  { label: 'Working forms', value: 9, source: '/form-playground' },
-  { label: 'Blog posts', value: blogs.length, source: '/blogs' },
-  { label: 'UI primitives', value: 46, source: 'components/ui' },
-];
+// Datasheet rows. Every figure is counted from what is actually in this repo or
+// from the live API: 5 previews registered in the showcase page, 9 of the 19
+// specified challenges have a working form, the published post count, and the
+// shadcn primitives folder. The post count used to come from a seed JSON file,
+// so it counted rows that were not in the database at all.
 
 // Hairline ruling only — no cards. Mobile is a 2x2 grid ruled on both axes;
 // from md it collapses into one continuous ruled row. The first cell in each
@@ -29,16 +26,34 @@ function cellClass(i: number) {
   );
 }
 
-export function StatsSection() {
+export async function StatsSection() {
+  // A dead API must not print "0 posts" — the count is unknown, not zero, so the
+  // cell falls back to an em dash rather than a number that reads as fact.
+  let blogCount: number | null = null;
+
+  try {
+    const response = await getAllBlogs({ enableCache: true });
+    blogCount = ((response.data ?? []) as IBlog[]).length;
+  } catch {
+    blogCount = null;
+  }
+
+  const entries: { label: string; value: number | null; source: string }[] = [
+    { label: 'Components', value: 5, source: '/components' },
+    { label: 'Working forms', value: 9, source: '/form-playground' },
+    { label: 'Blog posts', value: blogCount, source: '/blogs' },
+    { label: 'UI primitives', value: 46, source: 'components/ui' },
+  ];
+
   return (
     <section aria-labelledby="stats-heading" className="py-20 sm:py-28">
       <div className="mx-auto w-full max-w-7xl px-5 sm:px-8">
         <Reveal>
           <div className="flex items-baseline justify-between gap-4 border-b border-line pb-3">
-            <h2 id="stats-heading" className="label-mono">
+            <h2 id="stats-heading" className="eyebrow">
               Contents
             </h2>
-            <p className="label-mono">Counted from source</p>
+            <p className="eyebrow">Counted from source</p>
           </div>
         </Reveal>
 
@@ -46,9 +61,13 @@ export function StatsSection() {
           {entries.map((entry, i) => (
             <div key={entry.label} className={cellClass(i)}>
               <Reveal delay={i * 0.06}>
-                <p className="label-mono">{entry.label}</p>
+                <p className="eyebrow">{entry.label}</p>
                 <p className="mt-3 font-mono text-4xl font-semibold tabular-nums tracking-[-0.03em] text-foreground sm:text-5xl">
-                  <CountUp value={entry.value} />
+                  {entry.value === null ? (
+                    <span aria-label="count unavailable">—</span>
+                  ) : (
+                    <CountUp value={entry.value} />
+                  )}
                 </p>
                 <p className="mt-2 font-mono text-xs text-muted-foreground">
                   {entry.source}

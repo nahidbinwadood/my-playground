@@ -54,7 +54,7 @@ export function DialogDemo() {
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="font-mono tracking-tight">
+          <DialogTitle className="tracking-tight">
             Rename workspace
           </DialogTitle>
           <DialogDescription>
@@ -91,7 +91,7 @@ export function AlertDialogDemo() {
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle className="font-mono tracking-tight">
+          <AlertDialogTitle className="tracking-tight">
             Delete this post?
           </AlertDialogTitle>
           <AlertDialogDescription>
@@ -116,7 +116,7 @@ export function PopoverDemo() {
         <Button variant="outline">Table settings</Button>
       </PopoverTrigger>
       <PopoverContent align="center" className="w-72 space-y-4">
-        <p className="label-mono">Display</p>
+        <p className="eyebrow">Display</p>
         <div className="flex items-center justify-between gap-4">
           <Label htmlFor={`${id}-dense`} className="font-normal">
             Dense rows
@@ -163,7 +163,7 @@ export function HoverCardDemo() {
             <AvatarFallback className="font-mono text-xs">NW</AvatarFallback>
           </Avatar>
           <div className="space-y-1">
-            <p className="font-mono text-sm tracking-tight">Nahid Bin Wadood</p>
+            <p className="text-sm font-medium tracking-tight">Nahid Bin Wadood</p>
             <p className="text-xs leading-relaxed text-muted-foreground">
               Builds the components on this page, then breaks them on purpose to
               see what the validation catches.

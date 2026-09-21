@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { IBlog } from '@/types';
+import { IBlog, ICategory } from '@/types';
 import { Reveal } from '@/components/home/motion/reveal';
 import { Button } from '@/components/ui/button';
 import BlogCard from './blog-card';
@@ -21,23 +21,28 @@ const lastUpdated = (posts: IBlog[]) => {
   return newest > 0 ? formatDate(new Date(newest).toISOString()) : null;
 };
 
-const AllBlogsMainWrapper = ({ blogs }: { blogs: IBlog[] }) => {
+const AllBlogsMainWrapper = ({
+  blogs,
+  categories,
+}: {
+  blogs: IBlog[];
+  categories: ICategory[];
+}) => {
   const posts = blogs ?? [];
   const [featured, ...rest] = posts;
   const updated = lastUpdated(posts);
 
+  // posts carry only the category id — one lookup map for every card below
+  const categoryById = new Map(
+    categories.map((category) => [category.id, category])
+  );
+
   return (
     <section className="relative">
-      {/* Column guides — spec-sheet device, decorative only */}
-      <div
-        aria-hidden="true"
-        className="grid-guides pointer-events-none absolute inset-x-0 top-0 -z-10 h-72 opacity-50 [mask-image:linear-gradient(to_bottom,black,transparent)]"
-      />
-
       <div className="mx-auto w-full max-w-7xl px-5 py-20 sm:px-8 sm:py-28">
         {/* Page header */}
         <Reveal className="max-w-3xl">
-          <p className="font-mono text-[0.6875rem] uppercase tracking-[0.18em] text-iris">
+          <p className="font-mono text-[0.6875rem] uppercase tracking-[0.18em] text-iris-ink">
             /blogs
           </p>
           <h1 className="mt-4 text-4xl font-semibold tracking-[-0.03em] sm:text-6xl">
@@ -51,19 +56,19 @@ const AllBlogsMainWrapper = ({ blogs }: { blogs: IBlog[] }) => {
 
         {/* Index stats */}
         <Reveal delay={0.06}>
-          <dl className="mt-10 flex flex-wrap items-center gap-x-8 gap-y-2 border-t border-line pt-4 font-mono text-xs">
-            <div className="flex items-center gap-2">
-              <dt className="uppercase tracking-[0.18em] text-muted-foreground">
-                Posts
-              </dt>
-              <dd className="tabular-nums text-foreground">{posts.length}</dd>
+          <dl className="mt-10 flex flex-wrap items-center gap-x-8 gap-y-3 border-t border-line pt-5">
+            <div className="flex items-baseline gap-2">
+              <dt className="eyebrow">Posts</dt>
+              <dd className="font-mono text-sm tabular-nums text-foreground">
+                {posts.length}
+              </dd>
             </div>
             {updated && (
-              <div className="flex items-center gap-2">
-                <dt className="uppercase tracking-[0.18em] text-muted-foreground">
-                  Last update
-                </dt>
-                <dd className="tabular-nums text-foreground">{updated}</dd>
+              <div className="flex items-baseline gap-2">
+                <dt className="eyebrow">Last update</dt>
+                <dd className="font-mono text-sm tabular-nums text-foreground">
+                  {updated}
+                </dd>
               </div>
             )}
           </dl>
@@ -74,16 +79,19 @@ const AllBlogsMainWrapper = ({ blogs }: { blogs: IBlog[] }) => {
             {/* Latest post, editorial split */}
             <Reveal className="mt-14 sm:mt-20">
               <div className="mb-5 flex items-center gap-4">
-                <h2 className="label-mono">Latest</h2>
+                <h2 className="eyebrow">Latest</h2>
                 <span aria-hidden="true" className="h-px flex-1 bg-line" />
               </div>
-              <FeaturedBlogCard blog={featured} />
+              <FeaturedBlogCard
+                blog={featured}
+                category={categoryById.get(featured.category)}
+              />
             </Reveal>
 
             {rest.length > 0 && (
               <div className="mt-14 sm:mt-20">
                 <Reveal className="mb-6 flex items-center gap-4">
-                  <h2 className="label-mono">All posts</h2>
+                  <h2 className="eyebrow">All posts</h2>
                   <span aria-hidden="true" className="h-px flex-1 bg-line" />
                   <span className="font-mono text-xs tabular-nums text-muted-foreground">
                     {rest.length}
@@ -92,7 +100,10 @@ const AllBlogsMainWrapper = ({ blogs }: { blogs: IBlog[] }) => {
                 <div className="grid gap-5 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
                   {rest.map((blog, i) => (
                     <Reveal key={blog.slug} delay={Math.min(i, 5) * 0.07}>
-                      <BlogCard blog={blog} />
+                      <BlogCard
+                        blog={blog}
+                        category={categoryById.get(blog.category)}
+                      />
                     </Reveal>
                   ))}
                 </div>
@@ -103,7 +114,7 @@ const AllBlogsMainWrapper = ({ blogs }: { blogs: IBlog[] }) => {
           /* Empty state — says what to read instead while the index fills up */
           <Reveal className="mt-14 sm:mt-20">
             <div className="rounded-lg border border-dashed border-line bg-surface px-6 py-16 text-center sm:py-20">
-              <p className="label-mono">Empty index</p>
+              <p className="eyebrow">Empty index</p>
               <h2 className="mt-3 text-xl font-semibold tracking-tight sm:text-2xl">
                 No posts published yet
               </h2>

@@ -28,7 +28,7 @@ function StackList({ duplicate = false }: { duplicate?: boolean }) {
           key={item.name}
           className="flex shrink-0 items-baseline gap-2 whitespace-nowrap border-l border-line px-5 py-3 sm:px-7 sm:py-3.5"
         >
-          <span className="font-mono text-[0.6875rem] uppercase tracking-[0.18em] text-foreground">
+          <span className="text-[0.8125rem] font-medium tracking-tight text-foreground">
             {item.name}
           </span>
           {item.version ? (
@@ -49,7 +49,7 @@ export function TechMarquee() {
       className="border-y border-line bg-surface"
     >
       <div className="flex items-stretch">
-        <p className="label-mono hidden shrink-0 items-center border-r border-line px-5 py-3 sm:flex sm:py-3.5">
+        <p className="eyebrow hidden shrink-0 items-center border-r border-line px-5 py-3 sm:flex sm:py-3.5">
           Stack
         </p>
 

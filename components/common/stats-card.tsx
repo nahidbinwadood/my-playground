@@ -19,13 +19,14 @@ const accents = {
   iris: 'iris',
 } as const;
 
-// Tokens mixed toward the foreground so 11–12px text clears 4.5:1 against
-// bg-card in both themes (raw text-signal on paper does not).
+// Ink variants are the text-safe form of the fills: same hue and chroma, moved
+// in lightness until they clear 4.5:1 against bg-card in both themes. The raw
+// fill tokens are for dots, borders and tints — not for text.
 const toneText: Record<Tone, string> = {
-  signal: 'text-[color:color-mix(in_oklch,var(--signal)_60%,var(--foreground))]',
-  warn: 'text-[color:color-mix(in_oklch,var(--warn)_60%,var(--foreground))]',
-  fail: 'text-[color:color-mix(in_oklch,var(--fail)_60%,var(--foreground))]',
-  iris: 'text-[color:color-mix(in_oklch,var(--iris)_60%,var(--foreground))]',
+  signal: 'text-signal-ink',
+  warn: 'text-warn-ink',
+  fail: 'text-fail-ink',
+  iris: 'text-iris-ink',
 };
 
 const trendTone: Record<'up' | 'down' | 'flat', Tone> = {

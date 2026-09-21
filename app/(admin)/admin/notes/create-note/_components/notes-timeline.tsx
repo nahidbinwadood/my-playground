@@ -1,42 +1,26 @@
 import Link from 'next/link';
 import { CornerDownRight } from 'lucide-react';
-import { INote } from '@/types';
+import {
+  dateKeyOf,
+  JOURNAL_TIME_ZONE,
+  shiftKey,
+  todayKey,
+  weekdayOfKey,
+} from '@/lib/journal';
+import { INote, ICategory } from '@/types';
+import CategoryLabel from '@/components/common/category-label';
 import { cn } from '@/lib/utils';
-import { TBlogOption } from '../types';
+import { TBlogOption } from '../../types';
 
-// The journal's day boundary is the reminder's day boundary — a note logged at
-// 01:00 counts for the day the 23:00 slot was nagging about. Keep in sync with
-// REMINDER_TZ in the backend.
-const JOURNAL_TIME_ZONE = 'Asia/Dhaka';
-
-const dateKeyFmt = new Intl.DateTimeFormat('en-CA', {
-  timeZone: JOURNAL_TIME_ZONE,
-});
-
+// Day keys, the week's start and the Today/Yesterday labels all come from
+// lib/journal — the same helpers the dashboard's streak and calendar use, so a
+// note can never sit on one day here and another day there.
 const timeFmt = new Intl.DateTimeFormat('en-GB', {
   timeZone: JOURNAL_TIME_ZONE,
   hour: '2-digit',
   minute: '2-digit',
   hour12: false,
 });
-
-// group labels are derived from the plain YYYY-MM-DD key, so the weekday is
-// read off the key's own midnight in UTC — not the render-time clock
-const utcWeekdayFmt = new Intl.DateTimeFormat('en-US', {
-  timeZone: 'UTC',
-  weekday: 'short',
-});
-
-// YYYY-MM-DD of an instant, in the journal's timezone
-const dateKeyOf = (iso: string) => dateKeyFmt.format(new Date(iso));
-
-const weekdayOfKey = (key: string) =>
-  utcWeekdayFmt.format(new Date(`${key}T00:00:00Z`));
-
-const shiftKey = (key: string, days: number) =>
-  new Date(Date.parse(`${key}T00:00:00Z`) + days * 86_400_000)
-    .toISOString()
-    .slice(0, 10);
 
 const groupLabel = (
   key: string,
@@ -58,8 +42,8 @@ type TTimelineGroup = {
 // Consecutive same-day entries collapse into one dated group. Notes arrive
 // newest-first from the backend, so groups come out newest-first too.
 const buildGroups = (notes: INote[]): TTimelineGroup[] => {
-  const todayKey = dateKeyOf(new Date().toISOString());
-  const yesterdayKey = shiftKey(todayKey, -1);
+  const todayKeyValue = todayKey();
+  const yesterdayKey = shiftKey(todayKeyValue, -1);
 
   const groups: TTimelineGroup[] = [];
 
@@ -74,7 +58,7 @@ const buildGroups = (notes: INote[]): TTimelineGroup[] => {
     } else {
       groups.push({
         key,
-        label: groupLabel(key, todayKey, yesterdayKey),
+        label: groupLabel(key, todayKeyValue, yesterdayKey),
         entries: [note],
       });
     }
@@ -122,10 +106,12 @@ const BlogRef = ({
 const TimelineEntry = ({
   note,
   blogById,
+  categoryById,
   isLastOfLastGroup,
 }: {
   note: INote;
   blogById: Map<string, TBlogOption>;
+  categoryById: Map<string, ICategory>;
   isLastOfLastGroup: boolean;
 }) => {
   return (
@@ -158,9 +144,7 @@ const TimelineEntry = ({
       ) : null}
 
       <div className="mt-2.5 flex flex-wrap items-center gap-x-3 gap-y-1.5">
-        <span className="font-mono text-[0.6875rem] uppercase tracking-[0.14em] text-muted-foreground">
-          {note.type}
-        </span>
+        <CategoryLabel category={categoryById.get(note.category)} />
         <BlogRef blogId={note.blog ?? null} blogById={blogById} />
       </div>
     </li>
@@ -176,10 +160,12 @@ const TimelineEntry = ({
 const NotesTimeline = ({
   notes,
   blogById,
+  categoryById,
   unavailable,
 }: {
   notes: INote[];
   blogById: Map<string, TBlogOption>;
+  categoryById: Map<string, ICategory>;
   unavailable: boolean;
 }) => {
   const groups = buildGroups(notes);
@@ -191,7 +177,7 @@ const NotesTimeline = ({
 
         {unavailable ? (
           <div className="p-4 sm:p-5">
-            <p className="label-mono text-warn">Timeline unavailable</p>
+            <p className="label-mono text-warn-ink">Timeline unavailable</p>
             <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
               The entries could not be loaded right now. Logging still works —
               save a note above and it will appear here next refresh.
@@ -226,6 +212,7 @@ const NotesTimeline = ({
                         key={note.id}
                         note={note}
                         blogById={blogById}
+                        categoryById={categoryById}
                         isLastOfLastGroup={isLastGroup && noteIndex === group.entries.length - 1}
                       />
                     ))}

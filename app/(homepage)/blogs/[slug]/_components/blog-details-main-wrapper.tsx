@@ -1,6 +1,6 @@
 'use client';
 
-import { IBlog } from '@/types';
+import { IBlog, ICategory } from '@/types';
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { motion, useScroll, useSpring } from 'motion/react';
@@ -8,7 +8,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import '../markdown-content.css';
 import { ImageWithLoader } from '@/components/ui/image-with-loader';
-import BlogTypeLabel from '../../_components/blog-type-label';
+import CategoryLabel from '@/components/common/category-label';
 
 // Rough reading time: strip markdown syntax, count words, ~200 wpm.
 const readingTime = (md: string) => {
@@ -31,7 +31,13 @@ const formatDate = (value: string) =>
 // Backend sometimes sends the author as a raw Mongo ObjectId — hide those.
 const isRawId = (value?: string) => /^[a-f0-9]{24}$/i.test(value ?? '');
 
-const BlogDetailsMainWrapper = ({ blog }: { blog: IBlog }) => {
+const BlogDetailsMainWrapper = ({
+  blog,
+  category,
+}: {
+  blog: IBlog;
+  category?: ICategory;
+}) => {
   const { scrollYProgress } = useScroll();
   const progress = useSpring(scrollYProgress, {
     stiffness: 220,
@@ -47,14 +53,14 @@ const BlogDetailsMainWrapper = ({ blog }: { blog: IBlog }) => {
       <motion.div
         aria-hidden="true"
         style={{ scaleX: progress }}
-        className="pointer-events-none fixed inset-x-0 top-0 z-[60] h-0.5 origin-left bg-signal"
+        className="pointer-events-none fixed inset-x-0 top-0 z-[60] h-0.5 origin-left bg-iris"
       />
 
       <article className="mx-auto w-full max-w-3xl px-5 py-14 sm:px-8 sm:py-20">
         <div className="mx-auto max-w-[68ch]">
           <Link
             href="/blogs"
-            className="label-mono inline-flex items-center gap-2 rounded-sm transition-colors hover:text-foreground"
+            className="label-mono inline-flex items-center gap-2 rounded-sm py-1 transition-colors hover:text-foreground"
           >
             <ArrowLeft className="size-3.5" aria-hidden="true" />
             /blogs
@@ -62,14 +68,14 @@ const BlogDetailsMainWrapper = ({ blog }: { blog: IBlog }) => {
 
           <header className="mt-8">
             <div className="label-mono flex flex-wrap items-center gap-x-2.5 gap-y-1">
-              {blog.type && (
+              {category ? (
                 <>
-                  <BlogTypeLabel type={blog.type} />
+                  <CategoryLabel category={category} />
                   <span aria-hidden="true" className="opacity-40">
                     /
                   </span>
                 </>
-              )}
+              ) : null}
               <time dateTime={blog.createdAt} className="tabular-nums">
                 {formatDate(blog.createdAt)}
               </time>
@@ -103,7 +109,7 @@ const BlogDetailsMainWrapper = ({ blog }: { blog: IBlog }) => {
                   <span className="block text-sm font-semibold">
                     {blog.author}
                   </span>
-                  <span className="label-mono mt-0.5 block">Author</span>
+                  <span className="eyebrow mt-0.5 block">Author</span>
                 </span>
               </div>
             )}
@@ -136,9 +142,9 @@ const BlogDetailsMainWrapper = ({ blog }: { blog: IBlog }) => {
           <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
             <Link
               href="/blogs"
-              className="label-mono inline-flex items-center gap-2 rounded-sm transition-colors hover:text-foreground"
+              className="inline-flex items-center gap-2 rounded-sm py-1 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
             >
-              <ArrowLeft className="size-3.5" aria-hidden="true" />
+              <ArrowLeft className="size-4" aria-hidden="true" />
               Read the other posts
             </Link>
             {blog.updatedAt && (

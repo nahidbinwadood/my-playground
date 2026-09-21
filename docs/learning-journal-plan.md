@@ -78,8 +78,9 @@ See [Backend spec](#backend-spec) below.
 - [x] **Built** — all six files mirroring `blog/`, registered at `/notes`,
       `GET /blog/:blogId` declared before `/:id`, `?includeContent=false`
       supported, blog-existence guard on create/update. `tsc --noEmit` clean.
-      Not yet exercised against a live DB — first real create will also build
-      the indexes.
+      **Verified against the live DB on 2026-09-21** — created a standalone and
+      an attached note, read them back both ways, updated and deleted them.
+      See the progress log.
 
 ### Phase 2 — Backend: reminder module + scheduler
 
@@ -98,12 +99,15 @@ See [Backend spec](#backend-spec) below.
       `CALLMEBOT_PHONE`/`CALLMEBOT_APIKEY` →
       `TELEGRAM_BOT_TOKEN`/`TELEGRAM_CHAT_ID`. The reminder logic itself did not
       change — that is exactly what the provider seam was for.
-- [ ] **Owner** — create the bot with @BotFather, grab the chat id, set
-      `TELEGRAM_BOT_TOKEN` / `TELEGRAM_CHAT_ID` on the host (local `.env` has dev
-      placeholders), then create the cron-job.org job: `0 18,22,23 * * *`, tz
-      Asia/Dhaka, header `x-reminder-secret`, failure notifications on.
-      **Set env vars before deploying this code** — the boot now fails loudly
-      without them.
+- [ ] **Owner** — the credentials are in place, and the deployed host was
+      confirmed armed on 2026-09-21: a live call to
+      `https://playground-backend-rho.vercel.app/api/v1/reminders/check` with the
+      local secret returned `{ sent: true, slot: '23', streak: 0 }`, and an
+      immediate repeat returned `already_sent`. So the host's `REMINDER_SECRET`
+      **is** the local value and its Telegram credentials work — nothing else
+      needs setting. Remaining: create the cron-job.org job — that URL, method
+      `GET`, schedule `0 18,22,23 * * *`, timezone Asia/Dhaka (set per job),
+      header `x-reminder-secret: <that value>`, failure notifications on.
 
 ### Phase 3 — Frontend: quick-note authoring
 
@@ -117,6 +121,23 @@ See [Backend spec](#backend-spec) below.
 - [x] `validation/note-schema.ts` — Zod, colocated (mirrors `create-blog/validation/`)
 - [x] `loading.tsx` + `_components/notes-skeleton.tsx` mirroring the form's layout
 - [x] `lib/nav-items.ts` — Notes entry
+- [x] **Notes index at `/admin/notes`** — a table shaped like the blogs list:
+      title + source line (attached blog, `standalone entry`, or a warn-coloured
+      `attached blog was deleted`), topic badge, created, updated, and a row menu
+      with **View / Edit / Delete**. Counts strip on top reuses `getJournalStats`,
+      so "this month" cannot disagree with the dashboard. Unlike the logging page
+      it fetches bodies — the view dialog renders `content` and the edit dialog
+      opens prefilled with it, so opening a row costs no extra request
+- [x] **`/admin/notes/create-note`** — the quick-note form moved behind the index,
+      mirroring `/admin/blogs/create-blog`. The timeline stays under the form, so
+      save → `router.refresh()` still shows the new entry immediately. Cost of the
+      restructure: logging is one click further from the sidebar (Notes opens the
+      table). Editing does **not** prefill the title or topic from a newly picked
+      blog, unlike the create form — those belong to the note
+- [x] **View and edit in dialogs** — `note-view-dialog.tsx` (read-only, body
+      rendered `whitespace-pre-wrap` since it is plain text from a textarea) and
+      `note-form-dialog.tsx` (RHF + the same `noteSchema`, `Ctrl/Cmd + Enter`
+      saves, an empty description is sent as `''` so clearing one is a real edit)
 
 **Zod folder:** used `validation/` rather than `schema/` — `AGENTS.md` allows either, and
 `create-blog/validation/blog-schema.ts` is the closer sibling.
@@ -124,9 +145,11 @@ See [Backend spec](#backend-spec) below.
 **Backed by real endpoints now** — `createNoteAction` targets the built
 `POST /notes/create`, and the blog-list call goes to the admin-only
 `/blogs/all`. The page still degrades gracefully when the blog list call fails
-(the wrapper catches it and the form falls back to standalone entries), but no
-note has actually been saved through it against a live DB — that is the next
-verification step.
+(the wrapper catches it and the form falls back to standalone entries). The HTTP
+contract it calls was verified end to end on 2026-09-21 (see the progress log) —
+including that the `?includeContent=false` payload the timeline fetches still
+carries `description` — but the round trip has not been driven from a browser
+session yet.
 
 ### Phase 4 — Tracker (replaces the admin dashboard)
 
@@ -146,10 +169,27 @@ Build in this order:
       `tsc --noEmit`, eslint (0 errors), `pnpm build` pass (build needs
       `NODE_OPTIONS=--max-old-space-size=6144` on this machine — Windows
       workers OOM at the default heap)
-- [ ] Stats (counts: entries this month, topics touched, streak, current focus)
-- [ ] Topic coverage map (depends on the Phase 0 `type` fix)
-- [ ] Streak / activity calendar
-- [ ] Remove the `blogs.json` seed import from the dashboard
+- [x] Stats — **built**: `lib/journal.ts` derives every tracker figure from the
+      note list alone (`getJournalStats`), so no counter is stored and none can
+      drift from the notes. Current streak (today counts as soon as one note
+      lands and stays open until midnight Dhaka — an empty today walks back from
+      yesterday instead of reporting 0), longest streak, entries this month
+      (Dhaka month boundary, via the day keys), and current focus (most-logged
+      topic in the last 14 days, ties going to the most recently logged topic —
+      one stray note on an old topic is not a change of focus)
+- [x] Topic coverage map — **built**: dashboard panel, bars scaled to the busiest
+      topic, counted off each note's own category id (see the taxonomy below)
+- [x] Streak / activity calendar — **built**: `activity-calendar.tsx`, 16 weeks as
+      Monday→Sunday columns in the journal's timezone, four steps plus empty.
+      The fill is the **ink scale, not `iris`** — a heatmap is many marks and the
+      accent budget on that page belongs to the topic bars. Month axis derived
+      from the columns, days still to come rendered as blank slots rather than
+      zero days, today outlined, per-cell hover titles, and a caption carrying
+      the same information as text. `Activity` (2/3) + `Momentum` (1/3) sit
+      directly under the KPIs
+- [x] Remove the `blogs.json` seed import from the dashboard — **done**:
+      `app/(homepage)/blogs/data/blogs.json` is deleted, and every figure on
+      `/admin/dashboard` is counted from the API at request time
 
 ### Phase 5 — Public face
 
@@ -180,6 +220,7 @@ file layout and follow its conventions: `catchAsync`, `sendResponse`, `checkAuth
 ```ts
 { path: '/notes', route: NoteRoutes },
 { path: '/reminders', route: ReminderRoutes },
+{ path: '/categories', route: CategoryRoutes }, // GET is public; writes are guarded
 ```
 
 ### `note/` module
@@ -258,13 +299,24 @@ Auth is **not** `checkAuth` — the scheduler has no JWT. Use a shared secret he
 8. **Respond** with a small JSON summary (`{ sent, slot, reason, streak }`) — this is how
    you debug the job from cron-job.org's response view.
 
-**Message copy** (plain text — no `parse_mode`, so nothing needs escaping):
+**Message copy** (plain text — no `parse_mode`, so nothing needs escaping). Same
+three things in the same order every slot: which slot this is, what is missing,
+and what it costs. The streak line never folds into the sentence above it — it is
+the reason the message lands at all.
 
-| Slot | Message |
-|---|---|
-| 18:00 | `📘 Daily log not written yet — {n}-day streak on the line.` |
-| 22:00 | `⚠️ 2 hours left. Still nothing logged today. {n}-day streak at risk.` |
-| 23:00 | `🚨 Last call — 1 hour to keep your {n}-day streak. Log it now.` |
+```
+📘 Daily log · 18:00            ⏳ Daily log · 22:00            🚨 Daily log · 23:00
+
+Nothing has been logged          Two hours left, and today      Last hour, and today
+today yet.                       is still empty.                is still empty.
+🔥 Streak at risk: 12 days       🔥 Streak at risk: 12 days     🔥 Streak at risk: 12 days
+
+Write one takeaway → /admin/notes
+```
+
+A `0` streak is not "at risk", so that line becomes
+`🌱 No streak yet — today starts one` instead — nothing to lose yet, and the
+number stays meaningful when there is one.
 
 **`sendTelegram(text)` — the provider abstraction.** Telegram today, swappable later
 without touching the reminder logic (the reason this function exists at all):
@@ -377,6 +429,78 @@ lint and build clean |
 in `env.ts`, `.env.example` and the local `.env`. Reminder logic untouched; the
 owner's phone number is no longer in any tracked file. Backend `tsc --noEmit`
 clean |
+| 2026-09-21 | Phase 4 finished on the frontend. `lib/journal.ts` — shared Dhaka
+day math plus `getJournalStats` / `getActivity`, both derived from the note list
+only. `activity-calendar.tsx` heatmap. Dashboard rows: `Activity` + `Momentum`
+panels on `/admin/dashboard`; `notes-timeline.tsx` moved onto the shared helpers
+so the feed and the tracker cannot disagree about which day a note belongs to.
+The math was checked with a throwaway harness before it was deleted (Dhaka day
+boundary, streak through a gap, open-today walk-back, day counts of multi-note
+days, month count, focus tie-break, grid shape); `tsc --noEmit`, eslint and
+`pnpm build` clean |
+| 2026-09-21 | Reminder copy rewritten — `SLOT_COPY` + `buildMessage` in
+`reminder.service.ts`: multi-line and emoji-led, the streak line never folded
+into the sentence above it, and a `0` streak says "today starts one" instead of
+claiming a streak is at risk. Why nothing was arriving: **no cron job existed**
+— the single `ReminderLog` (2026-09-20, slot `18`, 18:39 Dhaka, i.e. not on the
+hour) was a manual call. Deployed host pre-flighted with a live call:
+`200 { sent: true, slot: '23', streak: 0 }`, then `already_sent` on the repeat,
+so its secret matches and Telegram delivery works. `pnpm build` run afterwards:
+23 compiled `dist/` files refreshed (46 on disk, none orphaned, the compiled
+tree imports cleanly), so `src/` + `dist/` are ready to commit together —
+committing the previously deleted `dist/` on its own would leave Vercel with no
+artifact to package |
+| 2026-09-21 | Role backfill on the live DB: 2 users (created 2026-07-21, before the
+role invariant) went from no `role` field to `role: 'user'` — the value
+`createUserSchema` pins — so `checkAuth` and the profile hydration stop seeing
+`undefined`. Idempotent (the filter matches only documents missing the field; the
+second run reported 0) and no account was granted anything. The journal also
+holds its first real note now, logged by the owner after the verification pass |
+| 2026-09-21 | Notes loop verified against the live DB — backend already running
+locally on port 5000, frontend `.env` pointed at it. HTTP matrix: 401 without a
+token; 400 on a bad topic enum, a malformed blog id, a missing body and an empty
+title; 400 "Blog does not exist" when a note points at a blog that is not there;
+201 on create (standalone and attached); 200 on list (newest first, `id` not
+`_id`, `isPublished: false`), on `?includeContent=false` (drops only `content`,
+keeps `description`), by-blog, by-id and patch; 404 on a malformed id, an
+unknown id and a repeat delete; delete returns the journal to exactly its prior
+state (0 notes). Reminder endpoint: 401 without and with a wrong
+`x-reminder-secret`, and `already_logged` with the real one — deliberately
+ordered **after** a note existed for today, because at 23:31 Dhaka it would
+otherwise have sent a real "last call". Deployed backend probed too: `/health`
+connected and `/api/v1/notes` answering 401 (not 404), so the committed `dist`
+does carry the note module. No residue left — temp harness and the minted admin
+token deleted, repo back to its prior state |
+| 2026-09-21 | **Taxonomy became data.** The `type` enum (`FRONTEND|BACKEND|JAVASCRIPT`)
+on Blog and Note was replaced by a `category` **reference** to a new `category/`
+module — `{ name, slug, tone, description?, order }`. Backend: module built
+(catchAsync/sendResponse conventions), `router.ts` registers `/categories`,
+`GET /categories` is **public (no `checkAuth`)** so signed-out visitors can read
+the list, while create/update/delete stay admin-only; Blog and Note models,
+interfaces, validation and services swapped `type` → `category` with existence
+guards; a migration seeded the three starting documents — **Frontend** (iris,
+order 1), **Backend** (signal, 2), **Javascript** (warn, 3) — and moved all 6
+blogs and 1 note onto them, then rebuild of `dist/`. Frontend: `actions/category.action.ts`
+(public read), `/admin/categories` CRUD (nav entry, table, form dialog with the
+tone picker, delete, skeleton), `lib/categories.ts` (tone→class map) and
+`components/common/category-label.tsx` (the shared badge, rendering the stored
+name — rename once and every surface follows). The category select replaces the
+old enum select in the blog form and both note forms; cards, `/blogs/[slug]`, the
+blogs and notes tables, the timeline, the note view dialog and the dashboard
+(resolved in `lib/journal.ts` as the category id, mapped to a name at the render
+site) all show the badge. `tsc --noEmit`, eslint (0 errors) and `pnpm build` pass;
+live DB confirmed 3 categories, 6 blogs and 1 note all carrying a category id |
+| 2026-09-21 | Notes index built to mirror the blogs list: `/admin/notes` is now a table
+(title + source, topic badge, created, updated) whose row menu carries **View**
+(read-only dialog, body preserved as plain text), **Edit** (prefilled dialog on
+the same schema, `Ctrl/Cmd + Enter` saves, an empty description clears) and
+**Delete** (confirm dialog). The quick-note form and timeline moved to
+`/admin/notes/create-note`, and every dashboard "Log a note" link points there.
+Type rule fixed where it had not been applied: `data-table.tsx` and the blogs
+empty state / confirm dialogs no longer set human-written headings in mono (a
+panel heading is sans; mono means a machine produced the string). No hardcoded
+palette class existed anywhere — the token rules were already clean. Route added,
+`tsc --noEmit`, eslint (0 errors) and `pnpm build` pass |
 
 ## Open items
 
@@ -386,8 +510,21 @@ clean |
   frontend has no auto-refresh yet, so a dead access token still requires re-login.
 - `GET /blogs/:slug` still serves drafts to anyone holding the slug — public route,
   left as-is in this pass.
-- Reminder values in the local backend `.env` are **dev placeholders** — a real
-  `TELEGRAM_BOT_TOKEN` / `TELEGRAM_CHAT_ID` is needed before the reminder can send.
+- The reminder's send path is **proven on the deployed host** (2026-09-21:
+  `sent: true` for slot `23`, then `already_sent` on the repeat), so the only
+  missing piece is the scheduler. A failed send deletes its own claim, which is
+  why a silently broken *trigger* leaves no trace at all — cron-job.org's failure
+  notifications are the only signal to watch.
+- **Roles backfilled 2026-09-21.** The two accounts created before the role
+  invariant existed (`nahidbinwadood@gmail.com`, `nahidrootdev@gmail.com`) now
+  carry `role: 'user'`, the value signup pins. The model declares no default for
+  `role`, which is why the field was absent rather than wrong — anything creating
+  users outside `createUserSchema` needs to set it.
+- Those two accounts still have **no password**, so they cannot sign in, and
+  `loginUser` passes an undefined hash to `bcrypt.compare`, which **throws** —
+  a login attempt on either returns 500 `Illegal arguments: string, undefined`
+  instead of a clean 400. Needs a decision: delete the orphans so the addresses
+  are free for signup, or set a password on them.
 - Reminder endpoint has no admin-facing pause UI yet (`ReminderSetting` exists; a
   tiny set-pause endpoint can ride along with the tracker work).
 - The `Panel` / panel-header markup is now duplicated between
@@ -396,8 +533,22 @@ clean |
 - `revalidateTag('notes', ...)` only has an effect when a caller passes
   `enableCache: true` — otherwise Next's fetch default is no-store and nothing is
   cached to invalidate. Same as the existing blog actions.
+- The notes index fetches every body and renders every row, like the timeline —
+  unbounded until `GET /notes` paginates. Fine for a personal journal; the first
+  thing to fix if it ever lags.
+- A server-side 400 surfaces in the toast as the envelope's `message` verbatim, and
+  a Zod failure's message is the generic `"Zod Validation Error"` — the field
+  messages live in `errors`. The quick-note form validates client-side first, so it
+  rarely shows; an edit flow would want them merged.
 - The timeline renders entries but has no detail view yet — note bodies are
   never fetched for the feed (`includeContent: false`), so reading a full note
   needs a future `/admin/notes/[id]` or an expandable row.
 - Timeline has no pagination/virtualization — unbounded like the backend list.
-  Fine until the journal has months of entries; revisit with the stats phase.
+  The calendar is a fixed 16-week window, so it does not grow with the journal,
+  but the feed still renders every entry ever logged.
+- `/admin/dashboard` has no `loading.tsx`, unlike `/admin/notes` and the blog
+  routes — the quality floor asks for a skeleton that mirrors the layout, and the
+  dashboard now fetches both the blog list and the notes list.
+- `ACTIVITY_WEEKS` / `FOCUS_WINDOW_DAYS` in `lib/journal.ts` are constants, not
+  settings — changing either changes what the calendar and "current focus" mean.
+  Promote them to a query param only if the owner ever wants a different slice.

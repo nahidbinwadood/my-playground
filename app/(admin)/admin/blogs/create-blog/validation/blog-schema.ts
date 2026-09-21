@@ -20,10 +20,9 @@ export const blogSchema = z.object({
       'Cover Image must be 1MB or smaller'
     ),
   status: z.enum(['DRAFT', 'PUBLISHED'], `Status must be DRAFT or PUBLISHED`),
-  type: z.enum(
-    ['FRONTEND', 'BACKEND', 'JAVASCRIPT'],
-    `type must be FRONTEND, BACKEND or JAVASCRIPT`
-  ),
+  // An ICategory id. '' is the select's "nothing chosen yet" state — valid input
+  // for the form, rejected on submit so it can never reach the API.
+  category: z.string().min(1, 'Pick a category for this post'),
   author: z.string().optional(),
 });
 

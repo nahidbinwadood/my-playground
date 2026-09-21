@@ -23,19 +23,28 @@ to a blog or standing alone. Many notes per blog; each is a dated entry.
 
 **Current status:** the notes domain is built on both ends — the `/admin/notes`
 quick-note form plus timeline feed on the frontend, the `note/` and
-`reminders/` modules on the backend — but has never been run against a live DB
-end to end. The reminder still needs the owner's cron-job.org job + a real
-Telegram bot token and chat id. Remaining Phase 4: stats, topic coverage, streak calendar,
-dashboard seed removal. Blogs, the component showcase and form-playground are
-live.
+`reminders/` modules on the backend — and the notes loop has now been verified
+against the live DB end to end (2026-09-21: create, list, patch, delete, reminder
+check). The reminder is configured and proven on the deployed host (`sent: true`
+for slot 23 on 2026-09-21, then `already_sent`) — the only missing piece is the
+owner's cron-job.org job, which is why no scheduled message had ever arrived. Phase 4 is done on the frontend: the dashboard is
+the tracker — activity calendar, streak, entries this month, current focus, topic
+coverage — and every figure is derived from the note list at request time, so
+`blogs.json` is gone. `/admin/notes` is the notes index (table + view/edit/delete
+dialogs) and `/admin/notes/create-note` is the logging page. Blogs, the component
+showcase and form-playground are live. The topic axis is **data now**: a
+`category/` module on the backend (`GET /categories` is public, writes are
+guarded) with `/admin/categories` CRUD on the frontend, and blogs/notes store a
+category **id** instead of the old `type` enum — three categories seeded
+(Frontend / Backend / Javascript).
 
 ### Owner decisions — do not relitigate
 
 - **Notes stay private for now** (`isPublished: false` written from day one) so going
 public later is a query change, not a migration.
-- **The tracker replaces the admin dashboard.** The dashboard currently renders seed
-JSON (`blogs.json`, `viewCount`, lowercase `'draft'`) — that data is fake and must not
-sit beside real API data.
+- **The tracker replaces the admin dashboard.** The dashboard no longer reads the seed
+JSON (`blogs.json`, `viewCount`, lowercase `'draft'`) — that data was fake. Every figure
+is now counted from the API, and unknown is rendered as unknown, never as `0`.
 - **Playgrounds stay public under `/lab`.**
 - The public site may show **aggregate stats only** (streak, note count, topics, current
 focus) — never note prose.
@@ -77,8 +86,10 @@ Env: `NEXT_PUBLIC_SERVER_URL` — external backend base URL (auth + blogs API). 
   `components/home/validation-console.tsx`, a live Zod `safeParse` demo),
   `blogs/` + `blogs/[slug]`, `components/` (showcase; specimens live in
   `components/_components/`), `form-playground/` (validation challenges).
-- `(admin)/admin/` — protected. `dashboard/`, `blogs/` (table + create + edit),
-  own `layout.tsx` (sidebar shell).
+- `(admin)/admin/` — protected. `dashboard/` (the tracker), `blogs/` (table +
+  create + edit), `notes/` (table with view/edit/delete dialogs + `create-note/`
+  for the quick-note form and timeline), `categories/` (the taxonomy CRUD), own
+  `layout.tsx` (sidebar shell).
 - `(auth)/auth/` — `login/`, `signup/`. Zod schemas colocated in `schema/`.
 
 ## Design
@@ -107,10 +118,14 @@ superfamily: IBM Plex Sans for headings and prose, IBM Plex Mono for machine tex
 
 ## Key files
 
-- `actions/auth.action.ts`, `actions/blog.action.ts` — all backend calls
+- `actions/auth.action.ts`, `actions/blog.action.ts`, `actions/category.action.ts` — backend calls
 - `lib/getToken.ts` — cookie token read; `lib/nav-items.ts` — admin sidebar; `lib/utils.ts` — `cn`
+- `lib/journal.ts` — the journal's Dhaka day keys plus every note-derived tracker figure
+  (`getJournalStats`, `getActivity`). Nothing is counted from stored counters
+- `lib/categories.ts` — tone→class map; `components/common/category-label.tsx` — the shared badge
 - `proxy.ts` — auth middleware
-- `types/index.ts` — `IBlog` has `status` DRAFT|PUBLISHED, `type` FRONTEND|BACKEND|JAVASCRIPT
+- `types/index.ts` — `IBlog` has `status` DRAFT|PUBLISHED and `category` (an `ICategory` id);
+  `INote`, `ICategory`, `TCategoryTone` live here too
 
 ## Backend (separate repo, outside this workspace)
 
@@ -118,10 +133,14 @@ superfamily: IBM Plex Sans for headings and prose, IBM Plex Mono for machine tex
 **not editable from this workspace**; open it separately. Base path `/api/v1`; every
 response is `{ success, statusCode, message, data, errors }`.
 
-Planned modules (not built yet):
+Modules, all built and registered in `src/app/routes/router.ts`:
 
-- `note/` — `{ blog?, title, description?, content, type, isPublished, timestamps }`,
+- `note/` — `{ blog?, title, description?, content, category, isPublished, timestamps }`,
   admin-only, mirroring the `blog/` file layout.
+- `category/` — `{ name, slug, tone, description?, order }`. **`GET /categories` is
+  public (no `checkAuth`)** so the public site and the pickers can read it;
+  create/update/delete are admin-only. Deleting refuses while blogs or notes still
+  reference it.
 - `reminders/` — secret-protected endpoint, Asia/Dhaka day window, per-slot
   idempotency key, `sendTelegram(text)` abstraction over the Telegram Bot API (free).
 
@@ -137,4 +156,6 @@ is `POST /auth/refresh-token` (cookie-based).
 ## Notes
 
 - `docs/design-system.md` — tokens, type scale, motion budget, quality floor.
-- Blog sample seed: `app/(homepage)/blogs/data/blogs.json`.
+- The old `type` enum on Blog/Note is **gone** — do not reintroduce it. Blogs and
+  notes carry a `category` id; labels and tones come from the category documents so
+  a rename in `/admin/categories` propagates everywhere.

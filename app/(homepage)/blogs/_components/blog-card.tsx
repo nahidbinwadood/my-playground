@@ -1,7 +1,7 @@
 import Link from 'next/link';
-import { IBlog } from '@/types';
+import { IBlog, ICategory } from '@/types';
 import { ImageWithLoader } from '@/components/ui/image-with-loader';
-import BlogTypeLabel from './blog-type-label';
+import CategoryLabel from '@/components/common/category-label';
 
 const formatDate = (value: string) =>
   new Date(value).toLocaleDateString('en-US', {
@@ -22,10 +22,16 @@ const readingTime = (md?: string) => {
 };
 
 // The whole card is one link — nothing interactive is nested inside it.
-const BlogCard = ({ blog }: { blog: IBlog }) => {
+const BlogCard = ({
+  blog,
+  category,
+}: {
+  blog: IBlog;
+  category?: ICategory;
+}) => {
   return (
     <Link href={`/blogs/${blog.slug}`} className="group block h-full rounded-lg">
-      <article className="flex h-full flex-col overflow-hidden rounded-lg border border-border bg-card transition-[border-color,translate] duration-300 ease-out group-hover:-translate-y-0.5 group-hover:border-signal/40">
+      <article className="flex h-full flex-col overflow-hidden rounded-lg border border-border bg-card transition-[border-color,translate] duration-300 ease-out group-hover:-translate-y-0.5 group-hover:border-foreground/25">
         <div className="relative aspect-[16/10] overflow-hidden border-b border-line">
           <ImageWithLoader
             src={blog.coverImage}
@@ -38,7 +44,7 @@ const BlogCard = ({ blog }: { blog: IBlog }) => {
 
         <div className="flex flex-1 flex-col gap-3 p-5">
           <div className="flex items-center gap-3">
-            <BlogTypeLabel type={blog.type} />
+            <CategoryLabel category={category} />
             <span className="label-mono truncate">
               {readingTime(blog.content)} min read
             </span>

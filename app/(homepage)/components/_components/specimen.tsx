@@ -19,12 +19,12 @@ export function Specimen({
   return (
     <div
       className={cn(
-        'flex flex-col overflow-hidden rounded-lg border border-border bg-card transition-colors duration-200 hover:border-signal/40',
+        'flex flex-col overflow-hidden rounded-lg border border-border bg-card transition-colors duration-200 hover:border-foreground/25',
         className
       )}
     >
       <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 border-b border-line bg-surface px-4 py-2.5">
-        <h3 className="font-mono text-sm font-medium tracking-tight text-foreground">
+        <h3 className="text-sm font-semibold tracking-tight text-foreground">
           {name}
         </h3>
         {/* Label voice, but the path keeps its real casing and spacing. */}
@@ -32,10 +32,6 @@ export function Specimen({
       </div>
 
       <div className="relative isolate flex min-h-52 flex-1 items-center justify-center px-4 py-10 sm:px-8 sm:py-12">
-        <span
-          aria-hidden="true"
-          className="dot-grid pointer-events-none absolute inset-0"
-        />
         <div className="relative flex w-full flex-col items-center">
           {children}
         </div>
@@ -50,8 +46,8 @@ export function Specimen({
   );
 }
 
-// Small mono/uppercase pill used inside demos to label a state. The colour
-// lives in the dot, so the text itself always keeps foreground contrast.
+// Small uppercase pill used inside demos to label a state. The colour lives in
+// the dot, so the text itself always keeps foreground contrast.
 export function SpecimenTag({
   tone,
   children,
@@ -60,7 +56,7 @@ export function SpecimenTag({
   children: ReactNode;
 }) {
   return (
-    <span className="inline-flex items-center gap-1.5 rounded-full border border-line bg-surface px-2.5 py-1 font-mono text-[0.6875rem] uppercase tracking-[0.12em] text-foreground">
+    <span className="inline-flex items-center gap-1.5 rounded-full border border-line bg-surface px-2.5 py-1 text-[0.6875rem] font-medium uppercase tracking-[0.12em] text-foreground">
       <span
         aria-hidden="true"
         className={cn(

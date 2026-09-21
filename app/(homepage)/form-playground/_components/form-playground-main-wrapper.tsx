@@ -46,8 +46,13 @@ const FormPlayGroundMainWrapper = () => {
       </header>
 
       {/* === Main Contents=== */}
+      {/* min-w-0 on both tracks is load-bearing. Grid items default to
+          min-width:auto, so below lg the implicit auto column sized itself to the
+          challenge strip's full min-content (~4040px) and the page scrolled
+          sideways instead of the strip scrolling in place. Desktop was already
+          fine because lg:grid-cols-12 expands to minmax(0, 1fr). */}
       <div className="mt-8 grid gap-6 lg:mt-10 lg:grid-cols-12 lg:gap-8">
-        <div className="lg:col-span-4 xl:col-span-3">
+        <div className="min-w-0 lg:col-span-4 xl:col-span-3">
           {/* ===Challenges Tab Container=== */}
           <ChallengesTabContainer
             selectedChallengeId={selectedChallengeId}
@@ -55,7 +60,7 @@ const FormPlayGroundMainWrapper = () => {
           />
         </div>
 
-        <div className="lg:col-span-8 xl:col-span-9">
+        <div className="min-w-0 lg:col-span-8 xl:col-span-9">
           {/* ===Challenges Tab Content Container=== */}
           <ChallengesTabContentContainer
             selectedChallenge={selectedChallenge}

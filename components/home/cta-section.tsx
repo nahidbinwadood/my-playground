@@ -8,16 +8,9 @@ export function CTASection() {
     <section className="py-20 sm:py-28">
       <div className="mx-auto w-full max-w-7xl px-5 sm:px-8">
         <Reveal className="relative isolate overflow-hidden rounded-lg border border-line bg-surface">
-          {/* Dot texture, anchored top-left and masked so it fades out
-              well before the copy and the buttons. */}
-          <div
-            aria-hidden="true"
-            className="dot-grid pointer-events-none absolute inset-0 [mask-image:radial-gradient(90%_90%_at_8%_0%,black,transparent_70%)]"
-          />
-
           <div className="relative flex flex-col gap-10 px-6 py-12 sm:px-10 sm:py-14 lg:flex-row lg:items-end lg:justify-between lg:gap-16 lg:px-14 lg:py-16">
             <div className="max-w-xl">
-              <p className="label-mono">/components</p>
+              <p className="eyebrow">Get started</p>
               <h2 className="mt-4 text-2xl font-semibold tracking-tight sm:text-3xl">
                 Open a component, or read the source
               </h2>

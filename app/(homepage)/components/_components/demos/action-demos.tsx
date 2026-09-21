@@ -104,7 +104,7 @@ export function DropdownMenuDemo() {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" className="w-52">
-        <DropdownMenuLabel className="font-mono text-xs tracking-tight">
+        <DropdownMenuLabel className="eyebrow">
           Selected row
         </DropdownMenuLabel>
         <DropdownMenuSeparator />

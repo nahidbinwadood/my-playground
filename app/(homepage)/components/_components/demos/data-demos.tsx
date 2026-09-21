@@ -68,7 +68,7 @@ export function ProgressDemo() {
   return (
     <div className="w-full max-w-sm space-y-4">
       <div className="flex items-baseline justify-between gap-4">
-        <span className="label-mono">Upload</span>
+        <span className="eyebrow">Upload</span>
         <span className="font-mono text-sm tabular-nums text-foreground">
           {value}%
         </span>
@@ -117,7 +117,7 @@ export function AvatarDemo() {
           </AvatarFallback>
         </Avatar>
         <div>
-          <p className="font-mono text-sm tracking-tight">Nahid Bin Wadood</p>
+          <p className="text-sm font-medium tracking-tight">Nahid Bin Wadood</p>
           <p className="text-xs text-muted-foreground">
             Falls back to initials when no image loads.
           </p>

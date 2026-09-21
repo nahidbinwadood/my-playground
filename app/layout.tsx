@@ -1,26 +1,25 @@
 import type { Metadata } from 'next';
-import { IBM_Plex_Mono, IBM_Plex_Sans } from 'next/font/google';
+import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
 import ThemeProvider from '@/providers/theme-provider';
 
-// One superfamily for both roles: the sans and the mono share a skeleton, so
-// a mono label sitting under a sans heading reads as the same voice.
-const plexSans = IBM_Plex_Sans({
+// Geist Sans for everything a human reads, Geist Mono for everything a machine
+// produced — the split stays semantic, not decorative. Both are variable fonts,
+// so there is no weight list to keep in sync; one file carries every weight.
+const geistSans = Geist({
   subsets: ['latin'],
-  weight: ['400', '500', '600', '700'],
   variable: '--font-geist-sans',
   display: 'swap',
 });
 
-const plexMono = IBM_Plex_Mono({
+const geistMono = Geist_Mono({
   subsets: ['latin'],
-  weight: ['400', '500', '600'],
   variable: '--font-geist-mono',
   display: 'swap',
 });
 
 export const metadata: Metadata = {
-  title: 'DevPlayground — a working spec sheet for React UI',
+  title: 'DevPlayground — React UI, forms, and notes',
   description:
     'Component demos, form validation challenges, and notes on building with Next.js 16, TypeScript, and Tailwind CSS. Everything on this site runs.',
 };
@@ -33,7 +32,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${plexSans.variable} ${plexMono.variable} font-sans antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased`}
       >
         <ThemeProvider>{children}</ThemeProvider>
       </body>

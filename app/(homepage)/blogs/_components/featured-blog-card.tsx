@@ -1,8 +1,8 @@
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
-import { IBlog } from '@/types';
+import { IBlog, ICategory } from '@/types';
 import { ImageWithLoader } from '@/components/ui/image-with-loader';
-import BlogTypeLabel from './blog-type-label';
+import CategoryLabel from '@/components/common/category-label';
 
 const formatDate = (value: string) =>
   new Date(value).toLocaleDateString('en-US', {
@@ -24,10 +24,16 @@ const readingTime = (md?: string) => {
 
 // Latest post — same card vocabulary at larger scale: image left, content
 // right on lg, stacked below. One link, nothing interactive nested inside.
-const FeaturedBlogCard = ({ blog }: { blog: IBlog }) => {
+const FeaturedBlogCard = ({
+  blog,
+  category,
+}: {
+  blog: IBlog;
+  category?: ICategory;
+}) => {
   return (
     <Link href={`/blogs/${blog.slug}`} className="group block rounded-lg">
-      <article className="grid overflow-hidden rounded-lg border border-border bg-card transition-[border-color,translate] duration-300 ease-out group-hover:-translate-y-0.5 group-hover:border-signal/40 lg:grid-cols-2">
+      <article className="grid overflow-hidden rounded-lg border border-border bg-card transition-[border-color,translate] duration-300 ease-out group-hover:-translate-y-0.5 group-hover:border-foreground/25 lg:grid-cols-2">
         <div className="relative aspect-[16/10] overflow-hidden border-b border-line lg:aspect-auto lg:min-h-96 lg:border-r lg:border-b-0">
           <ImageWithLoader
             src={blog.coverImage}
@@ -41,9 +47,9 @@ const FeaturedBlogCard = ({ blog }: { blog: IBlog }) => {
 
         <div className="flex flex-col justify-center gap-4 p-5 sm:p-8 lg:p-10">
           <div className="flex items-center gap-3">
-            <span className="label-mono">Featured</span>
+            <span className="eyebrow">Featured</span>
             <span aria-hidden="true" className="h-px flex-1 bg-line" />
-            <BlogTypeLabel type={blog.type} />
+            <CategoryLabel category={category} />
           </div>
 
           <h2 className="text-xl font-semibold leading-snug tracking-[-0.02em] break-words sm:text-2xl lg:text-[1.75rem]">

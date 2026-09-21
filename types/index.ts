@@ -14,9 +14,22 @@ export interface IAuthContext {
   setUser: React.Dispatch<React.SetStateAction<IUser | null>>;
 }
 
-// Mirrors the backend's BlogTypes enum. Notes reuse the same three values and the
-// tracker's topic-coverage map reads them, so this stays a single source of truth.
-export type TTopic = 'FRONTEND' | 'BACKEND' | 'JAVASCRIPT';
+// Design-system tokens a category can carry. The API stores the token, not a
+// colour, so a new category can pick a tone without a code change.
+export type TCategoryTone = 'iris' | 'signal' | 'warn';
+
+// The topic axis is a document now, not an enum: blogs and notes reference it by
+// id, and the name/tone can change without touching anything that uses it.
+export interface ICategory {
+  id: string;
+  name: string;
+  slug: string;
+  tone: TCategoryTone;
+  description?: string;
+  order: number;
+  createdAt: string;
+  updatedAt: string;
+}
 
 // Mirrors the backend's BlogStatus enum.
 export type TBlogStatus = 'DRAFT' | 'PUBLISHED';
@@ -33,7 +46,7 @@ export interface IBlog {
   updatedAt: string;
   slug: string;
   status: TBlogStatus;
-  type: TTopic;
+  category: string; // ICategory id
 }
 
 // A personal takeaway written by hand. Attached to a blog of reference material,
@@ -44,7 +57,7 @@ export interface INote {
   title: string;
   description?: string;
   content: string;
-  type: TTopic;
+  category: string; // ICategory id — the note's own topic, not the blog's
   isPublished: boolean;
   createdAt: string;
   updatedAt: string;
@@ -54,7 +67,7 @@ export interface INote {
 export interface INoteInput {
   title: string;
   content: string;
-  type: TTopic;
+  category: string; // ICategory id
   description?: string;
   blog?: string | null;
 }

@@ -15,7 +15,7 @@ export function PricingCardDemo() {
   return (
     <Card className="w-full max-w-sm gap-0 rounded-lg p-6">
       <div className="space-y-1">
-        <p className="label-mono">Team</p>
+        <p className="eyebrow">Team</p>
         <h4 className="text-xl font-semibold tracking-tight">
           Shared workspaces
         </h4>
@@ -52,11 +52,11 @@ export function StatCardDemo() {
     <Card className="w-full max-w-sm gap-0 rounded-lg p-6">
       <div className="flex items-start justify-between gap-4">
         <div className="space-y-1">
-          <p className="label-mono">Total revenue</p>
+          <p className="eyebrow">Total revenue</p>
           <p className="font-mono text-3xl font-semibold tabular-nums tracking-[-0.03em]">
             $45,231
           </p>
-          <p className="flex items-center gap-1.5 font-mono text-xs tabular-nums text-muted-foreground">
+          <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
             <TrendingUp aria-hidden="true" className="size-3.5 text-signal" />
             +20.1% against last month
           </p>
@@ -75,7 +75,7 @@ export function FeatureCardDemo() {
       <div className="mb-4 flex size-10 items-center justify-center rounded-md border border-line bg-surface">
         <Server aria-hidden="true" className="size-5 text-muted-foreground" />
       </div>
-      <h4 className="font-mono text-base font-semibold tracking-tight">
+      <h4 className="text-base font-semibold tracking-tight">
         Server components by default
       </h4>
       <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
@@ -100,7 +100,7 @@ export function TestimonialCardDemo() {
           </AvatarFallback>
         </Avatar>
         <div>
-          <p className="font-mono text-sm tracking-tight">Jane Doe</p>
+          <p className="text-sm font-medium tracking-tight">Jane Doe</p>
           <p className="text-xs text-muted-foreground">Frontend engineer</p>
         </div>
       </div>

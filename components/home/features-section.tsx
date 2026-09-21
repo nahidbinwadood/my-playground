@@ -43,9 +43,7 @@ export function FeaturesSection() {
     >
       <div className="mx-auto w-full max-w-7xl px-5 sm:px-8">
         <Reveal className="max-w-2xl">
-          <p className="label-mono">
-            /components &middot; /form-playground &middot; /blogs
-          </p>
+          <p className="eyebrow">Three routes</p>
           <h2
             id="destinations-heading"
             className="mt-3 text-2xl font-semibold tracking-tight sm:text-3xl"
@@ -70,7 +68,7 @@ export function FeaturesSection() {
             >
               <Link
                 href={destination.href}
-                className="group flex h-full flex-col rounded-lg border border-border bg-card p-6 transition-[border-color,transform] duration-300 ease-out hover:-translate-y-0.5 hover:border-signal/40 sm:p-7"
+                className="group flex h-full flex-col rounded-lg border border-border bg-card p-6 transition-[border-color,transform] duration-300 ease-out hover:-translate-y-0.5 hover:border-foreground/25 sm:p-7"
               >
                 <div className="flex items-start justify-between gap-4">
                   <span className="label-mono">{destination.route}</span>
@@ -89,7 +87,7 @@ export function FeaturesSection() {
                   {destination.description}
                 </p>
 
-                <span className="mt-auto flex items-center gap-2 pt-6 font-mono text-xs text-muted-foreground transition-colors duration-300 group-hover:text-foreground">
+                <span className="mt-auto flex items-center gap-2 pt-6 text-sm font-medium text-muted-foreground transition-colors duration-300 group-hover:text-foreground">
                   {destination.action}
                   <ArrowRight
                     aria-hidden="true"

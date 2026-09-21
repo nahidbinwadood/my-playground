@@ -26,7 +26,7 @@ export default function ComponentsPage() {
       <header className="border-b border-line pb-10">
         <p className="label-mono">/components</p>
         <h1 className="mt-3 text-4xl font-semibold tracking-[-0.03em] sm:text-6xl">
-          Specimen sheet
+          Components
         </h1>
         <p className="mt-4 max-w-2xl text-sm leading-relaxed text-muted-foreground sm:text-base">
           Every primitive this site is built from, running live in the theme you
@@ -36,19 +36,19 @@ export default function ComponentsPage() {
 
         <dl className="mt-8 flex flex-wrap gap-x-12 gap-y-5">
           <div>
-            <dt className="label-mono">Specimens</dt>
+            <dt className="eyebrow">Specimens</dt>
             <dd className="mt-1.5 font-mono text-2xl font-semibold tabular-nums tracking-tight">
               {specimenCount}
             </dd>
           </div>
           <div>
-            <dt className="label-mono">Groups</dt>
+            <dt className="eyebrow">Groups</dt>
             <dd className="mt-1.5 font-mono text-2xl font-semibold tabular-nums tracking-tight">
               {specimenNavGroups.length}
             </dd>
           </div>
           <div>
-            <dt className="label-mono">Source</dt>
+            <dt className="eyebrow">Source</dt>
             <dd className="mt-1.5 font-mono text-2xl font-semibold tracking-tight">
               components/ui
             </dd>

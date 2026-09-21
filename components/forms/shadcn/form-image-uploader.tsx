@@ -174,7 +174,7 @@ function FormImageUploader<T extends FieldValues>({
       )}
 
       {error?.message && (
-        <p id={errorId} className="text-sm font-medium text-fail">
+        <p id={errorId} className="text-sm font-medium text-fail-ink">
           {error.message}
         </p>
       )}

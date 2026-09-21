@@ -3,6 +3,7 @@ import {
   LucideIcon,
   NotebookPen,
   Package,
+  Tags,
 } from 'lucide-react';
 
 export interface INavItem {
@@ -27,5 +28,10 @@ export const navItems: INavItem[] = [
     title: 'Notes',
     href: '/admin/notes',
     icon: NotebookPen,
+  },
+  {
+    title: 'Categories',
+    href: '/admin/categories',
+    icon: Tags,
   },
 ];

@@ -176,7 +176,7 @@ export function ValidationConsole() {
         </div>
 
         <div className="space-y-2">
-          <label htmlFor={inputId} className="label-mono block">
+          <label htmlFor={inputId} className="eyebrow block">
             Test value
           </label>
           <div className="relative">
@@ -232,7 +232,7 @@ export function ValidationConsole() {
           {state === 'ok' && result.success && (
             <div className="space-y-1.5">
               <p className="text-muted-foreground">
-                <span className="text-signal">ok</span> — safeParse returned data
+                <span className="text-signal-ink">ok</span> — safeParse returned data
               </p>
               <pre className="whitespace-pre-wrap break-all text-foreground">
                 {`{\n  "schema": "${active}",\n  "data": ${JSON.stringify(result.data)}\n}`}
@@ -243,7 +243,7 @@ export function ValidationConsole() {
           {state === 'fail' && !result.success && (
             <div className="space-y-1.5">
               <p className="text-muted-foreground">
-                <span className="text-fail">fail</span> —{' '}
+                <span className="text-fail-ink">fail</span> —{' '}
                 {result.error.issues.length}{' '}
                 {result.error.issues.length === 1 ? 'issue' : 'issues'}
               </p>
@@ -253,7 +253,7 @@ export function ValidationConsole() {
                     key={`${issue.code}-${index}`}
                     className="flex gap-2 break-words"
                   >
-                    <span aria-hidden="true" className="text-fail">
+                    <span aria-hidden="true" className="text-fail-ink">
                       !
                     </span>
                     <span className="text-foreground">

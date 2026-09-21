@@ -23,12 +23,12 @@ export async function LatestBlogsSection() {
         <Reveal>
           <div className="flex flex-col gap-5 border-b border-line pb-6 sm:flex-row sm:items-end sm:justify-between sm:gap-10">
             <div>
-              <p className="label-mono flex items-center gap-2">
+              <p className="eyebrow flex items-center gap-2">
                 <span
                   aria-hidden="true"
                   className="pointer-events-none inline-block size-1.5 rounded-[2px] bg-iris"
                 />
-                /blogs
+                Blog
               </p>
               <h2 className="mt-3 text-2xl font-semibold tracking-tight sm:text-3xl">
                 Latest posts
@@ -41,7 +41,7 @@ export async function LatestBlogsSection() {
 
             <Link
               href="/blogs"
-              className="group inline-flex shrink-0 items-center gap-2 self-start rounded-sm font-mono text-sm font-medium text-muted-foreground transition-colors hover:text-foreground sm:self-auto"
+              className="group inline-flex shrink-0 items-center gap-2 self-start rounded-sm py-1 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground sm:self-auto"
             >
               View all posts
               <ArrowRight
@@ -55,7 +55,7 @@ export async function LatestBlogsSection() {
         {latest.length === 0 ? (
           <Reveal delay={0.08}>
             <div className="mt-10 rounded-lg border border-dashed border-line bg-surface px-6 py-14 text-center">
-              <p className="font-mono text-base font-semibold tracking-tight">
+              <p className="text-base font-semibold tracking-tight">
                 No posts yet.
               </p>
               <p className="mx-auto mt-2 max-w-sm text-sm leading-relaxed text-muted-foreground">

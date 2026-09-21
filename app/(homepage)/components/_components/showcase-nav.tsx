@@ -43,7 +43,7 @@ export function ShowcaseIndex({ groups }: { groups: NavGroup[] }) {
   return (
     <nav aria-label="Specimen groups" className="hidden xl:block">
       <div className="sticky top-28">
-        <p className="label-mono">Index</p>
+        <p className="eyebrow">Index</p>
         <ul className="mt-4 border-l border-line">
           {groups.map((group) => {
             const isActive = active === group.id;
@@ -53,14 +53,14 @@ export function ShowcaseIndex({ groups }: { groups: NavGroup[] }) {
                   href={`#${group.id}`}
                   aria-current={isActive ? 'true' : undefined}
                   className={cn(
-                    '-ml-px flex items-baseline justify-between gap-3 border-l-2 py-2 pl-3 pr-2 font-mono text-xs transition-colors',
+                    '-ml-px flex items-baseline justify-between gap-3 border-l-2 py-2 pl-3 pr-2 text-xs font-medium transition-colors',
                     isActive
-                      ? 'border-signal text-foreground'
+                      ? 'border-foreground text-foreground'
                       : 'border-transparent text-muted-foreground hover:border-border hover:text-foreground'
                   )}
                 >
                   <span className="tracking-tight">{group.name}</span>
-                  <span className="tabular-nums text-[0.6875rem] text-muted-foreground">
+                  <span className="font-mono text-[0.6875rem] tabular-nums text-muted-foreground">
                     {group.count}
                   </span>
                 </a>
@@ -85,10 +85,10 @@ export function ShowcaseJumpBar({ groups }: { groups: NavGroup[] }) {
           <li key={group.id}>
             <a
               href={`#${group.id}`}
-              className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1.5 font-mono text-xs tracking-tight text-muted-foreground transition-colors hover:border-signal/40 hover:text-foreground"
+              className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1.5 text-xs font-medium tracking-tight text-muted-foreground transition-colors hover:border-foreground/25 hover:text-foreground"
             >
               {group.name}
-              <span className="tabular-nums text-[0.6875rem]">
+              <span className="font-mono tabular-nums text-[0.6875rem]">
                 {group.count}
               </span>
             </a>

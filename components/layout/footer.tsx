@@ -28,15 +28,15 @@ export function Footer() {
   return (
     <footer className="border-t border-line bg-surface">
       <div className="mx-auto w-full max-w-7xl px-5 sm:px-8">
-        <div className="grid gap-10 py-14 md:grid-cols-12 md:gap-8 sm:py-16">
+        <div className="grid gap-10 py-14 sm:py-16 md:grid-cols-12 md:gap-8">
           {/* Identity */}
           <div className="md:col-span-4 lg:col-span-5">
             <Link
               href="/"
               className="inline-flex items-center gap-2 rounded-sm transition-colors"
             >
-              <Code2 className="size-5 text-signal" aria-hidden="true" />
-              <span className="font-mono text-base font-semibold tracking-tight">
+              <Code2 className="size-5 text-muted-foreground" aria-hidden="true" />
+              <span className="text-base font-semibold tracking-tight">
                 DevPlayground
               </span>
             </Link>
@@ -53,8 +53,8 @@ export function Footer() {
           >
             {footerColumns.map((column) => (
               <div key={column.heading}>
-                <h3 className="label-mono">{column.heading}</h3>
-                <ul role="list" className="mt-4 space-y-2.5">
+                <h3 className="eyebrow">{column.heading}</h3>
+                <ul role="list" className="mt-3 space-y-0.5">
                   {column.links.map((item) => (
                     <li key={item.name}>
                       <Link
@@ -62,7 +62,7 @@ export function Footer() {
                         {...('external' in item && item.external
                           ? { target: '_blank', rel: 'noopener noreferrer' }
                           : {})}
-                        className="rounded-sm text-sm text-muted-foreground transition-colors hover:text-foreground"
+                        className="inline-block rounded-sm py-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
                       >
                         {item.name}
                       </Link>
@@ -74,7 +74,8 @@ export function Footer() {
           </nav>
         </div>
 
-        {/* Bottom bar */}
+        {/* Bottom bar — the stack list and the year are machine values, so this
+            is the one place in the footer that stays mono. */}
         <div className="flex flex-col gap-2 border-t border-line py-6 font-mono text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
           <p className="tracking-tight">{stack.join(' · ')}</p>
           <p className="tabular-nums tracking-tight">

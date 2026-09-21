@@ -2,7 +2,7 @@
 
 import PageHeader from '@/components/common/page-header';
 import { Button } from '@/components/ui/button';
-import { IBlog } from '@/types';
+import { IBlog, ICategory } from '@/types';
 import { Plus } from 'lucide-react';
 import Link from 'next/link';
 import { useTransition } from 'react';
@@ -10,7 +10,13 @@ import AdminBlogsSkeleton from './admin-blogs-skeleton';
 import AdminBlogsStatsContainer from './admin-blogs-stats-container';
 import AdminBlogsTableContainer from './admin-blogs-table-container';
 
-const AdminBlogsMainWrapper = ({ blogs }: { blogs: IBlog[] }) => {
+const AdminBlogsMainWrapper = ({
+  blogs,
+  categories,
+}: {
+  blogs: IBlog[];
+  categories: ICategory[];
+}) => {
   const [isPending] = useTransition();
 
   if (isPending) {
@@ -42,7 +48,7 @@ const AdminBlogsMainWrapper = ({ blogs }: { blogs: IBlog[] }) => {
       <AdminBlogsStatsContainer blogs={blogs} />
 
       {/* Blogs table */}
-      <AdminBlogsTableContainer blogs={blogs} />
+      <AdminBlogsTableContainer blogs={blogs} categories={categories} />
     </div>
   );
 };

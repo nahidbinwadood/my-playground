@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Form } from '@/components/ui/form';
 import { cn } from '@/lib/utils';
 import { useAuthContext } from '@/providers/auth-provider';
-import { IBlog } from '@/types';
+import { IBlog, ICategory } from '@/types';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -64,7 +64,15 @@ const FieldGroup = ({
   </div>
 );
 
-const CreateBlogForm = ({ blogData }: { blogData?: IBlog }) => {
+const CreateBlogForm = ({
+  blogData,
+  categories,
+  categoriesUnavailable = false,
+}: {
+  blogData?: IBlog;
+  categories: ICategory[];
+  categoriesUnavailable?: boolean;
+}) => {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
@@ -77,7 +85,7 @@ const CreateBlogForm = ({ blogData }: { blogData?: IBlog }) => {
       content: blogData?.content || '',
       coverImage: blogData?.coverImage || '',
       status: blogData?.isPublished ? 'PUBLISHED' : 'DRAFT',
-      type: blogData?.type || 'FRONTEND',
+      category: blogData?.category || '',
       author: blogData?.author || '',
     },
     resolver: zodResolver(blogSchema),
@@ -94,7 +102,7 @@ const CreateBlogForm = ({ blogData }: { blogData?: IBlog }) => {
       payload.append('excerpt', data.excerpt ?? '');
       payload.append('content', data.content);
       payload.append('status', data.status);
-      payload.append('type', data.type);
+      payload.append('category', data.category);
 
       if (data.coverImage instanceof File) {
         payload.append('coverImage', data.coverImage);
@@ -167,9 +175,14 @@ const CreateBlogForm = ({ blogData }: { blogData?: IBlog }) => {
           ]}
         />
 
+        {/* min-w-0 on both tracks. Below xl this collapses to a single auto-sized
+            column, and grid items default to min-width:auto — so the cover-image
+            filename (nowrap mono, ~259px unbreakable) pinned the column to ~438px
+            and panned the admin shell sideways on phones. xl:grid-cols-2 is
+            minmax(0,1fr), which is why desktop never showed it. */}
         <div className="grid items-start gap-6 xl:grid-cols-2">
           {/* Left column — all form inputs */}
-          <div className="space-y-6">
+          <div className="min-w-0 space-y-6">
             {/* Title + Excerpt */}
             <Panel label="Headline" hint="Required">
               <FieldGroup label="">
@@ -205,14 +218,18 @@ const CreateBlogForm = ({ blogData }: { blogData?: IBlog }) => {
                 />
                 <FormSelect
                   control={form.control}
-                  name="type"
-                  label="Type"
-                  placeholder="Select a type"
-                  options={[
-                    { label: 'Frontend', value: 'FRONTEND' },
-                    { label: 'Backend', value: 'BACKEND' },
-                    { label: 'Javascript', value: 'JAVASCRIPT' },
-                  ]}
+                  name="category"
+                  label="Category"
+                  placeholder="Select a category"
+                  options={categories.map((category) => ({
+                    label: category.name,
+                    value: category.id,
+                  }))}
+                  description={
+                    categoriesUnavailable
+                      ? 'The category list could not be loaded. Reload before saving.'
+                      : undefined
+                  }
                   required
                 />
               </div>
@@ -242,7 +259,7 @@ const CreateBlogForm = ({ blogData }: { blogData?: IBlog }) => {
           </div>
 
           {/* Right column — sticky live preview */}
-          <div className="sticky top-6 hidden xl:block">
+          <div className="sticky top-6 hidden min-w-0 xl:block">
             <Panel label="Preview" hint="Live" className="h-[calc(100vh-6rem)]">
               <div className="h-[calc(100%-2.75rem)] overflow-y-auto p-4 sm:p-5">
                 {content?.trim() ? (
@@ -269,7 +286,7 @@ const CreateBlogForm = ({ blogData }: { blogData?: IBlog }) => {
             {errorCount > 0 ? (
               <p
                 role="status"
-                className="font-mono text-xs tabular-nums text-fail"
+                className="font-mono text-xs tabular-nums text-fail-ink"
               >
                 Fix {errorCount} {errorCount === 1 ? 'field' : 'fields'} before
                 saving

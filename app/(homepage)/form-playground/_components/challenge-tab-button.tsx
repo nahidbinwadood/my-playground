@@ -61,13 +61,13 @@ const ChallengeTabButton = memo(
             layoutId="challenge-tab-marker"
             aria-hidden="true"
             transition={{ duration: 0.25, ease: 'easeOut' as const }}
-            className="pointer-events-none absolute inset-y-1.5 left-0 w-[2px] rounded-full bg-signal"
+            className="pointer-events-none absolute inset-y-1.5 left-0 w-[2px] rounded-full bg-foreground"
           />
         )}
 
         <span
           className={cn(
-            'block font-mono text-[0.8125rem] leading-snug font-medium tracking-tight',
+            'block text-[0.8125rem] leading-snug font-medium tracking-tight',
             isSelected
               ? 'text-foreground'
               : challenge.completed

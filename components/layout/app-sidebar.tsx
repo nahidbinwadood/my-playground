@@ -82,18 +82,19 @@ const AppSidebar = () => {
                   key={item?.href}
                   className="group-data-[collapsible=icon]:flex group-data-[collapsible=icon]:justify-center"
                 >
-                  {/* Active marker: a signal left-rule, not a filled pill */}
+                  {/* Active marker: an ink left-rule, not a filled pill. Kept
+                      neutral so the only colour on screen belongs to content. */}
                   {isActive && (
                     <span
                       aria-hidden="true"
-                      className="pointer-events-none absolute top-1/2 left-0 z-10 h-4 w-[2px] -translate-y-1/2 rounded-full bg-signal group-data-[collapsible=icon]:hidden"
+                      className="pointer-events-none absolute top-1/2 left-0 z-10 h-4 w-[2px] -translate-y-1/2 rounded-full bg-primary group-data-[collapsible=icon]:hidden"
                     />
                   )}
                   <SidebarMenuButton
                     asChild
                     isActive={isActive}
                     tooltip={item?.title}
-                    className="h-9 gap-2.5 rounded-md px-2.5 font-mono text-[0.8125rem] tracking-tight text-muted-foreground hover:bg-accent hover:text-foreground data-[active=true]:bg-accent data-[active=true]:font-medium data-[active=true]:text-foreground"
+                    className="h-9 gap-2.5 rounded-md px-2.5 text-[0.8125rem] tracking-tight text-muted-foreground hover:bg-accent hover:text-foreground data-[active=true]:bg-accent data-[active=true]:font-medium data-[active=true]:text-foreground"
                   >
                     <Link
                       href={item?.href}

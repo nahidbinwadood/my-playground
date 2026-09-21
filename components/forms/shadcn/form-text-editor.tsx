@@ -447,7 +447,7 @@ function FormTextEditor<T extends FieldValues>({
           '[&_pre]:bg-surface [&_pre]:text-foreground [&_pre]:border [&_pre]:border-line [&_pre]:font-mono [&_pre]:rounded-lg [&_pre]:p-4 [&_pre]:my-2 [&_pre]:overflow-x-auto',
           '[&_pre_code]:bg-transparent [&_pre_code]:border-0 [&_pre_code]:p-0',
           '[&_hr]:my-4 [&_hr]:border-line',
-          '[&_a]:text-iris [&_a]:underline [&_a]:underline-offset-2',
+          '[&_a]:text-iris-ink [&_a]:underline [&_a]:underline-offset-2',
           '[&_mark]:bg-warn/25 [&_mark]:text-foreground [&_mark]:rounded-sm [&_mark]:px-0.5',
           '[&_strong]:font-semibold',
           editorClassName
@@ -498,7 +498,7 @@ function FormTextEditor<T extends FieldValues>({
       </div>
 
       {errorMessage && (
-        <p id={errorId} className="text-sm font-medium text-fail">
+        <p id={errorId} className="text-sm font-medium text-fail-ink">
           {errorMessage}
         </p>
       )}

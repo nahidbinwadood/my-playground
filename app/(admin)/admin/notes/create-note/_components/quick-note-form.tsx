@@ -8,18 +8,19 @@ import FormTextarea from '@/components/forms/shadcn/form-textarea';
 import { Button } from '@/components/ui/button';
 import { Form } from '@/components/ui/form';
 import { cn } from '@/lib/utils';
-import { INoteInput } from '@/types';
+import { INoteInput, ICategory } from '@/types';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { KeyboardEvent, ReactNode, useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
-import { TBlogOption } from '../types';
+import { TBlogOption } from '../../types';
 import {
   NoteFormValues,
+  NoteSubmitValues,
   STANDALONE,
   noteSchema,
-} from '../validation/note-schema';
+} from '../../validation/note-schema';
 
 const Panel = ({
   label,
@@ -49,21 +50,25 @@ const DEFAULT_VALUES: NoteFormValues = {
   blog: STANDALONE,
   title: '',
   description: '',
-  type: 'FRONTEND',
+  category: '',
   content: '',
 };
 
 const QuickNoteForm = ({
   blogs,
   blogsUnavailable,
+  categories,
+  categoriesUnavailable,
 }: {
   blogs: TBlogOption[];
   blogsUnavailable: boolean;
+  categories: ICategory[];
+  categoriesUnavailable: boolean;
 }) => {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  const form = useForm<NoteFormValues>({
+  const form = useForm<NoteFormValues, unknown, NoteSubmitValues>({
     defaultValues: DEFAULT_VALUES,
     resolver: zodResolver(noteSchema),
     mode: 'onChange',
@@ -92,12 +97,22 @@ const QuickNoteForm = ({
 
     if (currentTitle.trim() === '' || stillAutoFilled) {
       setValue('title', blog.title, { shouldValidate: false });
-      setValue('type', blog.type, { shouldValidate: false });
+
+      if (blog.category) {
+        setValue('category', blog.category, { shouldValidate: false });
+      } else {
+        // Reference material created before the taxonomy existed has no
+        // category to copy. Clearing the select — rather than leaving whatever
+        // was there — makes the category a deliberate choice, and validating
+        // asks for it straight away.
+        setValue('category', '', { shouldValidate: true });
+      }
+
       lastPrefill.current = blog.title;
     }
   }, [selectedBlog, blogs, getValues, setValue]);
 
-  const onSubmit = async (data: NoteFormValues) => {
+  const onSubmit = async (data: NoteSubmitValues) => {
     if (loading) return;
 
     try {
@@ -106,7 +121,7 @@ const QuickNoteForm = ({
       const payload: INoteInput = {
         title: data.title.trim(),
         content: data.content,
-        type: data.type,
+        category: data.category,
         blog: data.blog === STANDALONE ? null : data.blog,
       };
 
@@ -154,16 +169,19 @@ const QuickNoteForm = ({
         <PageHeader
           title="New note"
           subtitle="Write what you actually understood. Link it to a blog of reference material, or keep it standalone."
-          eyebrow="/admin/notes"
+          eyebrow="/admin/notes/create-note"
+          // the middle crumb links back to the notes table, which is now the
+          // index this page hangs off
           breadcrumbs={[
             { label: 'Dashboard', href: '/admin/dashboard' },
-            { label: 'Notes' },
+            { label: 'Notes', href: '/admin/notes' },
+            { label: 'New note' },
           ]}
         />
 
         {blogsUnavailable ? (
           <div className="mb-6 rounded-lg border border-warn/40 bg-card px-4 py-3">
-            <p className="label-mono text-warn">Blog list unavailable</p>
+            <p className="label-mono text-warn-ink">Blog list unavailable</p>
             <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
               The reference blogs could not be loaded, so a note cannot be linked
               to one right now. Standalone entries are unaffected.
@@ -186,19 +204,23 @@ const QuickNoteForm = ({
                     value: blog.id,
                   })),
                 ]}
-                description="Pick a blog to attach this note to. Choosing one prefills the title and topic below."
+                description="Pick a blog to attach this note to. Choosing one prefills the title and category below."
               />
 
               <FormSelect
                 control={form.control}
-                name="type"
-                label="Topic"
-                placeholder="Select a topic"
-                options={[
-                  { label: 'Frontend', value: 'FRONTEND' },
-                  { label: 'Backend', value: 'BACKEND' },
-                  { label: 'Javascript', value: 'JAVASCRIPT' },
-                ]}
+                name="category"
+                label="Category"
+                placeholder="Select a category"
+                options={categories.map((category) => ({
+                  label: category.name,
+                  value: category.id,
+                }))}
+                description={
+                  categoriesUnavailable
+                    ? 'The category list could not be loaded. Reload before saving.'
+                    : undefined
+                }
                 required
               />
             </div>
@@ -236,7 +258,7 @@ const QuickNoteForm = ({
               {errorCount > 0 ? (
                 <p
                   role="status"
-                  className="font-mono text-xs tabular-nums text-fail"
+                  className="font-mono text-xs tabular-nums text-fail-ink"
                 >
                   Fix {errorCount} {errorCount === 1 ? 'field' : 'fields'} before
                   saving

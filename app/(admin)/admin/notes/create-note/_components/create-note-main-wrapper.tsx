@@ -1,7 +1,8 @@
 import { getAllBlogs } from '@/actions/blog.action';
+import { getAllCategoriesAction } from '@/actions/category.action';
 import { getAllNotes } from '@/actions/note.action';
-import { IBlog, INote } from '@/types';
-import { TBlogOption } from '../types';
+import { IBlog, INote, ICategory } from '@/types';
+import { TBlogOption } from '../../types';
 import NotesTimeline from './notes-timeline';
 import QuickNoteForm from './quick-note-form';
 
@@ -22,11 +23,23 @@ const NotesMainWrapper = async () => {
     blogs = ((response.data ?? []) as IBlog[]).map((blog) => ({
       id: blog.id,
       title: blog.title,
-      type: blog.type,
+      category: blog.category,
       slug: blog.slug,
     }));
   } catch {
     blogsUnavailable = true;
+  }
+
+  // The category picker (and the timeline's tags) read from the same public
+  // list. A failure here must not block logging — the note form says so.
+  let categories: ICategory[] = [];
+  let categoriesUnavailable = false;
+
+  try {
+    const response = await getAllCategoriesAction();
+    categories = response.data ?? [];
+  } catch {
+    categoriesUnavailable = true;
   }
 
   let notes: INote[] = [];
@@ -48,10 +61,18 @@ const NotesMainWrapper = async () => {
 
   return (
     <div>
-      <QuickNoteForm blogs={blogs} blogsUnavailable={blogsUnavailable} />
+      <QuickNoteForm
+        blogs={blogs}
+        blogsUnavailable={blogsUnavailable}
+        categories={categories}
+        categoriesUnavailable={categoriesUnavailable}
+      />
       <NotesTimeline
         notes={notes}
         blogById={blogById}
+        categoryById={new Map(
+          categories.map((category) => [category.id, category])
+        )}
         unavailable={timelineUnavailable}
       />
     </div>

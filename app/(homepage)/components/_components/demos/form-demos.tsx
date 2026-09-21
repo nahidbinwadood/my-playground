@@ -175,7 +175,7 @@ export function RadioGroupDemo() {
             />
             <Label
               htmlFor={`${id}-${option.value}`}
-              className="font-mono text-sm font-normal tracking-tight"
+              className="text-sm font-normal tracking-tight"
             >
               {option.label}
             </Label>

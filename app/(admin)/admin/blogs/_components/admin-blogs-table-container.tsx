@@ -14,7 +14,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { IBlog } from '@/types';
+import { IBlog, ICategory } from '@/types';
 import { FileText, Loader2, Plus } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -23,7 +23,13 @@ import { toast } from 'sonner';
 import { deleteBlog } from '@/actions/blog.action';
 import { adminBlogsColumn } from './column';
 
-const AdminBlogsTableContainer = ({ blogs }: { blogs: IBlog[] }) => {
+const AdminBlogsTableContainer = ({
+  blogs,
+  categories,
+}: {
+  blogs: IBlog[];
+  categories: ICategory[];
+}) => {
   const [open, setOpen] = useState(false);
   const [toggleOpen, setToggleOpen] = useState(false);
   const router = useRouter();
@@ -90,7 +96,15 @@ const AdminBlogsTableContainer = ({ blogs }: { blogs: IBlog[] }) => {
           )}
         >
           <DataTable
-            columns={adminBlogsColumn({ setSelectedItem, setOpen, setToggleItem, setToggleOpen })}
+            columns={adminBlogsColumn({
+              // the blog stores only the category id — resolve name and tone
+              // from the one list request the page already made
+              categoryById: new Map(categories.map((category) => [category.id, category])),
+              setSelectedItem,
+              setOpen,
+              setToggleItem,
+              setToggleOpen,
+            })}
             data={blogs}
             tableTitle="All posts"
             tableDescription="Sort by any column header. Drafts stay out of the public list until you publish them."
@@ -107,7 +121,7 @@ const AdminBlogsTableContainer = ({ blogs }: { blogs: IBlog[] }) => {
               <FileText className="h-5 w-5" />
             </span>
             <div className="space-y-1.5">
-              <h2 className="font-mono text-lg font-semibold tracking-tight text-foreground">
+              <h2 className="text-lg font-semibold tracking-tight text-foreground">
                 No posts yet
               </h2>
               <p className="mx-auto max-w-sm text-sm leading-relaxed text-muted-foreground">
@@ -129,7 +143,7 @@ const AdminBlogsTableContainer = ({ blogs }: { blogs: IBlog[] }) => {
       <AlertDialog open={open} onOpenChange={setOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle className="font-mono text-lg font-semibold tracking-tight">
+            <AlertDialogTitle className="text-lg font-semibold tracking-tight">
               Delete this post?
             </AlertDialogTitle>
             <AlertDialogDescription>
@@ -161,7 +175,7 @@ const AdminBlogsTableContainer = ({ blogs }: { blogs: IBlog[] }) => {
       <AlertDialog open={toggleOpen} onOpenChange={setToggleOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle className="font-mono text-lg font-semibold tracking-tight">
+            <AlertDialogTitle className="text-lg font-semibold tracking-tight">
               {toggleItem?.isPublished ? 'Unpublish this post?' : 'Publish this post?'}
             </AlertDialogTitle>
             <AlertDialogDescription>

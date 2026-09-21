@@ -17,7 +17,7 @@ const ChallengesTabContentContainer = memo(
       >
         {/* Hairline header strip: names what is loaded into the pane. */}
         <div className="flex flex-wrap items-center gap-x-3 gap-y-2 border-b border-line bg-surface px-4 py-3 sm:px-6">
-          <h2 className="font-mono text-sm font-semibold tracking-tight sm:text-base">
+          <h2 className="text-sm font-semibold tracking-tight sm:text-base">
             {selectedChallenge.title}
           </h2>
           <span className="flex items-center gap-1.5 font-mono text-[0.6875rem] tracking-[0.12em] text-muted-foreground uppercase">
@@ -46,13 +46,13 @@ const ChallengesTabContentContainer = memo(
             <TabsList className="grid w-full max-w-xs grid-cols-2 bg-surface">
               <TabsTrigger
                 value="description"
-                className="cursor-pointer font-mono text-xs tracking-[0.1em] uppercase"
+                className="cursor-pointer text-xs font-medium tracking-[0.1em] uppercase"
               >
                 Spec
               </TabsTrigger>
               <TabsTrigger
                 value="solution"
-                className="cursor-pointer font-mono text-xs tracking-[0.1em] uppercase"
+                className="cursor-pointer text-xs font-medium tracking-[0.1em] uppercase"
               >
                 Solution
               </TabsTrigger>
@@ -60,13 +60,13 @@ const ChallengesTabContentContainer = memo(
 
             <TabsContent value="description" className="mt-6 space-y-7">
               <section>
-                <h3 className="label-mono">What it covers</h3>
+                <h3 className="eyebrow">What it covers</h3>
                 <p className="mt-2 text-sm leading-relaxed text-muted-foreground sm:text-base">
                   {selectedChallenge.description}
                 </p>
               </section>
               <section>
-                <h3 className="label-mono">
+                <h3 className="eyebrow">
                   Requirements{' '}
                   <span className="tabular-nums">
                     ({selectedChallenge.requirements.length})
@@ -98,7 +98,7 @@ const ChallengesTabContentContainer = memo(
                 </div>
               ) : (
                 <div className="rounded-lg border border-dashed border-line px-6 py-12 text-center">
-                  <p className="font-mono text-sm font-medium tracking-tight">
+                  <p className="text-sm font-semibold tracking-tight">
                     No solution yet
                   </p>
                   <p className="mx-auto mt-2 max-w-sm text-sm leading-relaxed text-muted-foreground">

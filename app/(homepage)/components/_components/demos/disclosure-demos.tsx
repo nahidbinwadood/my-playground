@@ -60,7 +60,7 @@ export function AccordionDemo() {
       className="w-full max-w-md"
     >
       <AccordionItem value="tokens">
-        <AccordionTrigger className="font-mono text-sm tracking-tight">
+        <AccordionTrigger className="text-sm tracking-tight">
           Where do the colors come from?
         </AccordionTrigger>
         <AccordionContent className="text-sm leading-relaxed text-muted-foreground">
@@ -69,7 +69,7 @@ export function AccordionDemo() {
         </AccordionContent>
       </AccordionItem>
       <AccordionItem value="motion">
-        <AccordionTrigger className="font-mono text-sm tracking-tight">
+        <AccordionTrigger className="text-sm tracking-tight">
           Is the open and close animated?
         </AccordionTrigger>
         <AccordionContent className="text-sm leading-relaxed text-muted-foreground">
@@ -78,7 +78,7 @@ export function AccordionDemo() {
         </AccordionContent>
       </AccordionItem>
       <AccordionItem value="keyboard">
-        <AccordionTrigger className="font-mono text-sm tracking-tight">
+        <AccordionTrigger className="text-sm tracking-tight">
           Does it work from the keyboard?
         </AccordionTrigger>
         <AccordionContent className="text-sm leading-relaxed text-muted-foreground">

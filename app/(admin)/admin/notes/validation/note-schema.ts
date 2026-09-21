@@ -14,11 +14,14 @@ export const noteSchema = z.object({
     .string()
     .max(200, 'Description cannot exceed 200 characters')
     .optional(),
-  type: z.enum(
-    ['FRONTEND', 'BACKEND', 'JAVASCRIPT'],
-    `type must be FRONTEND, BACKEND or JAVASCRIPT`
-  ),
+  // An ICategory id. '' is the select's "nothing chosen yet" state — it has to
+  // be representable, because a note can be started before a category is picked,
+  // but it must never reach the API, so it is rejected on submit.
+  category: z.string().min(1, 'Pick a category for this note'),
   content: z.string().min(1, 'Content is required'),
 });
 
-export type NoteFormValues = z.infer<typeof noteSchema>;
+// what the form holds while editing (topic may still be unset)
+export type NoteFormValues = z.input<typeof noteSchema>;
+// what validation guarantees on submit (topic is a real topic)
+export type NoteSubmitValues = z.output<typeof noteSchema>;

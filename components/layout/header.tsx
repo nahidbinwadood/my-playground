@@ -49,11 +49,11 @@ export function Header() {
         >
           <span
             aria-hidden="true"
-            className="grid size-7 shrink-0 place-items-center rounded-sm border border-line bg-surface text-foreground transition-colors group-hover:border-signal/40"
+            className="grid size-7 shrink-0 place-items-center rounded-md border border-line bg-surface text-foreground transition-colors group-hover:border-foreground/25"
           >
             <Code2 className="size-4" />
           </span>
-          <span className="font-mono text-[0.9375rem] font-semibold tracking-[-0.03em] text-foreground">
+          <span className="text-[0.9375rem] font-semibold tracking-tight text-foreground">
             DevPlayground
           </span>
         </Link>
@@ -68,7 +68,7 @@ export function Header() {
                   href={item.href}
                   aria-current={isActive ? 'page' : undefined}
                   className={cn(
-                    'relative flex items-center rounded-sm px-3 py-2 font-mono text-[0.8125rem] tracking-tight transition-colors',
+                    'relative flex items-center rounded-sm px-3 py-2 text-[0.8125rem] font-medium tracking-tight transition-colors',
                     isActive
                       ? 'text-foreground'
                       : 'text-muted-foreground hover:text-foreground'
@@ -78,7 +78,7 @@ export function Header() {
                   {isActive && (
                     <span
                       aria-hidden="true"
-                      className="pointer-events-none absolute inset-x-3 -bottom-0.5 h-0.5 rounded-full bg-signal"
+                      className="pointer-events-none absolute inset-x-3 -bottom-0.5 h-0.5 rounded-full bg-foreground"
                     />
                   )}
                 </Link>
@@ -143,7 +143,7 @@ export function Header() {
                           aria-current={isActive ? 'page' : undefined}
                           onClick={() => setMobileMenuOpen(false)}
                           className={cn(
-                            'flex items-center justify-between gap-3 rounded-sm px-3 py-2.5 font-mono text-sm transition-colors',
+                            'flex items-center justify-between gap-3 rounded-sm px-3 py-2.5 text-sm font-medium transition-colors',
                             isActive
                               ? 'bg-surface text-foreground'
                               : 'text-muted-foreground hover:bg-surface hover:text-foreground'
@@ -186,7 +186,7 @@ export function Header() {
       <motion.div
         aria-hidden="true"
         style={{ scaleX: scrollYProgress }}
-        className="pointer-events-none absolute inset-x-0 bottom-0 h-0.5 origin-left bg-signal/40"
+        className="pointer-events-none absolute inset-x-0 bottom-0 h-0.5 origin-left bg-foreground/25"
       />
     </header>
   );

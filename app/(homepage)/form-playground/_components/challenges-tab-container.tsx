@@ -65,7 +65,7 @@ const ChallengesTabContainer = memo(
       <div className="lg:sticky lg:top-24">
         <div className="rounded-lg border border-border bg-card">
           <div className="flex items-baseline justify-between gap-3 border-b border-line px-4 py-3">
-            <h2 className="font-mono text-sm font-semibold tracking-tight">
+            <h2 className="text-sm font-semibold tracking-tight">
               Challenges
             </h2>
             <p className="font-mono text-[0.6875rem] tracking-[0.12em] text-muted-foreground uppercase tabular-nums">

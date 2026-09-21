@@ -1,5 +1,6 @@
 'use client';
 
+import CategoryLabel from '@/components/common/category-label';
 import StatusPill from '@/components/common/status-pill';
 import {
   DropdownMenu,
@@ -9,7 +10,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
-import { IBlog } from '@/types';
+import { IBlog, ICategory } from '@/types';
 import type { Column, ColumnDef } from '@tanstack/react-table';
 import {
   ArrowDown,
@@ -66,18 +67,14 @@ const SortHeader = ({
   );
 };
 
-const typeTone: Record<string, string> = {
-  FRONTEND: 'border-iris/30 bg-iris/10 text-iris',
-  BACKEND: 'border-signal/30 bg-signal/10 text-signal',
-  JAVASCRIPT: 'border-warn/30 bg-warn/10 text-warn',
-};
-
 export const adminBlogsColumn = ({
+  categoryById,
   setSelectedItem,
   setOpen,
   setToggleItem,
   setToggleOpen,
 }: {
+  categoryById: Map<string, ICategory>;
   setSelectedItem: React.Dispatch<React.SetStateAction<IBlog | null>>;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   setToggleItem: React.Dispatch<React.SetStateAction<IBlog | null>>;
@@ -99,23 +96,22 @@ export const adminBlogsColumn = ({
     ),
   },
 
-  // --- TYPE ---
+  // --- CATEGORY ---
   {
-    accessorKey: 'type',
-    header: ({ column }) => <SortHeader column={column} label="Type" />,
+    // sort by the category's name, not its id
+    accessorFn: (blog) => categoryById.get(blog.category)?.name ?? '',
+    id: 'category',
+    header: ({ column }) => <SortHeader column={column} label="Category" />,
     cell: ({ row }) => {
-      const type = row.original.type;
-      if (!type) return <span className="text-muted-foreground">-</span>;
-      return (
-        <span
-          className={cn(
-            'inline-flex items-center rounded-md border px-2 py-0.5 font-mono text-[0.6875rem] uppercase tracking-[0.12em]',
-            typeTone[type] ?? 'border-line bg-surface text-muted-foreground'
-          )}
-        >
-          {type}
-        </span>
-      );
+      const category = categoryById.get(row.original.category);
+
+      // a category deleted out from under the post, or a list that failed to
+      // load — say nothing rather than inventing one
+      if (!category) {
+        return <span className="text-muted-foreground">—</span>;
+      }
+
+      return <CategoryLabel category={category} />;
     },
   },
 

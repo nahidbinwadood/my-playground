@@ -22,13 +22,7 @@ const item = {
 
 export function HeroSection() {
   return (
-    <section className="relative overflow-hidden border-b border-line bg-background">
-      {/* Single decorative layer: a hairline dot field faded out by a radial mask. */}
-      <div
-        aria-hidden="true"
-        className="dot-grid pointer-events-none absolute inset-0 [mask-image:radial-gradient(ellipse_75%_65%_at_72%_8%,black,transparent_72%)]"
-      />
-
+    <section className="relative border-b border-line bg-background">
       <div className="relative mx-auto w-full max-w-7xl px-5 py-20 sm:px-8 sm:py-28">
         <motion.div
           variants={container}
@@ -38,13 +32,13 @@ export function HeroSection() {
         >
           {/* Copy — first in the DOM, so it stays first on mobile. */}
           <div className="lg:col-span-5">
-            <motion.p variants={item} className="label-mono">
+            <motion.p variants={item} className="eyebrow">
               UI components + form validation
             </motion.p>
 
             <motion.h1
               variants={item}
-              className="mt-5 text-4xl font-semibold tracking-[-0.03em] text-foreground sm:text-5xl xl:text-6xl"
+              className="mt-5 text-balance text-4xl font-semibold tracking-[-0.03em] text-foreground sm:text-5xl xl:text-[3.5rem] xl:leading-[1.05]"
             >
               Components and validation edge cases,{' '}
               <span className="text-gradient-signal">left running</span>.
@@ -63,11 +57,7 @@ export function HeroSection() {
               variants={item}
               className="mt-9 flex flex-col gap-3 sm:flex-row sm:items-center"
             >
-              <Button
-                size="lg"
-                asChild
-                className="bg-foreground text-background hover:bg-foreground/90"
-              >
+              <Button size="lg" asChild>
                 <Link href="/components">
                   Explore components
                   <ArrowRight />
@@ -79,7 +69,7 @@ export function HeroSection() {
             </motion.div>
           </div>
 
-          {/* Live console — overhangs the grid slightly on wide screens. */}
+          {/* Live console — the page's one loud element. */}
           <motion.div
             variants={item}
             className="lg:col-span-7 lg:-mr-4 lg:-mt-6 xl:-mr-10"

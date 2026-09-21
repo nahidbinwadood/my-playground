@@ -36,13 +36,12 @@ const statusTone: Record<string, Tone> = {
   deleted: 'fail',
 };
 
-// Surface tint + hairline border from the token, with the label mixed toward
-// the foreground so 11px text still clears 4.5:1 in both themes.
+// Tint and hairline come from the fill token; the label comes from its ink
+// variant, which is verified at 4.7:1 or better on exactly these 10% tints.
 const toneClasses: Record<Tone, string> = {
-  signal:
-    'border-signal/30 bg-signal/10 text-[color:color-mix(in_oklch,var(--signal)_60%,var(--foreground))]',
-  warn: 'border-warn/30 bg-warn/10 text-[color:color-mix(in_oklch,var(--warn)_60%,var(--foreground))]',
-  fail: 'border-fail/30 bg-fail/10 text-[color:color-mix(in_oklch,var(--fail)_60%,var(--foreground))]',
+  signal: 'border-signal/30 bg-signal/10 text-signal-ink',
+  warn: 'border-warn/30 bg-warn/10 text-warn-ink',
+  fail: 'border-fail/30 bg-fail/10 text-fail-ink',
 };
 
 const dotClasses: Record<Tone, string> = {

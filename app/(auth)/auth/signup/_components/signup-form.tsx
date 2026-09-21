@@ -21,7 +21,7 @@ import { Eye, EyeOff } from 'lucide-react';
 import { toast } from 'sonner';
 
 const LABEL_CLASS =
-  'font-mono text-[0.6875rem] font-medium uppercase tracking-[0.16em] text-foreground data-[error=true]:text-fail';
+  'font-mono text-[0.6875rem] font-medium uppercase tracking-[0.16em] text-foreground data-[error=true]:text-fail-ink';
 
 const SignupForm = () => {
   const [loading, setLoading] = useState<boolean>(false);
@@ -92,7 +92,7 @@ const SignupForm = () => {
                   className="h-10 font-mono text-sm"
                 />
               </FormControl>
-              <FormMessage className="text-fail" />
+              <FormMessage className="text-fail-ink" />
             </FormItem>
           )}
         />
@@ -117,7 +117,7 @@ const SignupForm = () => {
                   className="h-10 font-mono text-sm"
                 />
               </FormControl>
-              <FormMessage className="text-fail" />
+              <FormMessage className="text-fail-ink" />
             </FormItem>
           )}
         />
@@ -160,7 +160,7 @@ const SignupForm = () => {
                 At least 8 characters, with one uppercase letter, one lowercase
                 letter, one number, and one symbol.
               </FormDescription>
-              <FormMessage className="text-fail" />
+              <FormMessage className="text-fail-ink" />
             </FormItem>
           )}
         />
