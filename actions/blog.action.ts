@@ -1,6 +1,7 @@
 'use server';
 
 import { getToken } from '@/lib/getToken';
+import { IBlog } from '@/types';
 import { revalidateTag } from 'next/cache';
 
 // create blog action==>
@@ -74,7 +75,7 @@ export const getAllBlogs = async ({
     // non-JSON body surfaces as a readable error instead of a JSON.parse
     // SyntaxError crashing the page render.
     const contentType = response.headers.get('content-type') ?? '';
-    let data: Record<string, unknown> | null = null;
+    let data: ({ data: IBlog[] } & Record<string, unknown>) | null = null;
 
     if (contentType.toLowerCase().includes('application/json')) {
       data = await response.json();
