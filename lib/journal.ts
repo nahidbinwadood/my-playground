@@ -1,4 +1,4 @@
-import { INote } from '@/types';
+import type { INote } from '@/types';
 
 // ---------------------------------------------------------------------------
 // The journal's day boundary is the reminder's day boundary: a note logged at
@@ -286,4 +286,35 @@ export const getActivity = (
     elapsedDays,
     maxCount,
   };
+};
+
+// ---------------------------------------------------------------------------
+// Reminder status. Mirrors the backend's slots: a Telegram nudge fires at each
+// of these Dhaka hours unless a note was logged that day.
+// ---------------------------------------------------------------------------
+
+export const REMINDER_SLOTS = [18, 22, 23] as const;
+
+const hourFmt = new Intl.DateTimeFormat('en-GB', {
+  timeZone: JOURNAL_TIME_ZONE,
+  hour: '2-digit',
+  hourCycle: 'h23',
+});
+
+export type TReminderStatus =
+  | { kind: 'logged' }
+  | { kind: 'next'; slot: number }
+  | { kind: 'done' };
+
+// A slot at the current hour has already fired, so "next" is strictly later.
+export const getReminderStatus = (
+  loggedToday: boolean,
+  now: Date
+): TReminderStatus => {
+  if (loggedToday) return { kind: 'logged' };
+
+  const hour = Number(hourFmt.format(now));
+  const slot = REMINDER_SLOTS.find((s) => s > hour);
+
+  return slot === undefined ? { kind: 'done' } : { kind: 'next', slot };
 };
