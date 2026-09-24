@@ -179,3 +179,18 @@ look (old uppercase mono labels, indigo-as-accent uses of `iris` → `brand`).
   blogs admin) in **dark and light**, desktop 1280 and mobile 390.
 - Contrast spot-check of every `-ink` token and `muted-foreground` on `card` and
   `background` in both themes (≥4.5:1).
+
+## 7. Plan-time adjustments
+
+Found while planning against the code (see the implementation plan):
+
+- Public nav has no "Journal" item — notes are private, there is no public
+  journal route. Items: Home, Reading (`/blogs`), Components, Forms.
+- Public footer: tokens only, no restructure.
+- Dashboard title stays "Overview" with the Dhaka date as eyebrow; the old blog
+  KPI cards and Momentum panel are replaced by the four journal tiles (longest
+  streak moves under the streak tile, blog counts into the Recent posts meta).
+- `components/ui/*` is not hand-edited: shadcn controls keep `h-9` and
+  `rounded-md` (12px on the new scale). The 10px / 40px rule applies to custom
+  controls.
+- Admin shell uses shadcn's built-in `Sidebar variant="inset"`.
