@@ -1,20 +1,26 @@
 import type { Metadata } from 'next';
-import { Geist, Geist_Mono } from 'next/font/google';
+import { Bricolage_Grotesque, DM_Mono, Hanken_Grotesk } from 'next/font/google';
 import './globals.css';
 import ThemeProvider from '@/providers/theme-provider';
 
-// Geist Sans for everything a human reads, Geist Mono for everything a machine
-// produced — the split stays semantic, not decorative. Both are variable fonts,
-// so there is no weight list to keep in sync; one file carries every weight.
-const geistSans = Geist({
+// Bricolage for headings and big figures, Hanken for everything a person
+// reads, DM Mono for what a machine produced (dates, counts, paths).
+const display = Bricolage_Grotesque({
   subsets: ['latin'],
-  variable: '--font-geist-sans',
+  variable: '--font-display-src',
   display: 'swap',
 });
 
-const geistMono = Geist_Mono({
+const sans = Hanken_Grotesk({
   subsets: ['latin'],
-  variable: '--font-geist-mono',
+  variable: '--font-sans-src',
+  display: 'swap',
+});
+
+const mono = DM_Mono({
+  subsets: ['latin'],
+  weight: ['400', '500'],
+  variable: '--font-mono-src',
   display: 'swap',
 });
 
@@ -32,7 +38,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased`}
+        className={`${display.variable} ${sans.variable} ${mono.variable} font-sans antialiased`}
       >
         <ThemeProvider>{children}</ThemeProvider>
       </body>
