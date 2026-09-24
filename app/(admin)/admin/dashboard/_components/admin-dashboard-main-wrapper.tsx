@@ -3,13 +3,19 @@ import { getAllCategoriesAction } from '@/actions/category.action';
 import { getAllNotes } from '@/actions/note.action';
 import CategoryLabel from '@/components/common/category-label';
 import PageHeader from '@/components/common/page-header';
-import StatsCard from '@/components/common/stats-card';
 import StatusPill from '@/components/common/status-pill';
 import { Button } from '@/components/ui/button';
-import { getActivity, getJournalStats } from '@/lib/journal';
+import { CATEGORY_TONE_FILL } from '@/lib/categories';
+import {
+  JOURNAL_TIME_ZONE,
+  getActivity,
+  getJournalStats,
+  getReminderStatus,
+  TReminderStatus,
+} from '@/lib/journal';
 import { cn } from '@/lib/utils';
 import { IBlog, INote, ICategory } from '@/types';
-import { Clock, FileText, NotebookPen, Plus, TrendingUp } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import Link from 'next/link';
 import ActivityCalendar from './activity-calendar';
 
@@ -46,7 +52,7 @@ const Panel = ({
 }) => (
   <section
     className={cn(
-      'flex flex-col overflow-hidden rounded-lg border border-border bg-card',
+      'flex flex-col overflow-hidden rounded-[14px] border border-border bg-surface',
       className
     )}
   >
@@ -102,6 +108,68 @@ const Unavailable = ({ what }: { what: string }) => (
   </div>
 );
 
+const todayFmt = new Intl.DateTimeFormat('en-GB', {
+  timeZone: JOURNAL_TIME_ZONE,
+  weekday: 'short',
+  day: 'numeric',
+  month: 'short',
+});
+
+// One figure. The streak tile is the page's lime moment; the rest sit in wells.
+const Tile = ({
+  label,
+  value,
+  note,
+  brand = false,
+}: {
+  label: string;
+  value: React.ReactNode;
+  note?: string;
+  brand?: boolean;
+}) => (
+  <div
+    className={cn(
+      'rounded-[14px] p-5',
+      brand ? 'bg-brand text-primary-foreground' : 'border bg-surface'
+    )}
+  >
+    <p
+      className={cn(
+        'text-sm font-medium',
+        brand ? 'text-primary-foreground/75' : 'text-muted-foreground'
+      )}
+    >
+      {label}
+    </p>
+    <p className="mt-1 truncate font-display text-[2.75rem] leading-none font-semibold tracking-[-0.03em] tabular-nums">
+      {value}
+    </p>
+    {note ? (
+      <p
+        className={cn(
+          'mt-2 font-mono text-xs',
+          brand ? 'text-primary-foreground/75' : 'text-muted-foreground'
+        )}
+      >
+        {note}
+      </p>
+    ) : null}
+  </div>
+);
+
+const REMINDER_CHIP: Record<TReminderStatus['kind'], string> = {
+  logged: 'bg-signal/12 text-signal-ink',
+  next: 'bg-warn/15 text-warn-ink',
+  done: 'bg-muted text-muted-foreground',
+};
+
+const reminderText = (status: TReminderStatus) =>
+  status.kind === 'logged'
+    ? 'Logged today'
+    : status.kind === 'next'
+      ? `Next reminder ${status.slot}:00`
+      : 'No more reminders today';
+
 const AdminDashboardMainWrapper = async () => {
   let blogs: IBlog[] = [];
   let blogsUnavailable = false;
@@ -143,6 +211,8 @@ const AdminDashboardMainWrapper = async () => {
   // from the notes they describe — including when a note is edited or deleted.
   const journal = getJournalStats(notes);
   const activity = getActivity(notes);
+  const reminder = getReminderStatus(journal.loggedToday, new Date());
+  const unknown = '—';
 
   const published = blogs.filter((blog) => blog.isPublished);
   const drafts = blogs.filter((blog) => !blog.isPublished);
@@ -168,7 +238,7 @@ const AdminDashboardMainWrapper = async () => {
       category,
       count: notes.filter((note) => note.category === category.id).length,
     }));
-  const peakTopicCount = Math.max(1, ...notesByTopic.map((t) => t.count));
+  const topicTotal = notesByTopic.reduce((sum, t) => sum + t.count, 0);
   const topicsCovered = notesByTopic.filter((t) => t.count > 0).length;
 
   const focusCategory = journal.currentFocus
@@ -178,64 +248,73 @@ const AdminDashboardMainWrapper = async () => {
   // the note carries only the blog id — join locally rather than populating
   const blogById = new Map(blogs.map((blog) => [blog.id, blog]));
 
-  const dashboardStats = [
-    {
-      title: 'Posts',
-      value: blogs.length,
-      description: 'Reference material',
-      icon: FileText,
-    },
-    {
-      title: 'Published',
-      value: published.length,
-      description: 'Live on /blogs',
-      icon: TrendingUp,
-    },
-    {
-      title: 'Drafts',
-      value: drafts.length,
-      description: 'Not published yet',
-      icon: Clock,
-    },
-    {
-      title: 'Notes',
-      value: notes.length,
-      description: 'Handwritten takeaways',
-      icon: NotebookPen,
-    },
-  ];
-
   return (
     <div className="space-y-6">
       <PageHeader
-        eyebrow="/admin/dashboard"
+        eyebrow={todayFmt.format(new Date()).toLowerCase()}
         title="Overview"
-        subtitle="Where the streak stands, what has been logged, and what is still a draft."
+        subtitle="Where the streak stands, what was logged, and what is still a draft."
         action={
-          <Button asChild className="w-full gap-2 sm:w-auto">
-            <Link href="/admin/blogs/create-blog">
-              <Plus className="size-4" aria-hidden="true" />
-              New post
-            </Link>
-          </Button>
+          <>
+            {notesUnavailable ? null : (
+              <span
+                className={cn(
+                  'rounded-full px-3 py-1.5 font-mono text-xs',
+                  REMINDER_CHIP[reminder.kind]
+                )}
+              >
+                {reminderText(reminder)}
+              </span>
+            )}
+            <Button asChild variant="outline" className="gap-2">
+              <Link href="/admin/blogs/create-blog">New post</Link>
+            </Button>
+            <Button asChild className="gap-2">
+              <Link href="/admin/notes/create-note">
+                <Plus className="size-4" aria-hidden="true" />
+                New note
+              </Link>
+            </Button>
+          </>
         }
       />
 
-      {/* KPIs — full width, four across on desktop */}
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {dashboardStats.map((item) => (
-          <StatsCard
-            key={item.title}
-            title={item.title}
-            value={item.value}
-            description={item.description}
-            icon={<item.icon className="size-5" aria-hidden="true" />}
-          />
-        ))}
+      {/* The four journal figures. Unknown renders as —, never 0. */}
+      <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
+        <Tile
+          brand
+          label="Streak"
+          value={notesUnavailable ? unknown : `${journal.currentStreak}d`}
+          note={
+            notesUnavailable ? undefined : `longest ${journal.longestStreak}d`
+          }
+        />
+        <Tile
+          label="This month"
+          value={notesUnavailable ? unknown : journal.entriesThisMonth}
+          note={notesUnavailable ? undefined : journal.monthLabel}
+        />
+        <Tile
+          label="Topics touched"
+          value={
+            notesUnavailable || categoriesUnavailable
+              ? unknown
+              : `${topicsCovered}/${categories.length}`
+          }
+        />
+        <Tile
+          label="Current focus"
+          value={notesUnavailable ? unknown : (focusCategory?.name ?? unknown)}
+          note={
+            focusCategory
+              ? `${journal.focusNotes} ${journal.focusNotes === 1 ? 'note' : 'notes'} · ${journal.focusWindowDays}d`
+              : undefined
+          }
+        />
       </div>
 
-      {/* Row two: the tracker's own view — the calendar spans two thirds,
-          the numbers that go with it take the third */}
+      {/* Row two: the tracker — the calendar spans two thirds, topic
+          coverage takes the third */}
       <div className="grid gap-4 xl:grid-cols-3">
         <Panel
           className="xl:col-span-2"
@@ -260,154 +339,6 @@ const AdminDashboardMainWrapper = async () => {
           )}
         </Panel>
 
-        <Panel label="Momentum">
-          {notesUnavailable ? (
-            <Unavailable what="notes" />
-          ) : journal.totalNotes > 0 ? (
-            <>
-              <dl className="space-y-5 px-4 py-4 sm:px-5">
-                <div>
-                  <div className="flex items-baseline justify-between gap-3">
-                    <dt className="label-mono">Current streak</dt>
-                    <dd className="font-mono text-3xl leading-none font-semibold tabular-nums">
-                      {journal.currentStreak}
-                      <span className="ml-1.5 text-sm font-normal text-muted-foreground">
-                        days
-                      </span>
-                    </dd>
-                  </div>
-                  {/* The reminder's day boundary is this one's too — today
-                      counts as soon as a single note lands, and stays open
-                      until midnight Dhaka. */}
-                  <p
-                    className={cn(
-                      'mt-2 flex items-center gap-1.5 font-mono text-xs',
-                      journal.loggedToday ? 'text-signal-ink' : 'text-warn-ink'
-                    )}
-                  >
-                    <span
-                      aria-hidden="true"
-                      className={cn(
-                        'size-1.5 shrink-0 rounded-full',
-                        journal.loggedToday ? 'bg-signal' : 'bg-warn'
-                      )}
-                    />
-                    {journal.loggedToday
-                      ? 'Logged today'
-                      : 'Nothing logged today'}
-                  </p>
-                </div>
-
-                <div className="flex items-baseline justify-between gap-3">
-                  <dt className="label-mono">Longest streak</dt>
-                  <dd className="font-mono text-sm tabular-nums">
-                    {journal.longestStreak}
-                    <span className="ml-1 text-muted-foreground">days</span>
-                  </dd>
-                </div>
-
-                <div className="flex items-baseline justify-between gap-3">
-                  <dt className="label-mono">Entries this month</dt>
-                  <dd className="font-mono text-sm tabular-nums">
-                    {journal.entriesThisMonth}
-                    <span className="ml-1 text-muted-foreground">
-                      {journal.monthLabel}
-                    </span>
-                  </dd>
-                </div>
-
-                <div className="flex items-baseline justify-between gap-3">
-                  <dt className="label-mono">
-                    Focus · {journal.focusWindowDays}d
-                  </dt>
-                  <dd className="text-right font-mono text-sm">
-                    {focusCategory?.name ?? '—'}
-                    {focusCategory ? (
-                      <span className="ml-1.5 text-muted-foreground">
-                        {journal.focusNotes}{' '}
-                        {journal.focusNotes === 1 ? 'note' : 'notes'}
-                      </span>
-                    ) : null}
-                  </dd>
-                </div>
-              </dl>
-
-              <footer className="border-t border-line px-4 py-2.5 sm:px-5">
-                <p className="font-mono text-[0.625rem] text-muted-foreground">
-                  Derived from note timestamps · Asia/Dhaka
-                </p>
-              </footer>
-            </>
-          ) : (
-            <EmptyRegion
-              title="No streak yet"
-              hint="Streaks, focus and the calendar all start with the first note."
-              href="/admin/notes/create-note"
-              cta="Log a note"
-            />
-          )}
-        </Panel>
-      </div>
-
-      {/* Row three: posts span two thirds, topic coverage takes the third */}
-      <div className="grid gap-4 xl:grid-cols-3">
-        <Panel
-          className="xl:col-span-2"
-          label="Recent posts"
-          meta={`${recentBlogs.length} of ${blogs.length}`}
-          action={
-            <Link
-              href="/admin/blogs"
-              className="text-xs font-medium underline underline-offset-4 hover:text-muted-foreground"
-            >
-              View all
-            </Link>
-          }
-        >
-          {blogsUnavailable ? (
-            <Unavailable what="posts" />
-          ) : recentBlogs.length > 0 ? (
-            <ul className="divide-y divide-line">
-              {recentBlogs.map((blog) => (
-                <li
-                  key={blog.id}
-                  className="flex flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3 transition-colors hover:bg-accent/40 sm:px-5"
-                >
-                  <div className="min-w-0 flex-1">
-                    <Link
-                      href={`/admin/blogs/edit-blog/${blog.slug}`}
-                      className="block truncate text-sm font-medium hover:underline hover:underline-offset-4"
-                    >
-                      {blog.title}
-                    </Link>
-                    <p className="mt-0.5 truncate font-mono text-xs text-muted-foreground">
-                      /blogs/{blog.slug}
-                    </p>
-                  </div>
-
-                  <CategoryLabel
-                    className="shrink-0"
-                    category={categoryById.get(blog.category)}
-                  />
-
-                  <span className="hidden shrink-0 font-mono text-xs tabular-nums text-muted-foreground sm:block">
-                    {formatDate(blog.updatedAt)}
-                  </span>
-
-                  <StatusPill status={blog.isPublished} className="shrink-0" />
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <EmptyRegion
-              title="No posts yet"
-              hint="Nothing has been created. Write the first post and it lands here."
-              href="/admin/blogs/create-blog"
-              cta="Write a post"
-            />
-          )}
-        </Panel>
-
         <Panel
           label="Topics"
           meta={`${topicsCovered} of ${categories.length}`}
@@ -417,32 +348,52 @@ const AdminDashboardMainWrapper = async () => {
           ) : categoriesUnavailable ? (
             <Unavailable what="categories" />
           ) : notes.length > 0 ? (
-            <dl className="space-y-4 px-4 py-4 sm:px-5">
-              {notesByTopic.map((row) => (
-                <div key={row.category.id}>
-                  <div className="flex items-baseline justify-between gap-3">
-                    <dt>
-                      <CategoryLabel category={row.category} />
+            <div className="space-y-4 px-4 py-4 sm:px-5">
+              {/* The bar repeats the legend's numbers, so it stays decorative */}
+              <div
+                aria-hidden="true"
+                className="flex h-3 gap-[3px] overflow-hidden rounded-full"
+              >
+                {notesByTopic
+                  .filter((row) => row.count > 0)
+                  .map((row) => (
+                    <div
+                      key={row.category.id}
+                      className={cn(
+                        'h-full',
+                        CATEGORY_TONE_FILL[row.category.tone] ??
+                          'bg-muted-foreground'
+                      )}
+                      style={{
+                        width: `${(row.count / Math.max(1, topicTotal)) * 100}%`,
+                      }}
+                    />
+                  ))}
+              </div>
+              <dl className="space-y-2.5">
+                {notesByTopic.map((row) => (
+                  <div
+                    key={row.category.id}
+                    className="flex items-center justify-between gap-3 text-sm"
+                  >
+                    <dt className="flex items-center gap-2">
+                      <span
+                        aria-hidden="true"
+                        className={cn(
+                          'size-2 rounded-[2px]',
+                          CATEGORY_TONE_FILL[row.category.tone] ??
+                            'bg-muted-foreground'
+                        )}
+                      />
+                      {row.category.name}
                     </dt>
-                    <dd className="shrink-0 font-mono text-xs tabular-nums">
+                    <dd className="font-mono text-xs tabular-nums text-muted-foreground">
                       {row.count}
                     </dd>
                   </div>
-                  {/* The bar repeats the number beside it, so it stays decorative */}
-                  <div
-                    aria-hidden="true"
-                    className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-muted"
-                  >
-                    <div
-                      className="h-full rounded-full bg-iris"
-                      style={{
-                        width: `${Math.round((row.count / peakTopicCount) * 100)}%`,
-                      }}
-                    />
-                  </div>
-                </div>
-              ))}
-            </dl>
+                ))}
+              </dl>
+            </div>
           ) : (
             <EmptyRegion
               title="No topics covered"
@@ -454,7 +405,7 @@ const AdminDashboardMainWrapper = async () => {
         </Panel>
       </div>
 
-      {/* Row four: notes span two thirds, drafts take the third */}
+      {/* Row three: notes span two thirds, drafts take the third */}
       <div className="grid gap-4 xl:grid-cols-3">
         <Panel
           className="xl:col-span-2"
@@ -545,6 +496,69 @@ const AdminDashboardMainWrapper = async () => {
             <EmptyRegion
               title="Nothing in draft"
               hint="Every post is published. Saving one without publishing it queues it here."
+            />
+          )}
+        </Panel>
+      </div>
+
+      {/* Row four: every post, drafts included */}
+      <div>
+        <Panel
+          label="Recent posts"
+          meta={
+            blogsUnavailable
+              ? undefined
+              : `${published.length} published · ${drafts.length} drafts`
+          }
+          action={
+            <Link
+              href="/admin/blogs"
+              className="text-xs font-medium underline underline-offset-4 hover:text-muted-foreground"
+            >
+              View all
+            </Link>
+          }
+        >
+          {blogsUnavailable ? (
+            <Unavailable what="posts" />
+          ) : recentBlogs.length > 0 ? (
+            <ul className="divide-y divide-line">
+              {recentBlogs.map((blog) => (
+                <li
+                  key={blog.id}
+                  className="flex flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3 transition-colors hover:bg-muted/60 sm:px-5"
+                >
+                  <div className="min-w-0 flex-1">
+                    <Link
+                      href={`/admin/blogs/edit-blog/${blog.slug}`}
+                      className="block truncate text-sm font-medium hover:underline hover:underline-offset-4"
+                    >
+                      {blog.title}
+                    </Link>
+                    <p className="mt-0.5 truncate font-mono text-xs text-muted-foreground">
+                      /blogs/{blog.slug}
+                    </p>
+                  </div>
+
+                  <CategoryLabel
+                    className="shrink-0"
+                    category={categoryById.get(blog.category)}
+                  />
+
+                  <span className="hidden shrink-0 font-mono text-xs tabular-nums text-muted-foreground sm:block">
+                    {formatDate(blog.updatedAt)}
+                  </span>
+
+                  <StatusPill status={blog.isPublished} className="shrink-0" />
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <EmptyRegion
+              title="No posts yet"
+              hint="Nothing has been created. Write the first post and it lands here."
+              href="/admin/blogs/create-blog"
+              cta="Write a post"
             />
           )}
         </Panel>
