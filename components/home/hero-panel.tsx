@@ -95,7 +95,11 @@ export async function HeroPanel() {
         </>
       ) : (
         <p className="mt-4 text-sm text-muted-foreground">
-          {blogs ? 'Nothing published yet.' : 'Could not load the reading list.'}
+          {!blogs
+            ? 'Could not load the reading list.'
+            : blogs.length === 0
+              ? 'Nothing published yet.'
+              : 'Topic breakdown unavailable.'}
         </p>
       )}
 
