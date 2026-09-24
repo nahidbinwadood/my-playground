@@ -141,7 +141,7 @@ const Tile = ({
     >
       {label}
     </p>
-    <p className="mt-1 truncate font-display text-[2.75rem] leading-none font-semibold tracking-[-0.03em] tabular-nums">
+    <p className="mt-1 font-display text-3xl leading-tight font-semibold tracking-[-0.03em] break-words tabular-nums sm:text-[2.75rem] sm:leading-none">
       {value}
     </p>
     {note ? (
@@ -341,7 +341,11 @@ const AdminDashboardMainWrapper = async () => {
 
         <Panel
           label="Topics"
-          meta={`${topicsCovered} of ${categories.length}`}
+          meta={
+            notesUnavailable || categoriesUnavailable
+              ? undefined
+              : `${topicsCovered} of ${categories.length}`
+          }
         >
           {notesUnavailable ? (
             <Unavailable what="notes" />
@@ -410,7 +414,7 @@ const AdminDashboardMainWrapper = async () => {
         <Panel
           className="xl:col-span-2"
           label="Recent notes"
-          meta={`${notes.length} logged`}
+          meta={notesUnavailable ? undefined : `${notes.length} logged`}
           action={
             <Link
               href="/admin/notes/create-note"
@@ -467,7 +471,10 @@ const AdminDashboardMainWrapper = async () => {
           )}
         </Panel>
 
-        <Panel label="Drafts" meta={`${drafts.length}`}>
+        <Panel
+          label="Drafts"
+          meta={blogsUnavailable ? undefined : `${drafts.length}`}
+        >
           {blogsUnavailable ? (
             <Unavailable what="posts" />
           ) : drafts.length > 0 ? (
