@@ -64,7 +64,7 @@ export function DialogDemo() {
         <div className="space-y-2">
           <Label
             htmlFor={id}
-            className="font-mono text-xs uppercase tracking-[0.12em]"
+            className="font-mono text-xs"
           >
             Name
           </Label>

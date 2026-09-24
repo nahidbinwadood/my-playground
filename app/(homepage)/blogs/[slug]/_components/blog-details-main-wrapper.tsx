@@ -53,7 +53,7 @@ const BlogDetailsMainWrapper = ({
       <motion.div
         aria-hidden="true"
         style={{ scaleX: progress }}
-        className="pointer-events-none fixed inset-x-0 top-0 z-[60] h-0.5 origin-left bg-iris"
+        className="pointer-events-none fixed inset-x-0 top-0 z-[60] h-0.5 origin-left bg-brand"
       />
 
       <article className="mx-auto w-full max-w-3xl px-5 py-14 sm:px-8 sm:py-20">

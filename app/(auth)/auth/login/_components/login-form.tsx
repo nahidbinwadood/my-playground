@@ -20,7 +20,7 @@ import { loginAction } from '@/actions/auth.action';
 import { useRouter } from 'next/navigation';
 
 const LABEL_CLASS =
-  'font-mono text-[0.6875rem] font-medium uppercase tracking-[0.16em] text-foreground data-[error=true]:text-fail-ink';
+  'font-mono text-[0.6875rem] font-medium text-foreground data-[error=true]:text-fail-ink';
 
 const LoginForm = () => {
   const [loading, setLoading] = useState<boolean>(false);

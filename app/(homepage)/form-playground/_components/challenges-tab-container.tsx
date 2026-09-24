@@ -68,7 +68,7 @@ const ChallengesTabContainer = memo(
             <h2 className="text-sm font-semibold tracking-tight">
               Challenges
             </h2>
-            <p className="font-mono text-[0.6875rem] tracking-[0.12em] text-muted-foreground uppercase tabular-nums">
+            <p className="font-mono text-[0.6875rem] text-muted-foreground tabular-nums">
               {solvedCount}/{challenges.length} solved
             </p>
           </div>

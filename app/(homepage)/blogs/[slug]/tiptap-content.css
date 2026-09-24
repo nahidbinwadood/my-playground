@@ -18,7 +18,7 @@
 .tiptap-content h4,
 .tiptap-content h5,
 .tiptap-content h6 {
-  @apply font-semibold;
+  @apply font-display font-semibold;
   color: var(--foreground);
   line-height: 1.25;
   text-wrap: balance;
@@ -139,14 +139,14 @@
   color: var(--foreground);
   font-weight: 500;
   text-decoration: underline;
-  text-decoration-color: var(--signal);
+  text-decoration-color: var(--brand-ink);
   text-decoration-thickness: 1px;
   text-underline-offset: 0.25em;
   transition: color 0.2s ease-out, text-decoration-thickness 0.2s ease-out;
 }
 
 .tiptap-content a:hover {
-  color: var(--signal);
+  color: var(--brand-ink);
   text-decoration-thickness: 2px;
 }
 

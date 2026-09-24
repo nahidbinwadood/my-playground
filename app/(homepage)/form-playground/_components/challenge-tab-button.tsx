@@ -78,7 +78,7 @@ const ChallengeTabButton = memo(
           {challenge.title}
         </span>
 
-        <span className="mt-1 flex flex-wrap items-center gap-x-1.5 font-mono text-[0.6875rem] tracking-[0.12em] text-muted-foreground uppercase">
+        <span className="mt-1 flex flex-wrap items-center gap-x-1.5 font-mono text-[0.6875rem] text-muted-foreground">
           <span>{challenge.difficulty}</span>
           <span aria-hidden="true">/</span>
           <span className="tabular-nums">

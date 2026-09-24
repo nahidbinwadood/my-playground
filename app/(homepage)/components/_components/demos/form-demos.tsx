@@ -19,7 +19,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { CircleAlert, CircleCheck } from 'lucide-react';
 import { useId, useState } from 'react';
 
-const fieldLabel = 'font-mono text-xs uppercase tracking-[0.12em]';
+const fieldLabel = 'font-mono text-xs';
 
 export function InputDemo() {
   const id = useId();

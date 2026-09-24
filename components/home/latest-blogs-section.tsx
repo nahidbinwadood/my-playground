@@ -33,7 +33,7 @@ export async function LatestBlogsSection() {
               <p className="eyebrow flex items-center gap-2">
                 <span
                   aria-hidden="true"
-                  className="pointer-events-none inline-block size-1.5 rounded-[2px] bg-iris"
+                  className="pointer-events-none inline-block size-1.5 rounded-[2px] bg-brand"
                 />
                 Blog
               </p>

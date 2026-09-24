@@ -69,10 +69,10 @@ const buildGroups = (notes: INote[]): TTimelineGroup[] => {
 
 const CardHeader = ({ count }: { count: number }) => (
   <div className="flex items-center justify-between gap-3 border-b border-line bg-surface px-4 py-2.5 sm:px-5">
-    <h2 className="font-mono text-[0.6875rem] font-medium uppercase tracking-[0.18em] text-foreground">
+    <h2 className="font-mono text-[0.6875rem] font-medium text-foreground">
       Timeline
     </h2>
-    <span className="font-mono text-[0.6875rem] uppercase tracking-[0.18em] text-muted-foreground tabular-nums">
+    <span className="font-mono text-[0.6875rem] text-muted-foreground tabular-nums">
       {count} {count === 1 ? 'entry' : 'entries'}
     </span>
   </div>
@@ -199,7 +199,7 @@ const NotesTimeline = ({
               return (
                 <li key={group.key}>
                   <div className="border-b border-line bg-surface px-4 py-2 sm:px-5">
-                    <h3 className="font-mono text-[0.6875rem] font-medium uppercase tracking-[0.18em] text-muted-foreground tabular-nums">
+                    <h3 className="font-mono text-[0.6875rem] font-medium text-muted-foreground tabular-nums">
                       {group.label}
                       <span className="ml-2 text-foreground/60 tabular-nums">
                         {group.entries.length}
