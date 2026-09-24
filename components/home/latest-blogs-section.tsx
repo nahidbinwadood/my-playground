@@ -7,8 +7,15 @@ import { Reveal } from './motion/reveal';
 
 // Server component: fetches real blogs and shows the 3 most recent.
 export async function LatestBlogsSection() {
-  const response = await getAllBlogs({ enableCache: true });
-  const blogs: IBlog[] = response?.data ?? [];
+  // A dead API must not take the landing page down with it — the section just
+  // stays out of the way. The hero panel already says the list is unavailable.
+  let blogs: IBlog[];
+  try {
+    const response = await getAllBlogs({ enableCache: true });
+    blogs = response?.data ?? [];
+  } catch {
+    return null;
+  }
 
   const latest = [...blogs]
     .sort(

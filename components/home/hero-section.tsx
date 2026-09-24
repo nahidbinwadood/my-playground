@@ -4,7 +4,6 @@ import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
 import { motion } from 'motion/react';
 import Link from 'next/link';
-import { ValidationConsole } from './validation-console';
 
 // One tight page-load sequence: short travel, small stagger.
 const container = {
@@ -20,9 +19,9 @@ const item = {
   },
 };
 
-export function HeroSection() {
+export function HeroSection({ panel }: { panel: React.ReactNode }) {
   return (
-    <section className="relative border-b border-line bg-background">
+    <section className="relative bg-background">
       <div className="relative mx-auto w-full max-w-7xl px-5 py-20 sm:px-8 sm:py-28">
         <motion.div
           variants={container}
@@ -31,26 +30,29 @@ export function HeroSection() {
           className="grid gap-12 lg:grid-cols-12 lg:items-center lg:gap-8"
         >
           {/* Copy — first in the DOM, so it stays first on mobile. */}
-          <div className="lg:col-span-5">
-            <motion.p variants={item} className="eyebrow">
-              UI components + form validation
+          <div className="lg:col-span-6">
+            <motion.p
+              variants={item}
+              className="flex items-center gap-2 font-mono text-sm text-muted-foreground"
+            >
+              <span aria-hidden="true" className="size-2 rounded-full bg-brand" />
+              reading · components · form challenges
             </motion.p>
 
             <motion.h1
               variants={item}
-              className="mt-5 text-balance text-4xl font-semibold tracking-[-0.03em] text-foreground sm:text-5xl xl:text-[3.5rem] xl:leading-[1.05]"
+              className="mt-5 text-balance text-5xl font-bold leading-[0.98] tracking-[-0.035em] text-foreground sm:text-6xl xl:text-[4.75rem]"
             >
-              Components and validation edge cases,{' '}
-              <span className="text-gradient-signal">left running</span>.
+              Learning in public,{' '}
+              <span className="text-brand-ink">logged daily.</span>
             </motion.h1>
 
             <motion.p
               variants={item}
               className="mt-6 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg"
             >
-              This is where UI components get built and form validation gets
-              pushed until it breaks. Nothing here is a screenshot — the console
-              parses every keystroke against a real Zod schema.
+              A developer&apos;s study desk: what I&apos;m reading, what I built
+              to understand it, and the playgrounds where it gets tested.
             </motion.p>
 
             <motion.div
@@ -63,18 +65,15 @@ export function HeroSection() {
                   <ArrowRight />
                 </Link>
               </Button>
-              <Button size="lg" variant="outline" asChild>
+              <Button size="lg" variant="secondary" asChild>
                 <Link href="/form-playground">Try form challenges</Link>
               </Button>
             </motion.div>
           </div>
 
-          {/* Live console — the page's one loud element. */}
-          <motion.div
-            variants={item}
-            className="lg:col-span-7 lg:-mr-4 lg:-mt-6 xl:-mr-10"
-          >
-            <ValidationConsole />
+          {/* Public reading-list panel — server-rendered, passed in */}
+          <motion.div variants={item} className="lg:col-span-6">
+            {panel}
           </motion.div>
         </motion.div>
       </div>
