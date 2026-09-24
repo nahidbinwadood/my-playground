@@ -1,5 +1,5 @@
-import { Code2 } from 'lucide-react';
 import Link from 'next/link';
+import Wordmark from '../common/wordmark';
 
 // Only routes that exist. A footer full of `#` links is worse than a short one.
 const REPO_URL = 'https://github.com/nahidbinwadood/my-playground';
@@ -33,12 +33,9 @@ export function Footer() {
           <div className="md:col-span-4 lg:col-span-5">
             <Link
               href="/"
-              className="inline-flex items-center gap-2 rounded-sm transition-colors"
+              className="inline-flex items-center rounded-md"
             >
-              <Code2 className="size-5 text-muted-foreground" aria-hidden="true" />
-              <span className="text-base font-semibold tracking-tight">
-                DevPlayground
-              </span>
+              <Wordmark />
             </Link>
             <p className="mt-4 max-w-xs text-sm leading-relaxed text-muted-foreground">
               Live React components and form-validation experiments. Every
@@ -79,7 +76,7 @@ export function Footer() {
         <div className="flex flex-col gap-2 border-t border-line py-6 font-mono text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
           <p className="tracking-tight">{stack.join(' · ')}</p>
           <p className="tabular-nums tracking-tight">
-            &copy; {new Date().getFullYear()} DevPlayground
+            &copy; {new Date().getFullYear()} playground
           </p>
         </div>
       </div>

@@ -1,4 +1,4 @@
-import { Logo } from '@/app/(auth)/auth/login/_components/logo';
+import Wordmark from './wordmark';
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import React from 'react';
@@ -46,12 +46,7 @@ const AuthLayoutWrapper = ({
         <div className="flex flex-1 items-center justify-center py-12">
           <div className="w-full max-w-sm">
             {/* Wordmark — shown here only when the side panel is hidden */}
-            <div className="mb-10 flex items-center gap-2.5 lg:hidden">
-              <Logo className="size-6 shrink-0 text-foreground" />
-              <span className="font-mono text-[0.9375rem] font-semibold tracking-[-0.03em] text-foreground">
-                DevPlayground
-              </span>
-            </div>
+            <Wordmark className="mb-10 lg:hidden" />
 
             <p className="label-mono">{copy.route}</p>
             <h1 className="mt-2 text-2xl font-semibold tracking-[-0.03em] sm:text-3xl">
@@ -91,12 +86,7 @@ const AuthLayoutWrapper = ({
           }}
         />
 
-        <div className="relative flex items-center gap-3">
-          <Logo className="size-7 shrink-0 text-foreground" />
-          <span className="font-mono text-[0.9375rem] font-semibold tracking-[-0.03em] text-foreground">
-            DevPlayground
-          </span>
-        </div>
+        <Wordmark className="relative" />
 
         <div className="relative max-w-md">
           <p className="label-mono">/admin</p>
