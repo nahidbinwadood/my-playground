@@ -3,21 +3,25 @@ import { ICategory, TCategoryTone } from '@/types';
 // The tones the API accepts, in the order the picker offers them.
 export const CATEGORY_TONES = ['iris', 'signal', 'warn'] as const;
 
-// The category's tone is a token; this is the one place it becomes classes. Fill
-// plus matching hairline, low opacity — the same badge language the blog type
-// tag used before the taxonomy became data.
+// Chip: tinted fill, readable ink, no border.
 export const CATEGORY_TONE_CLASS: Record<TCategoryTone, string> = {
-  iris: 'border-iris/35 bg-iris/10 text-iris-ink',
-  signal: 'border-signal/35 bg-signal/10 text-signal-ink',
-  warn: 'border-warn/40 bg-warn/10 text-warn-ink',
+  iris: 'bg-iris/12 text-iris-ink',
+  signal: 'bg-signal/12 text-signal-ink',
+  warn: 'bg-warn/15 text-warn-ink',
 };
 
-export const CATEGORY_FALLBACK_CLASS =
-  'border-border bg-muted text-muted-foreground';
+export const CATEGORY_FALLBACK_CLASS = 'bg-muted text-muted-foreground';
+
+// Solid fills for bars and legend swatches.
+export const CATEGORY_TONE_FILL: Record<TCategoryTone, string> = {
+  iris: 'bg-iris',
+  signal: 'bg-signal',
+  warn: 'bg-warn',
+};
 
 // Human labels for the tone picker — a tone name is not a colour name.
 export const CATEGORY_TONE_LABEL: Record<TCategoryTone, string> = {
-  iris: 'Indigo',
+  iris: 'Blue',
   signal: 'Green',
   warn: 'Amber',
 };

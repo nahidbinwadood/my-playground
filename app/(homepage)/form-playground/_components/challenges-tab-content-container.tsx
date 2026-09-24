@@ -20,7 +20,7 @@ const ChallengesTabContentContainer = memo(
           <h2 className="text-sm font-semibold tracking-tight sm:text-base">
             {selectedChallenge.title}
           </h2>
-          <span className="flex items-center gap-1.5 font-mono text-[0.6875rem] tracking-[0.12em] text-muted-foreground uppercase">
+          <span className="flex items-center gap-1.5 font-mono text-[0.6875rem] text-muted-foreground">
             <span
               aria-hidden="true"
               className={cn(
@@ -31,7 +31,7 @@ const ChallengesTabContentContainer = memo(
             {selectedChallenge.difficulty}
           </span>
           {!selectedChallenge.completed && (
-            <span className="rounded-sm border border-line px-1.5 py-0.5 font-mono text-[0.6875rem] tracking-[0.12em] text-muted-foreground uppercase">
+            <span className="rounded-sm border border-line px-1.5 py-0.5 font-mono text-[0.6875rem] text-muted-foreground">
               todo
             </span>
           )}
@@ -46,13 +46,13 @@ const ChallengesTabContentContainer = memo(
             <TabsList className="grid w-full max-w-xs grid-cols-2 bg-surface">
               <TabsTrigger
                 value="description"
-                className="cursor-pointer text-xs font-medium tracking-[0.1em] uppercase"
+                className="cursor-pointer text-xs font-medium"
               >
                 Spec
               </TabsTrigger>
               <TabsTrigger
                 value="solution"
-                className="cursor-pointer text-xs font-medium tracking-[0.1em] uppercase"
+                className="cursor-pointer text-xs font-medium"
               >
                 Solution
               </TabsTrigger>

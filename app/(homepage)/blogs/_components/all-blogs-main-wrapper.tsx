@@ -42,7 +42,7 @@ const AllBlogsMainWrapper = ({
       <div className="mx-auto w-full max-w-7xl px-5 py-20 sm:px-8 sm:py-28">
         {/* Page header */}
         <Reveal className="max-w-3xl">
-          <p className="font-mono text-[0.6875rem] uppercase tracking-[0.18em] text-iris-ink">
+          <p className="font-mono text-[0.6875rem] text-brand-ink">
             /blogs
           </p>
           <h1 className="mt-4 text-4xl font-semibold tracking-[-0.03em] sm:text-6xl">

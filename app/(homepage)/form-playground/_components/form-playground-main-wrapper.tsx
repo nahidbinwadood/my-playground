@@ -1,4 +1,5 @@
 'use client';
+import { ValidationConsole } from '@/components/home/validation-console';
 import { useMemo, useState } from 'react';
 import { challenges } from '../data';
 import { IChallenge } from '../types';
@@ -44,6 +45,11 @@ const FormPlayGroundMainWrapper = () => {
           value into one and watch it fail.
         </p>
       </header>
+
+      {/* Live Zod demo — moved here from the landing hero */}
+      <div className="mt-8">
+        <ValidationConsole />
+      </div>
 
       {/* === Main Contents=== */}
       {/* min-w-0 on both tracks is load-bearing. Grid items default to

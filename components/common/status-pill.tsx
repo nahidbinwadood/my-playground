@@ -76,7 +76,7 @@ const StatusPill = ({
   return (
     <span
       className={cn(
-        'inline-flex items-center gap-1.5 rounded-md border px-2 py-0.5 font-mono text-[0.6875rem] uppercase leading-5 tracking-[0.14em]',
+        'inline-flex items-center gap-1.5 rounded-md border px-2 py-0.5 font-mono text-[0.6875rem] leading-5',
         toneClasses[tone],
         className
       )}

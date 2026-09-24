@@ -135,7 +135,7 @@ function FormImageUploader<T extends FieldValues>({
                 type="button"
                 disabled={disabled}
                 onClick={() => inputRef.current?.click()}
-                className="rounded-md border border-line px-2 py-1 font-mono text-[0.6875rem] uppercase tracking-[0.14em] text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:pointer-events-none disabled:opacity-50"
+                className="rounded-md border border-line px-2 py-1 font-mono text-[0.6875rem] text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:pointer-events-none disabled:opacity-50"
               >
                 Replace
               </button>
@@ -164,7 +164,7 @@ function FormImageUploader<T extends FieldValues>({
           )}
         >
           <ImagePlus className="h-5 w-5 text-muted-foreground" aria-hidden="true" />
-          <span className="font-mono text-[0.6875rem] uppercase tracking-[0.18em] text-foreground">
+          <span className="font-mono text-[0.6875rem] text-foreground">
             Choose an image
           </span>
           <span className="text-xs text-muted-foreground">

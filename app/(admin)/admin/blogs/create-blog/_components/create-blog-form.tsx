@@ -36,11 +36,11 @@ const Panel = ({
 }) => (
   <section className={cn('rounded-lg border border-border bg-card', className)}>
     <div className="flex items-center justify-between gap-3 border-b border-line bg-surface px-4 py-2.5">
-      <h2 className="font-mono text-[0.6875rem] font-medium uppercase tracking-[0.18em] text-foreground">
+      <h2 className="font-mono text-[0.6875rem] font-medium text-foreground">
         {label}
       </h2>
       {hint ? (
-        <span className="font-mono text-[0.6875rem] uppercase tracking-[0.18em] text-muted-foreground">
+        <span className="font-mono text-[0.6875rem] text-muted-foreground">
           {hint}
         </span>
       ) : null}

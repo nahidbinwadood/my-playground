@@ -69,7 +69,7 @@ function FormTextarea<T extends FieldValues>({
         {hint && (
           <p
             aria-hidden="true"
-            className="pointer-events-none absolute right-3 bottom-2 font-mono text-[0.6875rem] uppercase tracking-[0.18em] text-muted-foreground"
+            className="pointer-events-none absolute right-3 bottom-2 font-mono text-[0.6875rem] text-muted-foreground"
           >
             {hint}
           </p>

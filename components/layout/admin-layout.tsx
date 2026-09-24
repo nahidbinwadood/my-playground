@@ -1,6 +1,4 @@
-// Admin shell: sidebar + top header + scrollable content.
-// Sidebar, header, and content all share the page background (--background)
-// for a seamless unified surface; regions are divided by hairline rules only.
+// Admin shell: sidebar sits on the page ground, content lives in one rounded card panel (shadcn's inset variant).
 import { SidebarInset, SidebarProvider } from '../ui/sidebar';
 import AppSidebar from './app-sidebar';
 import DashboardHeader from './dashboard-header';
@@ -12,7 +10,7 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
       <AppSidebar />
 
       {/* Fill the viewport height so the content area owns the only scrollbar */}
-      <SidebarInset className="h-svh overflow-hidden">
+      <SidebarInset className="h-svh overflow-hidden bg-card md:h-[calc(100svh-1rem)] md:border md:border-line md:shadow-none">
         {/* Header: fixed height, never scrolls */}
         <DashboardHeader />
 

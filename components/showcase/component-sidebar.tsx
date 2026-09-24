@@ -28,7 +28,7 @@ export function ComponentSidebar({
         <nav className="p-2">
           {categories.map((category) => (
             <div key={category} className="mb-4 last:mb-0">
-              <div className="px-3 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+              <div className="px-3 py-2 text-xs font-semibold text-muted-foreground">
                 {category}
               </div>
               <div className="space-y-1">

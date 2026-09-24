@@ -2,18 +2,19 @@
 
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { Code2, Github, Menu, X } from 'lucide-react';
+import { Github, Menu, X } from 'lucide-react';
 import { AnimatePresence, motion, useScroll } from 'motion/react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 import ThemeToggler from '../common/theme-toggler';
+import Wordmark from '../common/wordmark';
 
 const navigation = [
   { name: 'Home', href: '/' },
-  { name: 'Blogs', href: '/blogs' },
+  { name: 'Reading', href: '/blogs' },
   { name: 'Components', href: '/components' },
-  { name: 'Form Playground', href: '/form-playground' },
+  { name: 'Forms', href: '/form-playground' },
 ];
 
 const MOBILE_PANEL_ID = 'site-nav-mobile';
@@ -42,24 +43,12 @@ export function Header() {
         aria-label="Main"
         className="mx-auto flex h-14 w-full max-w-7xl items-center gap-4 px-5 sm:px-8"
       >
-        {/* Wordmark — monospace logotype in a bordered plate */}
-        <Link
-          href="/"
-          className="group flex shrink-0 items-center gap-2.5 rounded-sm"
-        >
-          <span
-            aria-hidden="true"
-            className="grid size-7 shrink-0 place-items-center rounded-md border border-line bg-surface text-foreground transition-colors group-hover:border-foreground/25"
-          >
-            <Code2 className="size-4" />
-          </span>
-          <span className="text-[0.9375rem] font-semibold tracking-tight text-foreground">
-            DevPlayground
-          </span>
+        <Link href="/" className="flex shrink-0 items-center rounded-md">
+          <Wordmark />
         </Link>
 
         {/* Desktop nav */}
-        <ul className="mx-auto hidden items-center gap-1 lg:flex">
+        <ul className="mx-auto hidden items-center gap-1 rounded-full border bg-card p-1 lg:flex">
           {navigation.map((item) => {
             const isActive = findIsActive(pathname, item.href);
             return (
@@ -68,19 +57,13 @@ export function Header() {
                   href={item.href}
                   aria-current={isActive ? 'page' : undefined}
                   className={cn(
-                    'relative flex items-center rounded-sm px-3 py-2 text-[0.8125rem] font-medium tracking-tight transition-colors',
+                    'flex items-center rounded-full px-4 py-1.5 text-sm font-medium transition-colors',
                     isActive
-                      ? 'text-foreground'
+                      ? 'bg-muted text-foreground'
                       : 'text-muted-foreground hover:text-foreground'
                   )}
                 >
                   {item.name}
-                  {isActive && (
-                    <span
-                      aria-hidden="true"
-                      className="pointer-events-none absolute inset-x-3 -bottom-0.5 h-0.5 rounded-full bg-foreground"
-                    />
-                  )}
                 </Link>
               </li>
             );
@@ -110,7 +93,7 @@ export function Header() {
           aria-expanded={mobileMenuOpen}
           aria-controls={MOBILE_PANEL_ID}
           aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
-          className="ml-auto inline-flex size-9 items-center justify-center rounded-sm border border-line bg-surface text-foreground transition-colors hover:border-border hover:bg-accent lg:hidden"
+          className="ml-auto inline-flex size-9 items-center justify-center rounded-[10px] border border-line bg-surface text-foreground transition-colors hover:border-border hover:bg-accent lg:hidden"
         >
           {mobileMenuOpen ? (
             <X className="size-4" aria-hidden="true" />
@@ -143,19 +126,13 @@ export function Header() {
                           aria-current={isActive ? 'page' : undefined}
                           onClick={() => setMobileMenuOpen(false)}
                           className={cn(
-                            'flex items-center justify-between gap-3 rounded-sm px-3 py-2.5 text-sm font-medium transition-colors',
+                            'flex items-center justify-between gap-3 rounded-[10px] px-3 py-2.5 text-sm font-medium transition-colors',
                             isActive
                               ? 'bg-surface text-foreground'
                               : 'text-muted-foreground hover:bg-surface hover:text-foreground'
                           )}
                         >
                           <span>{item.name}</span>
-                          <span
-                            aria-hidden="true"
-                            className="font-mono text-[0.625rem] tracking-[0.18em] text-muted-foreground"
-                          >
-                            {item.href}
-                          </span>
                         </Link>
                       </li>
                     );

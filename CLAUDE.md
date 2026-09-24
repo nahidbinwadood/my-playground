@@ -83,7 +83,8 @@ Env: `NEXT_PUBLIC_SERVER_URL` — external backend base URL (auth + blogs API). 
 ## Route groups (`app/`)
 
 - `(homepage)/` — public. `page.tsx` landing (hero centerpiece is
-  `components/home/validation-console.tsx`, a live Zod `safeParse` demo),
+  `components/home/hero-panel.tsx`, public reading-list stats; the live Zod
+  `validation-console.tsx` now sits atop `form-playground/`),
   `blogs/` + `blogs/[slug]`, `components/` (showcase; specimens live in
   `components/_components/`), `form-playground/` (validation challenges).
 - `(admin)/admin/` — protected. `dashboard/` (the tracker), `blogs/` (table +
@@ -95,11 +96,11 @@ Env: `NEXT_PUBLIC_SERVER_URL` — external backend base URL (auth + blogs API). 
 ## Design
 
 **`docs/design-system.md` is binding — read it before any UI change.** Direction is
-"working spec sheet": instrument-like, mono-led, hairline rules, one accent moment
-per viewport. Use semantic tokens only (`signal` / `warn` / `fail` / `iris` /
-`surface` / `line`) — never `emerald-500`, `zinc-950`, or raw hex. Type is one
-superfamily: IBM Plex Sans for headings and prose, IBM Plex Mono for machine text
-(paths, labels, numbers, code). Mono means a machine produced it — never prose.
+"Night Studio": dark-first study desk, raised panels, one lime accent. Use semantic
+tokens only (`brand` / `brand-ink` / `signal` / `warn` / `fail` / `iris` / `surface` /
+`line`) — never raw palette classes or hex; lime as text is always `text-brand-ink`.
+Type: Bricolage Grotesque (`font-display`, headings), Hanken Grotesk (body), DM Mono
+(machine text only).
 
 ## Conventions
 

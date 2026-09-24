@@ -2,10 +2,11 @@
 
 import { INavItem, navItems } from '@/lib/nav-items';
 import { useAuthContext } from '@/providers/auth-provider';
-import { ChevronsUpDown, Code2, Settings, User } from 'lucide-react';
+import { ChevronsUpDown, Settings, User } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import LogoutButton from '../common/logoutButton';
+import Wordmark from '../common/wordmark';
 import { Avatar, AvatarFallback } from '../ui/avatar';
 import {
   DropdownMenu,
@@ -44,33 +45,20 @@ const AppSidebar = () => {
   const { user } = useAuthContext();
 
   return (
-    <Sidebar collapsible="icon">
-      {/* Wordmark: same mono logotype as the public header. Collapsed state
-          keeps the mark and drops the text, so the rail stays 4rem wide. */}
-      <SidebarHeader className="h-14 shrink-0 flex-row items-center overflow-hidden border-b border-line px-3 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0">
-        <Link
-          href="/"
-          aria-label="DevPlayground home"
-          className="flex items-center gap-2.5 rounded-md"
-        >
-          <span
-            aria-hidden="true"
-            className="flex size-7 shrink-0 items-center justify-center rounded-md border border-line bg-surface"
-          >
-            <Code2 className="size-4" />
-          </span>
-          <span className="whitespace-nowrap font-mono text-sm font-semibold tracking-[-0.03em] group-data-[collapsible=icon]:hidden">
-            DevPlayground
-          </span>
+    <Sidebar collapsible="icon" variant="inset">
+      {/* Wordmark, same as the public header. Collapsed state keeps the lime
+          square and drops the text, so the rail stays 4rem wide. */}
+      <SidebarHeader className="h-14 shrink-0 flex-row items-center overflow-hidden px-3 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0">
+        <Link href="/" aria-label="playground home" className="rounded-md">
+          <Wordmark textClassName="whitespace-nowrap group-data-[collapsible=icon]:hidden" />
         </Link>
       </SidebarHeader>
 
       {/* Nav — driven by lib/nav-items.ts */}
       <SidebarContent>
         <SidebarGroup className="px-2 py-3">
-          {/* Section heading names the real route this group maps to */}
-          <SidebarGroupLabel className="label-mono mb-1 h-6 px-2 text-[0.6875rem] text-muted-foreground">
-            /admin
+          <SidebarGroupLabel className="eyebrow mb-1 h-6 px-2">
+            Journal
           </SidebarGroupLabel>
 
           <SidebarMenu className="gap-0.5">
@@ -82,19 +70,11 @@ const AppSidebar = () => {
                   key={item?.href}
                   className="group-data-[collapsible=icon]:flex group-data-[collapsible=icon]:justify-center"
                 >
-                  {/* Active marker: an ink left-rule, not a filled pill. Kept
-                      neutral so the only colour on screen belongs to content. */}
-                  {isActive && (
-                    <span
-                      aria-hidden="true"
-                      className="pointer-events-none absolute top-1/2 left-0 z-10 h-4 w-[2px] -translate-y-1/2 rounded-full bg-primary group-data-[collapsible=icon]:hidden"
-                    />
-                  )}
                   <SidebarMenuButton
                     asChild
                     isActive={isActive}
                     tooltip={item?.title}
-                    className="h-9 gap-2.5 rounded-md px-2.5 text-[0.8125rem] tracking-tight text-muted-foreground hover:bg-accent hover:text-foreground data-[active=true]:bg-accent data-[active=true]:font-medium data-[active=true]:text-foreground"
+                    className="h-10 gap-2.5 rounded-[10px] px-3 text-sm text-muted-foreground hover:bg-muted hover:text-foreground data-[active=true]:bg-muted data-[active=true]:font-medium data-[active=true]:text-foreground"
                   >
                     <Link
                       href={item?.href}
@@ -117,7 +97,7 @@ const AppSidebar = () => {
       </SidebarContent>
 
       {/* Signed-in account */}
-      <SidebarFooter className="border-t border-line p-2">
+      <SidebarFooter className="p-2">
         <SidebarMenu>
           <SidebarMenuItem className="group-data-[collapsible=icon]:flex group-data-[collapsible=icon]:justify-center">
             <DropdownMenu>

@@ -18,7 +18,7 @@ import { Minus, Plus } from 'lucide-react';
 import { useState } from 'react';
 import { SpecimenTag } from '../specimen';
 
-const headCell = 'font-mono text-[0.6875rem] uppercase tracking-[0.12em]';
+const headCell = 'font-mono text-[0.6875rem]';
 
 const rows = [
   { id: 'BLG-104', title: 'Debouncing an async check', type: 'Frontend', status: 'signal' as const, statusLabel: 'Published' },

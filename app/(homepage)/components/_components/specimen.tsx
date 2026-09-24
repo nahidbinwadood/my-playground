@@ -46,7 +46,7 @@ export function Specimen({
   );
 }
 
-// Small uppercase pill used inside demos to label a state. The colour lives in
+// Small pill used inside demos to label a state. The colour lives in
 // the dot, so the text itself always keeps foreground contrast.
 export function SpecimenTag({
   tone,
@@ -56,7 +56,7 @@ export function SpecimenTag({
   children: ReactNode;
 }) {
   return (
-    <span className="inline-flex items-center gap-1.5 rounded-full border border-line bg-surface px-2.5 py-1 text-[0.6875rem] font-medium uppercase tracking-[0.12em] text-foreground">
+    <span className="inline-flex items-center gap-1.5 rounded-full border border-line bg-surface px-2.5 py-1 text-[0.6875rem] font-medium text-foreground">
       <span
         aria-hidden="true"
         className={cn(

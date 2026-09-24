@@ -142,7 +142,7 @@ const LinkDialog = ({ editor, onClose }: LinkDialogProps) => {
       <button
         type="button"
         onClick={apply}
-        className="h-8 rounded-md bg-foreground px-3 font-mono text-[0.6875rem] uppercase tracking-[0.14em] text-background transition-opacity hover:opacity-90"
+        className="h-8 rounded-md bg-foreground px-3 font-mono text-[0.6875rem] text-background transition-opacity hover:opacity-90"
       >
         Apply
       </button>
@@ -150,7 +150,7 @@ const LinkDialog = ({ editor, onClose }: LinkDialogProps) => {
         <button
           type="button"
           onClick={remove}
-          className="h-8 rounded-md border border-line px-3 font-mono text-[0.6875rem] uppercase tracking-[0.14em] text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+          className="h-8 rounded-md border border-line px-3 font-mono text-[0.6875rem] text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
         >
           Remove
         </button>
@@ -447,7 +447,7 @@ function FormTextEditor<T extends FieldValues>({
           '[&_pre]:bg-surface [&_pre]:text-foreground [&_pre]:border [&_pre]:border-line [&_pre]:font-mono [&_pre]:rounded-lg [&_pre]:p-4 [&_pre]:my-2 [&_pre]:overflow-x-auto',
           '[&_pre_code]:bg-transparent [&_pre_code]:border-0 [&_pre_code]:p-0',
           '[&_hr]:my-4 [&_hr]:border-line',
-          '[&_a]:text-iris-ink [&_a]:underline [&_a]:underline-offset-2',
+          '[&_a]:text-brand-ink [&_a]:underline [&_a]:underline-offset-2',
           '[&_mark]:bg-warn/25 [&_mark]:text-foreground [&_mark]:rounded-sm [&_mark]:px-0.5',
           '[&_strong]:font-semibold',
           editorClassName

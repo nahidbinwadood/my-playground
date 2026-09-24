@@ -9,14 +9,14 @@ const PITCH_PX = CELL_PX + GAP_PX;
 
 const WEEKDAY_LABELS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
-// The fill is the ink scale rather than the iris accent: a heatmap is many
-// marks, and the accent budget on this page belongs to the topic bars.
+// The lime ramp is a token set (--heat-0..4) so light mode gets an olive ramp
+// that still reads on white.
 const LEVEL_CLASS = [
-  'bg-muted',
-  'bg-primary/25',
-  'bg-primary/45',
-  'bg-primary/70',
-  'bg-primary',
+  'bg-heat-0',
+  'bg-heat-1',
+  'bg-heat-2',
+  'bg-heat-3',
+  'bg-heat-4',
 ];
 
 // Four steps plus empty. Anything above the fourth lands on the darkest step —
@@ -36,14 +36,14 @@ const Cell = ({
 }) => {
   // A day still to come is a blank slot, not a day off — it gets no fill.
   if (future) {
-    return <div className="size-3 rounded-sm" />;
+    return <div className="size-3 rounded-[3px]" />;
   }
 
   return (
     <div
       title={`${count} ${count === 1 ? 'note' : 'notes'} · ${weekdayOfKey(day)} ${day}`}
       className={cn(
-        'size-3 rounded-sm',
+        'size-3 rounded-[3px]',
         LEVEL_CLASS[levelOf(count)],
         isToday && 'outline-1 outline-offset-1 outline-foreground/30'
       )}
@@ -58,12 +58,12 @@ const Legend = () => (
       less
     </span>
     {LEVEL_CLASS.map((level) => (
-      <span key={level} className={cn('size-3 rounded-sm', level)} />
+      <span key={level} className={cn('size-3 rounded-[3px]', level)} />
     ))}
     <span className="font-mono text-[0.625rem] text-muted-foreground">
       more
     </span>
-    <span className="ml-2 size-3 rounded-sm bg-muted outline-1 outline-offset-1 outline-foreground/30" />
+    <span className="ml-2 size-3 rounded-[3px] bg-heat-0 outline-1 outline-offset-1 outline-foreground/30" />
     <span className="font-mono text-[0.625rem] text-muted-foreground">
       today
     </span>
