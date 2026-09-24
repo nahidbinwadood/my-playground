@@ -1,4 +1,4 @@
-import { CATEGORY_FALLBACK_CLASS, toneClassOf } from '@/lib/categories';
+import { toneClassOf } from '@/lib/categories';
 import { cn } from '@/lib/utils';
 import { ICategory } from '@/types';
 
@@ -22,11 +22,9 @@ const CategoryLabel = ({
   return (
     <span
       className={cn(
-        'inline-flex shrink-0 items-center rounded-md border font-mono font-medium uppercase',
-        size === 'sm'
-          ? 'px-2 py-0.5 text-[0.625rem] leading-5 tracking-[0.16em]'
-          : 'px-2 py-0.5 text-[0.6875rem] tracking-[0.12em]',
-        toneClassOf(category.tone) || CATEGORY_FALLBACK_CLASS,
+        'inline-flex shrink-0 items-center rounded-md font-medium',
+        size === 'sm' ? 'px-2 py-0.5 text-xs' : 'px-2.5 py-1 text-xs',
+        toneClassOf(category.tone),
         className
       )}
     >
