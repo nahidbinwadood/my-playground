@@ -5,11 +5,11 @@ import { Button } from '@/components/ui/button';
 import { INote, ICategory } from '@/types';
 import { Plus } from 'lucide-react';
 import Link from 'next/link';
-import { useTransition } from 'react';
+import { useRefreshContext } from '@/providers/refresh-provider';
 import { TBlogOption } from '../types';
 import NotesListSkeleton from './notes-list-skeleton';
 import NotesListStats from './notes-list-stats';
-import NotesTableContainer from './notes-table-container';
+import NotesCardContainer from './notes-card-container';
 
 const NotesListMainWrapper = ({
   notes,
@@ -26,9 +26,11 @@ const NotesListMainWrapper = ({
   blogsUnavailable: boolean;
   categoriesUnavailable: boolean;
 }) => {
-  const [isPending] = useTransition();
+  const { isRefreshing } = useRefreshContext();
 
-  if (isPending) {
+  // An edit or a delete refetches this list; the cards on screen are stale for
+  // that window, so the skeleton stands in for them.
+  if (isRefreshing) {
     return <NotesListSkeleton />;
   }
 
@@ -59,7 +61,7 @@ const NotesListMainWrapper = ({
         <div className="rounded-lg border border-border bg-card px-5 py-10 text-center">
           <p className="text-sm font-medium text-warn-ink">Could not load notes</p>
           <p className="mt-1 text-sm text-muted-foreground">
-            The API did not respond, so this table is empty because the data is
+            The API did not respond, so this feed is empty because the data is
             missing, not because nothing has been written.
           </p>
         </div>
@@ -68,7 +70,7 @@ const NotesListMainWrapper = ({
           {/* Counts derived from the rows below */}
           <NotesListStats notes={notes} />
 
-          <NotesTableContainer
+          <NotesCardContainer
             notes={notes}
             blogs={blogs}
             categories={categories}

@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { IBlog, ICategory } from '@/types';
 import { Plus } from 'lucide-react';
 import Link from 'next/link';
-import { useTransition } from 'react';
+import { useRefreshContext } from '@/providers/refresh-provider';
 import AdminBlogsSkeleton from './admin-blogs-skeleton';
 import AdminBlogsStatsContainer from './admin-blogs-stats-container';
 import AdminBlogsTableContainer from './admin-blogs-table-container';
@@ -17,9 +17,11 @@ const AdminBlogsMainWrapper = ({
   blogs: IBlog[];
   categories: ICategory[];
 }) => {
-  const [isPending] = useTransition();
+  const { isRefreshing } = useRefreshContext();
 
-  if (isPending) {
+  // A delete or a publish toggle refetches this list. Swap the page for its
+  // skeleton for that window — the rows on screen are already known to be wrong.
+  if (isRefreshing) {
     return <AdminBlogsSkeleton />;
   }
 

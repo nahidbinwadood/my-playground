@@ -1,8 +1,9 @@
 'use server';
 
+import { CACHE_TAGS } from '@/lib/cache-tags';
 import { getToken } from '@/lib/getToken';
 import { IBlog } from '@/types';
-import { revalidateTag } from 'next/cache';
+import { updateTag } from 'next/cache';
 
 // create blog action==>
 // Multipart: payload is FormData (fields + cover photo file). No explicit
@@ -28,7 +29,7 @@ export const createBlogAction = async (payload: FormData) => {
     if (!data.success) {
       throw new Error(data.message);
     }
-    revalidateTag('blogs', 'max');
+    updateTag(CACHE_TAGS.blogs);
     return data;
   } catch (error) {
     throw error;
@@ -36,16 +37,23 @@ export const createBlogAction = async (payload: FormData) => {
 };
 
 // get all blogs action==>
-// Public pages get published blogs only (the backend now filters drafts out).
+//
+// Cached and tagged 'blogs'. Next's fetch default is no-store, so without the
+// explicit force-cache every page navigation re-hit the API — which is what made
+// the admin tables flash a skeleton on each visit. The tag is the escape hatch:
+// any write below expires it and the next reader gets fresh data.
+//
+// The cache key includes the Authorization header, so the draft-carrying
+// /blogs/all responses can never be served to a signed-out visitor.
+//
+// Public pages get published blogs only (the backend filters drafts out).
 // Admin surfaces pass includeDrafts: true, which hits the admin-only /blogs/all
 // endpoint so their tables and pickers still show unpublished entries.
 export const getAllBlogs = async ({
-  enableCache = false,
   includeDrafts = false,
 }: {
-  enableCache?: boolean;
   includeDrafts?: boolean;
-}) => {
+} = {}) => {
   try {
     const url = includeDrafts
       ? `${process.env.NEXT_PUBLIC_SERVER_URL}/blogs/all`
@@ -58,17 +66,14 @@ export const getAllBlogs = async ({
       headers.Authorization = `Bearer ${accessToken}`;
     }
 
-    const response = await fetch(
-      url,
-      {
-        method: 'GET',
-        headers,
-        next: {
-          tags: ['blogs'],
-        },
-        ...(enableCache ? { cache: 'force-cache' } : {}),
-      }
-    );
+    const response = await fetch(url, {
+      method: 'GET',
+      headers,
+      cache: 'force-cache',
+      next: {
+        tags: [CACHE_TAGS.blogs],
+      },
+    });
 
     // The backend is expected to reply JSON ({ success, statusCode, … }) but
     // can return plain-text error pages (5xx/gateway). Parse defensively so a
@@ -117,7 +122,7 @@ export const deleteBlog = async (id: string) => {
     if (!data.success) {
       throw new Error(data.message);
     }
-    revalidateTag('blogs', 'max');
+    updateTag(CACHE_TAGS.blogs);
     return data;
   } catch (error) {
     throw error;
@@ -149,7 +154,7 @@ export const updateBlogAction = async (id: string, payload: FormData) => {
     if (!data.success) {
       throw new Error(data.message);
     }
-    revalidateTag('blogs', 'max');
+    updateTag(CACHE_TAGS.blogs);
     return data;
   } catch (error) {
     throw error;
@@ -178,15 +183,16 @@ export const toggleBlogStatus = async (id: string, status: 'DRAFT' | 'PUBLISHED'
     if (!data.success) {
       throw new Error(data.message);
     }
-    revalidateTag('blogs', 'max');
+    updateTag(CACHE_TAGS.blogs);
     return data;
   } catch (error) {
     throw error;
   }
 };
 
-// get single blog==>
-export const singleBlogAction = async (id: string, enableCache?: boolean) => {
+// get single blog — one entry per post, under the same 'blogs' tag so editing or
+// deleting a post also drops its detail page
+export const singleBlogAction = async (id: string) => {
   try {
     const response = await fetch(
       `${process.env.NEXT_PUBLIC_SERVER_URL}/blogs/${id}`,
@@ -196,7 +202,10 @@ export const singleBlogAction = async (id: string, enableCache?: boolean) => {
           'Content-Type': 'application/json',
         },
         credentials: 'include',
-        ...(enableCache ? { cache: 'force-cache' } : {}),
+        cache: 'force-cache',
+        next: {
+          tags: [CACHE_TAGS.blogs],
+        },
       }
     );
 

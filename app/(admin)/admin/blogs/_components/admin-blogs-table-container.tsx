@@ -17,7 +17,7 @@ import { cn } from '@/lib/utils';
 import { IBlog, ICategory } from '@/types';
 import { FileText, Loader2, Plus } from 'lucide-react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRefreshContext } from '@/providers/refresh-provider';
 import { useState, useTransition } from 'react';
 import { toast } from 'sonner';
 import { deleteBlog } from '@/actions/blog.action';
@@ -32,7 +32,7 @@ const AdminBlogsTableContainer = ({
 }) => {
   const [open, setOpen] = useState(false);
   const [toggleOpen, setToggleOpen] = useState(false);
-  const router = useRouter();
+  const { refresh } = useRefreshContext();
   const [selectedItem, setSelectedItem] = useState<IBlog | null>(null);
   const [toggleItem, setToggleItem] = useState<IBlog | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -45,7 +45,7 @@ const AdminBlogsTableContainer = ({
         const response = await deleteBlog(selectedItem?.id);
         if (response.success) {
           toast.success(response.message || 'Blog deleted successfully');
-          router.refresh();
+          refresh();
         } else {
           toast.error(response.message || 'Failed to delete the blog');
         }
@@ -69,7 +69,7 @@ const AdminBlogsTableContainer = ({
         const response = await toggleBlogStatus(toggleItem.id, newStatus);
         if (response.success) {
           toast.success(response.message || `Blog ${newStatus === 'PUBLISHED' ? 'published' : 'unpublished'} successfully`);
-          router.refresh();
+          refresh();
         } else {
           toast.error(response.message || 'Failed to update blog status');
         }

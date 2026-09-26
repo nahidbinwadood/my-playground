@@ -6,7 +6,7 @@ import BlogDetailsMainWrapper from './_components/blog-details-main-wrapper';
 const page = async ({ params }: { params: Promise<{ slug: string }> }) => {
   const { slug } = await params;
 
-  const response = await singleBlogAction(slug, true);
+  const response = await singleBlogAction(slug);
 
   // resolve the post's category to its name and tone — the details page shows
   // nothing rather than a bare id when the list cannot be loaded

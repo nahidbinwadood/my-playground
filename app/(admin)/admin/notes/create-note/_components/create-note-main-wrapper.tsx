@@ -1,10 +1,13 @@
 import { getAllBlogs } from '@/actions/blog.action';
 import { getAllCategoriesAction } from '@/actions/category.action';
 import { getAllNotes } from '@/actions/note.action';
+import PageHeader from '@/components/common/page-header';
+import RefetchSkeleton from '@/components/common/refetch-skeleton';
 import { IBlog, INote, ICategory } from '@/types';
 import { TBlogOption } from '../../types';
 import NotesTimeline from './notes-timeline';
 import QuickNoteForm from './quick-note-form';
+import { TimelineSkeleton } from './notes-skeleton';
 
 // Loads the data both surfaces need: the blog list for the picker (and the
 // timeline's backlinks), the notes for the feed. A failure in either must not
@@ -61,20 +64,46 @@ const NotesMainWrapper = async () => {
 
   return (
     <div>
-      <QuickNoteForm
-        blogs={blogs}
-        blogsUnavailable={blogsUnavailable}
-        categories={categories}
-        categoriesUnavailable={categoriesUnavailable}
+      <PageHeader
+        title="New note"
+        subtitle="Write what you actually understood. Link it to a blog of reference material, or keep it standalone."
+        eyebrow="/admin/notes/create-note"
+        // the middle crumb links back to the notes index this page hangs off
+        breadcrumbs={[
+          { label: 'Dashboard', href: '/admin/dashboard' },
+          { label: 'Notes', href: '/admin/notes' },
+          { label: 'New note' },
+        ]}
       />
-      <NotesTimeline
-        notes={notes}
-        blogById={blogById}
-        categoryById={new Map(
-          categories.map((category) => [category.id, category])
-        )}
-        unavailable={timelineUnavailable}
-      />
+
+      {/* The form is a tall stack of fields, the timeline a narrow feed, so on
+          desktop they sit side by side: the field column takes the room it
+          needs and the timeline fills the rest without ever crowding it. The
+          timeline sticks and scrolls on its own once the form scrolls away. */}
+      <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_22rem] xl:grid-cols-[minmax(0,1fr)_26rem] xl:gap-8">
+        <QuickNoteForm
+          blogs={blogs}
+          blogsUnavailable={blogsUnavailable}
+          categories={categories}
+          categoriesUnavailable={categoriesUnavailable}
+        />
+
+        <div className="lg:sticky lg:top-6 lg:max-h-[calc(100svh-8rem)] lg:overflow-y-auto lg:pr-1">
+          {/* Saving refetches the feed. The skeleton covers the timeline only —
+              the form beside it is the point of this page and must stay usable,
+              ready for the next entry. */}
+          <RefetchSkeleton skeleton={<TimelineSkeleton />}>
+            <NotesTimeline
+              notes={notes}
+              blogById={blogById}
+              categoryById={new Map(
+                categories.map((category) => [category.id, category])
+              )}
+              unavailable={timelineUnavailable}
+            />
+          </RefetchSkeleton>
+        </div>
+      </div>
     </div>
   );
 };

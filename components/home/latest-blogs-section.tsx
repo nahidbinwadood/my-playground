@@ -11,7 +11,7 @@ export async function LatestBlogsSection() {
   // stays out of the way. The hero panel already says the list is unavailable.
   let blogs: IBlog[];
   try {
-    const response = await getAllBlogs({ enableCache: true });
+    const response = await getAllBlogs();
     blogs = response?.data ?? [];
   } catch {
     return null;

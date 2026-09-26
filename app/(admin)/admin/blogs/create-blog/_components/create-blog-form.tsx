@@ -175,12 +175,16 @@ const CreateBlogForm = ({
           ]}
         />
 
-        {/* min-w-0 on both tracks. Below xl this collapses to a single auto-sized
-            column, and grid items default to min-width:auto — so the cover-image
-            filename (nowrap mono, ~259px unbreakable) pinned the column to ~438px
-            and panned the admin shell sideways on phones. xl:grid-cols-2 is
-            minmax(0,1fr), which is why desktop never showed it. */}
-        <div className="grid items-start gap-6 xl:grid-cols-2">
+        {/* The writing column takes the free width and the live preview is a
+            narrow rail beside it, rather than splitting the page in half.
+
+            min-w-0 on both tracks. Below lg this collapses to a single
+            auto-sized column, and grid items default to min-width:auto — so the
+            cover-image filename (nowrap mono, ~259px unbreakable) pinned the
+            column to ~438px and panned the admin shell sideways on phones. The
+            desktop tracks are minmax(0,1fr)/fixed, which is why they never show
+            it. */}
+        <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_22rem] xl:grid-cols-[minmax(0,1fr)_26rem] xl:gap-8">
           {/* Left column — all form inputs */}
           <div className="min-w-0 space-y-6">
             {/* Title + Excerpt */}
@@ -259,8 +263,12 @@ const CreateBlogForm = ({
           </div>
 
           {/* Right column — sticky live preview */}
-          <div className="sticky top-6 hidden min-w-0 xl:block">
-            <Panel label="Preview" hint="Live" className="h-[calc(100vh-6rem)]">
+          <div className="sticky top-6 hidden min-w-0 lg:block">
+            <Panel
+              label="Preview"
+              hint="Live"
+              className="h-[calc(100svh-8rem)]"
+            >
               <div className="h-[calc(100%-2.75rem)] overflow-y-auto p-4 sm:p-5">
                 {content?.trim() ? (
                   <div className="markdown-content">

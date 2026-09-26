@@ -1,7 +1,6 @@
 'use client';
 
 import { createNoteAction } from '@/actions/note.action';
-import PageHeader from '@/components/common/page-header';
 import FormInput from '@/components/forms/shadcn/form-input';
 import FormSelect from '@/components/forms/shadcn/form-select';
 import FormTextarea from '@/components/forms/shadcn/form-textarea';
@@ -12,7 +11,7 @@ import { INoteInput, ICategory } from '@/types';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { KeyboardEvent, ReactNode, useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { useRouter } from 'next/navigation';
+import { useRefreshContext } from '@/providers/refresh-provider';
 import { toast } from 'sonner';
 import { TBlogOption } from '../../types';
 import {
@@ -66,7 +65,7 @@ const QuickNoteForm = ({
   categoriesUnavailable: boolean;
 }) => {
   const [loading, setLoading] = useState(false);
-  const router = useRouter();
+  const { refresh } = useRefreshContext();
 
   const form = useForm<NoteFormValues, unknown, NoteSubmitValues>({
     defaultValues: DEFAULT_VALUES,
@@ -139,7 +138,7 @@ const QuickNoteForm = ({
       lastPrefill.current = null;
       // the timeline below re-renders server-side so the new entry is
       // immediately part of the feed
-      router.refresh();
+      refresh();
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : 'Failed to save the note'
@@ -166,19 +165,6 @@ const QuickNoteForm = ({
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
-        <PageHeader
-          title="New note"
-          subtitle="Write what you actually understood. Link it to a blog of reference material, or keep it standalone."
-          eyebrow="/admin/notes/create-note"
-          // the middle crumb links back to the notes table, which is now the
-          // index this page hangs off
-          breadcrumbs={[
-            { label: 'Dashboard', href: '/admin/dashboard' },
-            { label: 'Notes', href: '/admin/notes' },
-            { label: 'New note' },
-          ]}
-        />
-
         {blogsUnavailable ? (
           <div className="mb-6 rounded-lg border border-warn/40 bg-card px-4 py-3">
             <p className="label-mono text-warn-ink">Blog list unavailable</p>
@@ -189,9 +175,10 @@ const QuickNoteForm = ({
           </div>
         ) : null}
 
-        <div className="max-w-3xl space-y-6">
+        <div className="space-y-6">
           <Panel label="Source" hint="Optional">
-            <div className="space-y-4 p-4 sm:p-5">
+            {/* Two reference decisions on one row now that the column is wide */}
+            <div className="grid grid-cols-1 gap-4 p-4 sm:grid-cols-2 sm:p-5">
               <FormSelect
                 control={form.control}
                 name="blog"
@@ -250,6 +237,7 @@ const QuickNoteForm = ({
                 placeholder="What did you understand? What is still unclear?"
                 required
                 hint="Ctrl + Enter to save"
+                className="min-h-56"
                 onKeyDown={handleKeyDown}
               />
             </div>

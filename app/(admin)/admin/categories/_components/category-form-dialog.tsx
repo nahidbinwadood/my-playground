@@ -21,7 +21,7 @@ import { Form } from '@/components/ui/form';
 import { CATEGORY_TONE_LABEL, CATEGORY_TONES } from '@/lib/categories';
 import { ICategory, TCategoryTone } from '@/types';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useRouter } from 'next/navigation';
+import { useRefreshContext } from '@/providers/refresh-provider';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
@@ -53,7 +53,7 @@ const CategoryFormDialog = ({
   onOpenChange: (open: boolean) => void;
 }) => {
   const [saving, setSaving] = useState(false);
-  const router = useRouter();
+  const { refresh } = useRefreshContext();
   const isEdit = Boolean(category);
 
   const form = useForm<CategoryFormValues>({
@@ -101,7 +101,7 @@ const CategoryFormDialog = ({
           (category ? 'Category updated' : 'Category created')
       );
       onOpenChange(false);
-      router.refresh();
+      refresh();
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : 'Failed to save the category'

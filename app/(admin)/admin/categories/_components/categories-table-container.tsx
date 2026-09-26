@@ -15,7 +15,7 @@ import {
 import { cn } from '@/lib/utils';
 import { ICategory } from '@/types';
 import { Loader2 } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { useRefreshContext } from '@/providers/refresh-provider';
 import { useState, useTransition } from 'react';
 import { toast } from 'sonner';
 import { categoriesColumn } from './column';
@@ -33,7 +33,7 @@ const CategoriesTableContainer = ({
   const [deleteOpen, setDeleteOpen] = useState(false);
 
   const [isPending, startTransition] = useTransition();
-  const router = useRouter();
+  const { refresh } = useRefreshContext();
 
   const handleDelete = () => {
     if (isPending || !deleteItem) return;
@@ -44,7 +44,7 @@ const CategoriesTableContainer = ({
 
         if (response.success) {
           toast.success(response.message || 'Category deleted');
-          router.refresh();
+          refresh();
         } else {
           toast.error(response.message || 'Failed to delete the category');
         }

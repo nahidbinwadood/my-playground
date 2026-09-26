@@ -1,8 +1,9 @@
 'use server';
 
+import { CACHE_TAGS } from '@/lib/cache-tags';
 import { getToken } from '@/lib/getToken';
 import { INote, INoteInput } from '@/types';
-import { revalidateTag } from 'next/cache';
+import { updateTag } from 'next/cache';
 
 // Built per call so the env var is read at request time, matching blog.action.ts.
 const notesUrl = (path = '') =>
@@ -46,27 +47,29 @@ export const createNoteAction = async (payload: INoteInput) => {
   });
 
   const data = await parse<INote>(response);
-  revalidateTag('notes', 'max');
+  updateTag(CACHE_TAGS.notes);
   return data;
 };
 
 // get all notes — the tracker's data source ==>
 // `includeContent: false` keeps list and timeline views light, since note bodies
 // can be long and only the detail view needs them.
+//
+// Cached under 'notes' like every other read below: the dashboard, the notes
+// index and the logging page all call this, and each of them was paying a fresh
+// round trip before. Any note write expires the tag for all three.
 export const getAllNotes = async ({
   includeContent = true,
-  enableCache = false,
 }: {
   includeContent?: boolean;
-  enableCache?: boolean;
 } = {}) => {
   const query = includeContent ? '' : '?includeContent=false';
 
   const response = await fetch(notesUrl(query), {
     method: 'GET',
     headers: await authHeaders(),
-    next: { tags: ['notes'] },
-    ...(enableCache ? { cache: 'force-cache' } : {}),
+    cache: 'force-cache',
+    next: { tags: [CACHE_TAGS.notes] },
   });
 
   return parse<INote[]>(response);
@@ -77,7 +80,8 @@ export const getNotesByBlog = async (blogId: string) => {
   const response = await fetch(notesUrl(`/blog/${blogId}`), {
     method: 'GET',
     headers: await authHeaders(),
-    next: { tags: ['notes'] },
+    cache: 'force-cache',
+    next: { tags: [CACHE_TAGS.notes] },
   });
 
   return parse<INote[]>(response);
@@ -88,7 +92,8 @@ export const getNoteById = async (id: string) => {
   const response = await fetch(notesUrl(`/${id}`), {
     method: 'GET',
     headers: await authHeaders(),
-    next: { tags: ['notes'] },
+    cache: 'force-cache',
+    next: { tags: [CACHE_TAGS.notes] },
   });
 
   return parse<INote>(response);
@@ -106,7 +111,7 @@ export const updateNoteAction = async (
   });
 
   const data = await parse<INote>(response);
-  revalidateTag('notes', 'max');
+  updateTag(CACHE_TAGS.notes);
   return data;
 };
 
@@ -118,6 +123,6 @@ export const deleteNoteAction = async (id: string) => {
   });
 
   const data = await parse<never>(response);
-  revalidateTag('notes', 'max');
+  updateTag(CACHE_TAGS.notes);
   return data;
 };

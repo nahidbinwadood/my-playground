@@ -21,10 +21,10 @@ const BlogCreateUpdateSkeleton = () => {
           <Skeleton className="h-4 w-96 max-w-full" />
         </div>
 
-        {/* Authoring layout: form inputs + sticky preview */}
-        <div className="grid gap-6 xl:grid-cols-2">
+        {/* Authoring layout: form inputs + sticky preview rail */}
+        <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_22rem] xl:grid-cols-[minmax(0,1fr)_26rem] xl:gap-8">
           {/* Left column — form inputs */}
-          <div className="space-y-6">
+          <div className="min-w-0 space-y-6">
             {/* Headline panel */}
             <div className="rounded-lg border border-border bg-card p-5">
               <div className="space-y-2">
@@ -78,8 +78,8 @@ const BlogCreateUpdateSkeleton = () => {
           </div>
 
           {/* Right column — sticky preview */}
-          <div className="sticky top-6 hidden xl:block">
-            <div className="h-[calc(100vh-6rem)] overflow-hidden rounded-lg border border-border bg-card">
+          <div className="sticky top-6 hidden min-w-0 lg:block">
+            <div className="h-[calc(100svh-8rem)] overflow-hidden rounded-lg border border-border bg-card">
               <div className="flex items-center justify-between border-b border-line bg-surface px-4 py-2.5">
                 <Skeleton className="h-3 w-16 rounded-sm" />
                 <Skeleton className="h-3 w-10 rounded-sm" />

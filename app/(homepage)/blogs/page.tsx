@@ -4,7 +4,7 @@ import { ICategory } from '@/types';
 import AllBlogsMainWrapper from './_components/all-blogs-main-wrapper';
 
 const page = async () => {
-  const response = await getAllBlogs({ enableCache: true });
+  const response = await getAllBlogs();
 
   // The cards show the category's name and tone; posts store only the id. One
   // public list request, joined locally — the endpoint is unguarded, so this

@@ -16,7 +16,7 @@ export async function HeroPanel() {
   let categories: ICategory[] = [];
 
   try {
-    blogs = ((await getAllBlogs({ enableCache: true })).data ?? []) as IBlog[];
+    blogs = ((await getAllBlogs()).data ?? []) as IBlog[];
   } catch {
     blogs = null;
   }

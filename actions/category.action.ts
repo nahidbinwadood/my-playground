@@ -1,8 +1,9 @@
 'use server';
 
+import { CACHE_TAGS } from '@/lib/cache-tags';
 import { getToken } from '@/lib/getToken';
 import { ICategory } from '@/types';
-import { revalidateTag } from 'next/cache';
+import { updateTag } from 'next/cache';
 
 const categoriesUrl = (path = '') =>
   `${process.env.NEXT_PUBLIC_SERVER_URL}/categories${path}`;
@@ -38,10 +39,16 @@ const authHeaders = async () => {
 // No Authorization header on purpose: this action is called by signed out
 // visitors on /blogs and /blogs/[slug], and the endpoint is deliberately
 // unguarded, so there is nothing for a token to prove here.
+//
+// Cached under the 'categories' tag. This is the list every picker and every
+// category label joins against, so it is read on nearly every admin page — with
+// fetch's no-store default it was refetched on each of them, which is the
+// loader the blog and note forms kept showing. A category write expires it.
 export const getAllCategoriesAction = async () => {
   const response = await fetch(categoriesUrl(), {
     method: 'GET',
-    next: { tags: ['categories'] },
+    cache: 'force-cache',
+    next: { tags: [CACHE_TAGS.categories] },
   });
 
   return parse<ICategory[]>(response);
@@ -60,7 +67,7 @@ export const createCategoryAction = async (payload: {
   });
 
   const data = await parse<ICategory>(response);
-  revalidateTag('categories', 'max');
+  updateTag(CACHE_TAGS.categories);
   return data;
 };
 
@@ -76,7 +83,7 @@ export const updateCategoryAction = async (
   });
 
   const data = await parse<ICategory>(response);
-  revalidateTag('categories', 'max');
+  updateTag(CACHE_TAGS.categories);
   return data;
 };
 
@@ -89,6 +96,6 @@ export const deleteCategoryAction = async (id: string) => {
   });
 
   const data = await parse<never>(response);
-  revalidateTag('categories', 'max');
+  updateTag(CACHE_TAGS.categories);
   return data;
 };

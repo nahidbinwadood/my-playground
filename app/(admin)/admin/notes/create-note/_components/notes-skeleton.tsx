@@ -13,18 +13,20 @@ const PanelSkeleton = ({
   hintWidth,
   children,
   footer = false,
+  bodyClassName = 'space-y-4 p-4 sm:p-5',
 }: {
   labelWidth: string;
   hintWidth: string;
   children: React.ReactNode;
   footer?: boolean;
+  bodyClassName?: string;
 }) => (
   <div className="overflow-hidden rounded-lg border border-border bg-card">
     <div className="flex items-center justify-between gap-3 border-b border-line bg-surface px-4 py-2.5">
       <Skeleton className={`h-3 rounded-sm ${labelWidth}`} />
       <Skeleton className={`h-3 rounded-sm ${hintWidth}`} />
     </div>
-    <div className="space-y-4 p-4 sm:p-5">{children}</div>
+    <div className={bodyClassName}>{children}</div>
     {footer ? (
       <div className="flex items-center justify-between gap-3 border-t border-line bg-surface px-4 py-3">
         <Skeleton className="h-3 w-48 max-w-full rounded-sm" />
@@ -38,8 +40,8 @@ const PanelSkeleton = ({
 );
 
 // Mirrors the timeline card: header strip, then dated groups of entries.
-const TimelineSkeleton = () => (
-  <div className="mt-6 max-w-3xl overflow-hidden rounded-lg border border-border bg-card">
+export const TimelineSkeleton = () => (
+  <div className="overflow-hidden rounded-lg border border-border bg-card">
     <div className="flex items-center justify-between gap-3 border-b border-line bg-surface px-4 py-2.5 sm:px-5">
       <Skeleton className="h-3 w-16 rounded-sm" />
       <Skeleton className="h-3 w-20 rounded-sm" />
@@ -74,20 +76,26 @@ const NotesSkeleton = () => {
           <Skeleton className="h-4 w-80 max-w-full" />
         </div>
 
-        <div className="max-w-3xl space-y-6">
-          <PanelSkeleton labelWidth="w-16" hintWidth="w-16">
-            <FieldSkeleton />
-            <FieldSkeleton />
-          </PanelSkeleton>
+        <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_22rem] xl:grid-cols-[minmax(0,1fr)_26rem] xl:gap-8">
+          <div className="space-y-6">
+            <PanelSkeleton
+              labelWidth="w-16"
+              hintWidth="w-16"
+              bodyClassName="grid grid-cols-1 gap-4 p-4 sm:grid-cols-2 sm:p-5"
+            >
+              <FieldSkeleton />
+              <FieldSkeleton />
+            </PanelSkeleton>
 
-          <PanelSkeleton labelWidth="w-12" hintWidth="w-16" footer>
-            <FieldSkeleton />
-            <FieldSkeleton />
-            <FieldSkeleton body />
-          </PanelSkeleton>
+            <PanelSkeleton labelWidth="w-12" hintWidth="w-16" footer>
+              <FieldSkeleton />
+              <FieldSkeleton />
+              <FieldSkeleton body />
+            </PanelSkeleton>
+          </div>
+
+          <TimelineSkeleton />
         </div>
-
-        <TimelineSkeleton />
       </div>
     </div>
   );

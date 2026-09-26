@@ -15,8 +15,8 @@ import {
 } from '@/components/ui/dialog';
 import { Form } from '@/components/ui/form';
 import { INote, INoteInput, ICategory } from '@/types';
+import { useRefreshContext } from '@/providers/refresh-provider';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useRouter } from 'next/navigation';
 import { KeyboardEvent, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
@@ -63,7 +63,7 @@ const NoteFormDialog = ({
   categoriesUnavailable: boolean;
 }) => {
   const [saving, setSaving] = useState(false);
-  const router = useRouter();
+  const { refresh } = useRefreshContext();
 
   const form = useForm<NoteFormValues, unknown, NoteSubmitValues>({
     defaultValues: EMPTY_VALUES,
@@ -108,7 +108,7 @@ const NoteFormDialog = ({
 
       toast.success(response.message || 'Note updated');
       onOpenChange(false);
-      router.refresh();
+      refresh();
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : 'Failed to update the note'

@@ -171,7 +171,7 @@ const NotesTimeline = ({
   const groups = buildGroups(notes);
 
   return (
-    <section className="mt-6 max-w-3xl" aria-label="Timeline of logged notes">
+    <section aria-label="Timeline of logged notes">
       <div className="overflow-hidden rounded-lg border border-border bg-card">
         <CardHeader count={notes.length} />
 

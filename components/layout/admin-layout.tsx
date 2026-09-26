@@ -1,4 +1,5 @@
 // Admin shell: sidebar sits on the page ground, content lives in one rounded card panel (shadcn's inset variant).
+import RefreshProvider from '@/providers/refresh-provider';
 import { SidebarInset, SidebarProvider } from '../ui/sidebar';
 import AppSidebar from './app-sidebar';
 import DashboardHeader from './dashboard-header';
@@ -14,8 +15,12 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
         {/* Header: fixed height, never scrolls */}
         <DashboardHeader />
 
-        {/* Single scroll container for all page content -> one scrollbar */}
-        <div className="flex-1 overflow-y-auto p-4 sm:p-6">{children}</div>
+        {/* Single scroll container for all page content -> one scrollbar.
+            The refresh provider sits here so any row action or dialog can ask
+            for a refetch and the page it belongs to can show its skeleton. */}
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6">
+          <RefreshProvider>{children}</RefreshProvider>
+        </div>
       </SidebarInset>
     </SidebarProvider>
   );

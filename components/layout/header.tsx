@@ -3,7 +3,7 @@
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { Github, Menu, X } from 'lucide-react';
-import { AnimatePresence, motion, useScroll } from 'motion/react';
+import { AnimatePresence, motion } from 'motion/react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
@@ -21,7 +21,6 @@ const MOBILE_PANEL_ID = 'site-nav-mobile';
 
 export function Header() {
   const pathname = usePathname();
-  const { scrollYProgress } = useScroll();
 
   // The open state is keyed to the route it was opened on, so navigating
   // anywhere — including via back/forward — closes the panel on its own.
@@ -158,13 +157,6 @@ export function Header() {
           )}
         </AnimatePresence>
       </div>
-
-      {/* Read-position rail on the header's bottom edge */}
-      <motion.div
-        aria-hidden="true"
-        style={{ scaleX: scrollYProgress }}
-        className="pointer-events-none absolute inset-x-0 bottom-0 h-0.5 origin-left bg-foreground/25"
-      />
     </header>
   );
 }

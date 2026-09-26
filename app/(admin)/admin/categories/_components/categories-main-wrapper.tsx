@@ -2,9 +2,10 @@
 
 import PageHeader from '@/components/common/page-header';
 import { Button } from '@/components/ui/button';
+import { useRefreshContext } from '@/providers/refresh-provider';
 import { ICategory } from '@/types';
 import { Plus } from 'lucide-react';
-import { useState, useTransition } from 'react';
+import { useState } from 'react';
 import CategoriesTableContainer from './categories-table-container';
 import CategoryFormDialog from './category-form-dialog';
 import CategoriesSkeleton from './categories-skeleton';
@@ -17,9 +18,11 @@ const CategoriesMainWrapper = ({
   unavailable: boolean;
 }) => {
   const [createOpen, setCreateOpen] = useState(false);
-  const [isPending] = useTransition();
+  const { isRefreshing } = useRefreshContext();
 
-  if (isPending) {
+  // Renaming a category changes every label on this table, so the save refetches
+  // it. The skeleton covers that window rather than leaving the old names up.
+  if (isRefreshing) {
     return <CategoriesSkeleton />;
   }
 

@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Bricolage_Grotesque, DM_Mono, Hanken_Grotesk } from 'next/font/google';
 import './globals.css';
+import NextTopLoader from 'nextjs-toploader';
 import ThemeProvider from '@/providers/theme-provider';
 
 // Bricolage for headings and big figures, Hanken for everything a person
@@ -40,7 +41,19 @@ export default function RootLayout({
       <body
         className={`${display.variable} ${sans.variable} ${mono.variable} font-sans antialiased`}
       >
-        <ThemeProvider>{children}</ThemeProvider>
+        <ThemeProvider>
+          {/* Route-transition indicator. Pinned to the top of the viewport, above
+              the sticky header; the lime fill is the only accent it needs. */}
+          <NextTopLoader
+            color="var(--brand)"
+            height={2}
+            showSpinner={false}
+            shadow={false}
+            crawlSpeed={180}
+            speed={220}
+          />
+          {children}
+        </ThemeProvider>
       </body>
     </html>
   );
