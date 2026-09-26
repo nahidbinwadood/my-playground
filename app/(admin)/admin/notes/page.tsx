@@ -24,6 +24,8 @@ const NotesPage = async () => {
   let blogs: TBlogOption[] = [];
   let blogsUnavailable = false;
 
+  console.log({blogs})
+
   try {
     // drafts included — a note can be attached to reference material that is
     // not published yet
