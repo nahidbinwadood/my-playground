@@ -51,3 +51,35 @@ stacking plus hairlines; shadows only on popovers, dropdowns, dialogs.
 ## Motion
 
 Unchanged: short travel, small stagger, `prefers-reduced-motion` respected.
+
+## Modals
+
+Every modal — details, edit, create, anything — is
+`components/modal/common-modal.tsx`. Do not reach for `DialogContent` directly.
+
+The shape is fixed: a **header that does not move** (title, optional
+description, close button) over a **scrolling body**, and a footer that stays
+put when one is passed. `CommonModal` is a flex column with `p-0`, so each
+region owns its padding; only the body scrolls. `description` is optional and
+`footer` is optional — nothing else is.
+
+- Width lives in `className`: `sm:max-w-lg` for forms, `sm:max-w-2xl` for reading.
+- A footer submit button is outside the `<form>`: give the form an `id` and the
+  button `form="<that id>"`.
+- Destructive confirmations keep using `components/modal/common-alert-modal.tsx`.
+
+## Controls vs links
+
+An underline means prose. A control — "View all", "Log a note", an empty
+state's next step — is a `Button` (`ghost` for panel headers, `outline` for
+empty states) with a chevron, never underlined text. Row titles get a row-level
+`hover:bg-muted/50` instead of a hover underline.
+
+## Dashboard shape
+
+The journal is one panel, not a scoreboard: the lime streak block, the counted
+ledger under it, and the heatmap share a single `18px` shell, because the streak
+and the calendar are the same fact at two resolutions. Figures belong in that
+ledger — label left, mono reading right — not in a row of identical big-number
+tiles, which gave a category name the same weight as a streak. Below it the page
+keeps one column split (narrow counted view, wide list) on every row.

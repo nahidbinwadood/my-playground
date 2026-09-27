@@ -8,15 +8,8 @@ import CategoryLabel from '@/components/common/category-label';
 import FormInput from '@/components/forms/shadcn/form-input';
 import FormSelect from '@/components/forms/shadcn/form-select';
 import FormTextarea from '@/components/forms/shadcn/form-textarea';
+import CommonModal from '@/components/modal/common-modal';
 import { Button } from '@/components/ui/button';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
 import { Form } from '@/components/ui/form';
 import { CATEGORY_TONE_LABEL, CATEGORY_TONES } from '@/lib/categories';
 import { ICategory, TCategoryTone } from '@/types';
@@ -35,6 +28,10 @@ const EMPTY_VALUES: CategoryFormValues = {
   description: '',
   tone: 'iris',
 };
+
+// The footer is outside the scroll area, so the save button reaches the form
+// through the native `form` attribute instead of a lifted submit handler.
+const FORM_ID = 'category-form';
 
 /**
  * One dialog for both create and edit: a category is three fields, and mirroring
@@ -97,8 +94,7 @@ const CategoryFormDialog = ({
         : await createCategoryAction(payload);
 
       toast.success(
-        response.message ||
-          (category ? 'Category updated' : 'Category created')
+        response.message || (category ? 'Category updated' : 'Category created')
       );
       onOpenChange(false);
       refresh();
@@ -112,88 +108,91 @@ const CategoryFormDialog = ({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg">
-        <DialogHeader>
-          <DialogTitle className="pr-8 text-base font-semibold">
-            {isEdit ? 'Edit category' : 'New category'}
-          </DialogTitle>
-          <DialogDescription className="text-sm">
-            {isEdit
-              ? 'Renaming renames it everywhere — blogs, notes, the tracker. The slug follows the name.'
-              : 'Categories are the topic axis for blogs and notes. New ones append to the end of the list.'}
-          </DialogDescription>
-        </DialogHeader>
+    <CommonModal
+      open={open}
+      onOpenChange={onOpenChange}
+      className="sm:max-w-lg"
+      title={isEdit ? 'Edit category' : 'New category'}
+      description={
+        isEdit
+          ? 'Renaming renames it everywhere — blogs, notes, the tracker. The slug follows the name.'
+          : 'Categories are the topic axis for blogs and notes. New ones append to the end of the list.'
+      }
+      footer={
+        <div className="flex items-center justify-end gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            disabled={saving}
+            onClick={() => onOpenChange(false)}
+          >
+            Cancel
+          </Button>
+          <Button
+            type="submit"
+            form={FORM_ID}
+            loading={saving}
+            loadingText="Saving"
+            className="min-w-36"
+          >
+            {isEdit ? 'Save changes' : 'Create category'}
+          </Button>
+        </div>
+      }
+    >
+      <Form {...form}>
+        <form
+          id={FORM_ID}
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="space-y-4"
+        >
+          <FormInput
+            control={form.control}
+            name="name"
+            label="Name"
+            placeholder="Frontend"
+            required
+          />
 
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormInput
-              control={form.control}
-              name="name"
-              label="Name"
-              placeholder="Frontend"
-              required
+          <FormTextarea
+            control={form.control}
+            name="description"
+            label="Description"
+            placeholder="What belongs in this category"
+            className="min-h-20"
+          />
+
+          <FormSelect
+            control={form.control}
+            name="tone"
+            label="Tone"
+            placeholder="Pick a tone"
+            options={CATEGORY_TONES.map((value) => ({
+              label: CATEGORY_TONE_LABEL[value],
+              value,
+            }))}
+            required
+          />
+
+          {/* Live preview of the badge every blog and note will carry */}
+          <div className="flex items-center justify-between gap-3 rounded-lg border border-line bg-surface px-4 py-3">
+            <span className="label-mono">Badge preview</span>
+            <CategoryLabel
+              category={{
+                id: 'preview',
+                name: name?.trim() || 'Category',
+                slug: '',
+                tone: (tone as TCategoryTone) ?? 'iris',
+                order: 0,
+                createdAt: '',
+                updatedAt: '',
+              }}
+              size="md"
             />
-
-            <FormTextarea
-              control={form.control}
-              name="description"
-              label="Description"
-              placeholder="What belongs in this category"
-              className="min-h-20"
-            />
-
-            <FormSelect
-              control={form.control}
-              name="tone"
-              label="Tone"
-              placeholder="Pick a tone"
-              options={CATEGORY_TONES.map((value) => ({
-                label: CATEGORY_TONE_LABEL[value],
-                value,
-              }))}
-              required
-            />
-
-            {/* Live preview of the badge every blog and note will carry */}
-            <div className="flex items-center justify-between gap-3 rounded-lg border border-line bg-surface px-4 py-3">
-              <span className="label-mono">Badge preview</span>
-              <CategoryLabel
-                category={{
-                  id: 'preview',
-                  name: name?.trim() || 'Category',
-                  slug: '',
-                  tone: (tone as TCategoryTone) ?? 'iris',
-                  order: 0,
-                  createdAt: '',
-                  updatedAt: '',
-                }}
-                size="md"
-              />
-            </div>
-
-            <DialogFooter className="border-t border-line pt-4">
-              <Button
-                type="button"
-                variant="outline"
-                disabled={saving}
-                onClick={() => onOpenChange(false)}
-              >
-                Cancel
-              </Button>
-              <Button
-                type="submit"
-                loading={saving}
-                loadingText="Saving"
-                className="min-w-[9rem]"
-              >
-                {isEdit ? 'Save changes' : 'Create category'}
-              </Button>
-            </DialogFooter>
-          </form>
-        </Form>
-      </DialogContent>
-    </Dialog>
+          </div>
+        </form>
+      </Form>
+    </CommonModal>
   );
 };
 

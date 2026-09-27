@@ -43,12 +43,18 @@ export default function RootLayout({
       >
         <ThemeProvider>
           {/* Route-transition indicator. Pinned to the top of the viewport, above
-              the sticky header; the lime fill is the only accent it needs. */}
+              the sticky header; the lime fill is the only accent it needs.
+
+              At 2px flat it was invisible in practice — a shadowless hairline
+              flush against the top edge of the screen, which is exactly where
+              nothing gets noticed. 3px plus a short lime bloom is the one place
+              this interface glows, and it earns it: it is the only thing saying
+              a route is still loading. */}
           <NextTopLoader
             color="var(--brand)"
-            height={2}
+            height={3}
             showSpinner={false}
-            shadow={false}
+            shadow="0 0 10px var(--brand), 0 0 4px var(--brand)"
             crawlSpeed={180}
             speed={220}
           />

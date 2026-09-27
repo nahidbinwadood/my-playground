@@ -79,7 +79,9 @@ const Legend = () => (
  * only — so the caption carries the same information as text.
  */
 const ActivityCalendar = ({ activity }: { activity: TActivity }) => {
-  const { columns, months, loggedDays, elapsedDays } = activity;
+  // the counts live in the panel's title strip now, so the caption only says
+  // what the grid itself cannot: how far back it reaches, and which cell is today
+  const { columns, months } = activity;
 
   // the last column is the week containing today
   const today = columns[columns.length - 1].find((cell) => !cell.future);
@@ -137,8 +139,7 @@ const ActivityCalendar = ({ activity }: { activity: TActivity }) => {
 
       <div className="mt-4 flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
         <p className="font-mono text-xs tabular-nums text-muted-foreground">
-          {loggedDays} of {elapsedDays} days logged · last {columns.length} weeks
-          {' · '}today outlined
+          last {columns.length} weeks · today outlined
         </p>
         <Legend />
       </div>

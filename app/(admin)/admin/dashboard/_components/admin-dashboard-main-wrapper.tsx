@@ -35,7 +35,16 @@ const dateFmt = new Intl.DateTimeFormat('en-GB', {
 const formatDate = (value?: string) =>
   value ? dateFmt.format(new Date(value)) : '—';
 
-// Panels are the shell for every region below the KPIs: a title strip in the
+const todayFmt = new Intl.DateTimeFormat('en-GB', {
+  timeZone: JOURNAL_TIME_ZONE,
+  weekday: 'short',
+  day: 'numeric',
+  month: 'short',
+});
+
+const unknown = '—';
+
+// Panels are the shell for every region below the journal: a title strip in the
 // reading voice, with machine values (counts, dates) set in mono.
 const Panel = ({
   label,
@@ -58,17 +67,40 @@ const Panel = ({
   >
     <header className="flex items-center justify-between gap-3 border-b border-line px-4 py-3 sm:px-5">
       <h2 className="text-sm font-semibold tracking-tight">{label}</h2>
-      <div className="flex shrink-0 items-center gap-3">
-        {meta ? (
-          <span className="font-mono text-xs tabular-nums text-muted-foreground">
-            {meta}
-          </span>
-        ) : null}
+      <div className="flex shrink-0 items-center gap-2">
+        {meta ? <Meta>{meta}</Meta> : null}
         {action}
       </div>
     </header>
     <div className="flex-1">{children}</div>
   </section>
+);
+
+// A counted value in a title strip. Mono because a machine produced it, in a
+// well so it reads as a reading rather than a word in the sentence.
+const Meta = ({ children }: { children: React.ReactNode }) => (
+  <span className="rounded-full bg-muted px-2.5 py-1 font-mono text-[0.6875rem] tabular-nums text-muted-foreground">
+    {children}
+  </span>
+);
+
+// A panel's action is a control, so it is shaped like one — a quiet ghost
+// button that fills on hover. Underlines belong to prose.
+const PanelAction = ({
+  href,
+  children,
+}: {
+  href: string;
+  children: React.ReactNode;
+}) => (
+  <Button
+    asChild
+    variant="ghost"
+    size="sm"
+    className="-mr-1.5 h-7 px-2 text-xs text-muted-foreground hover:text-foreground"
+  >
+    <Link href={href}>{children}</Link>
+  </Button>
 );
 
 // Empty states say what to do next, in the interface's voice.
@@ -87,12 +119,9 @@ const EmptyRegion = ({
     <p className="text-sm font-medium">{title}</p>
     <p className="max-w-sm text-sm text-muted-foreground">{hint}</p>
     {href && cta ? (
-      <Link
-        href={href}
-        className="mt-2 text-sm font-medium underline underline-offset-4 hover:text-muted-foreground"
-      >
-        {cta}
-      </Link>
+      <Button asChild variant="outline" size="sm" className="mt-3">
+        <Link href={href}>{cta}</Link>
+      </Button>
     ) : null}
   </div>
 );
@@ -108,52 +137,28 @@ const Unavailable = ({ what }: { what: string }) => (
   </div>
 );
 
-const todayFmt = new Intl.DateTimeFormat('en-GB', {
-  timeZone: JOURNAL_TIME_ZONE,
-  weekday: 'short',
-  day: 'numeric',
-  month: 'short',
-});
-
-// One figure. The streak tile is the page's lime moment; the rest sit in wells.
-const Tile = ({
+// One line of the journal's ledger: what it measures on the left, the reading
+// on the right. Deliberately not a tile — four big numbers in four identical
+// boxes gave a text value like a category name the same weight as a streak.
+const LedgerRow = ({
   label,
   value,
   note,
-  brand = false,
 }: {
   label: string;
   value: React.ReactNode;
   note?: string;
-  brand?: boolean;
 }) => (
-  <div
-    className={cn(
-      'rounded-[14px] p-5',
-      brand ? 'bg-brand text-primary-foreground' : 'border bg-surface'
-    )}
-  >
-    <p
-      className={cn(
-        'text-sm font-medium',
-        brand ? 'text-primary-foreground/75' : 'text-muted-foreground'
-      )}
-    >
-      {label}
-    </p>
-    <p className="mt-1 font-display text-3xl leading-tight font-semibold tracking-[-0.03em] break-words tabular-nums sm:text-[2.75rem] sm:leading-none">
-      {value}
-    </p>
-    {note ? (
-      <p
-        className={cn(
-          'mt-2 font-mono text-xs',
-          brand ? 'text-primary-foreground/75' : 'text-muted-foreground'
-        )}
-      >
-        {note}
-      </p>
-    ) : null}
+  <div className="flex items-baseline justify-between gap-3 px-5 py-3.5">
+    <dt className="text-sm text-muted-foreground">{label}</dt>
+    <dd className="flex min-w-0 flex-col items-end gap-1 text-right">
+      <span className="text-sm font-medium tabular-nums">{value}</span>
+      {note ? (
+        <span className="font-mono text-[0.6875rem] text-muted-foreground">
+          {note}
+        </span>
+      ) : null}
+    </dd>
   </div>
 );
 
@@ -212,7 +217,6 @@ const AdminDashboardMainWrapper = async () => {
   const journal = getJournalStats(notes);
   const activity = getActivity(notes);
   const reminder = getReminderStatus(journal.loggedToday, new Date());
-  const unknown = '—';
 
   const published = blogs.filter((blog) => blog.isPublished);
   const drafts = blogs.filter((blog) => !blog.isPublished);
@@ -249,7 +253,7 @@ const AdminDashboardMainWrapper = async () => {
   const blogById = new Map(blogs.map((blog) => [blog.id, blog]));
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <PageHeader
         eyebrow={todayFmt.format(new Date()).toLowerCase()}
         title="Overview"
@@ -266,7 +270,7 @@ const AdminDashboardMainWrapper = async () => {
                 {reminderText(reminder)}
               </span>
             )}
-            <Button asChild variant="outline" className="gap-2">
+            <Button asChild variant="outline">
               <Link href="/admin/blogs/create-blog">New post</Link>
             </Button>
             <Button asChild className="gap-2">
@@ -279,66 +283,94 @@ const AdminDashboardMainWrapper = async () => {
         }
       />
 
-      {/* The four journal figures. Unknown renders as —, never 0. */}
-      <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
-        <Tile
-          brand
-          label="Streak"
-          value={notesUnavailable ? unknown : `${journal.currentStreak}d`}
-          note={
-            notesUnavailable ? undefined : `longest ${journal.longestStreak}d`
-          }
-        />
-        <Tile
-          label="This month"
-          value={notesUnavailable ? unknown : journal.entriesThisMonth}
-          note={notesUnavailable ? undefined : journal.monthLabel}
-        />
-        <Tile
-          label="Topics touched"
-          value={
-            notesUnavailable || categoriesUnavailable
-              ? unknown
-              : `${topicsCovered}/${categories.length}`
-          }
-        />
-        <Tile
-          label="Current focus"
-          value={notesUnavailable ? unknown : (focusCategory?.name ?? unknown)}
-          note={
-            focusCategory
-              ? `${journal.focusNotes} ${journal.focusNotes === 1 ? 'note' : 'notes'} · ${journal.focusWindowDays}d`
-              : undefined
-          }
-        />
-      </div>
+      {/* The journal, as one object: the streak is the same fact the calendar
+          draws at day resolution, so they share a panel instead of sitting in
+          two boxes that repeat each other. This is the page's lime moment. */}
+      <section className="grid overflow-hidden rounded-[18px] border border-border bg-surface xl:grid-cols-[19rem_minmax(0,1fr)]">
+        <div className="flex flex-col border-b border-line xl:border-b-0 xl:border-r">
+          <div className="bg-brand px-5 py-6 text-primary-foreground">
+            <p className="text-sm font-medium text-primary-foreground/75">
+              Current streak
+            </p>
+            <p className="mt-1 font-display text-[3.25rem] leading-none font-semibold tracking-[-0.035em] tabular-nums">
+              {notesUnavailable ? unknown : `${journal.currentStreak}d`}
+            </p>
+            <p className="mt-2.5 font-mono text-xs text-primary-foreground/75">
+              {notesUnavailable
+                ? 'notes unavailable'
+                : `longest ${journal.longestStreak}d · ${
+                    journal.loggedToday ? 'logged today' : 'nothing logged yet'
+                  }`}
+            </p>
+          </div>
 
-      {/* Row two: the tracker — the calendar spans two thirds, topic
-          coverage takes the third */}
-      <div className="grid gap-4 xl:grid-cols-3">
-        <Panel
-          className="xl:col-span-2"
-          label="Activity"
-          meta={
-            notesUnavailable
-              ? undefined
-              : `${activity.loggedDays} of ${activity.elapsedDays} days`
-          }
-        >
-          {notesUnavailable ? (
-            <Unavailable what="notes" />
-          ) : journal.totalNotes > 0 ? (
-            <ActivityCalendar activity={activity} />
-          ) : (
-            <EmptyRegion
-              title="No activity yet"
-              hint="The calendar fills a day at a time. A logged note lights up today."
-              href="/admin/notes/create-note"
-              cta="Log a note"
+          <dl className="divide-y divide-line">
+            <LedgerRow
+              label="Entries this month"
+              value={notesUnavailable ? unknown : journal.entriesThisMonth}
+              note={notesUnavailable ? undefined : journal.monthLabel}
             />
-          )}
-        </Panel>
+            <LedgerRow
+              label="Topics touched"
+              value={
+                notesUnavailable || categoriesUnavailable
+                  ? unknown
+                  : `${topicsCovered}/${categories.length}`
+              }
+            />
+            <LedgerRow
+              label="Current focus"
+              value={
+                focusCategory ? (
+                  <CategoryLabel category={focusCategory} />
+                ) : (
+                  unknown
+                )
+              }
+              note={
+                focusCategory
+                  ? `${journal.focusNotes} ${journal.focusNotes === 1 ? 'note' : 'notes'} · ${journal.focusWindowDays}d`
+                  : undefined
+              }
+            />
+            <LedgerRow
+              label="Notes logged"
+              value={notesUnavailable ? unknown : journal.totalNotes}
+            />
+          </dl>
+        </div>
 
+        <div className="flex min-w-0 flex-col">
+          <header className="flex items-center justify-between gap-3 border-b border-line px-4 py-3 sm:px-5">
+            <h2 className="text-sm font-semibold tracking-tight">Activity</h2>
+            {notesUnavailable ? null : (
+              <Meta>
+                {activity.loggedDays} of {activity.elapsedDays} days
+              </Meta>
+            )}
+          </header>
+
+          <div className="flex-1">
+            {notesUnavailable ? (
+              <Unavailable what="notes" />
+            ) : journal.totalNotes > 0 ? (
+              <ActivityCalendar activity={activity} />
+            ) : (
+              <EmptyRegion
+                title="No activity yet"
+                hint="The calendar fills a day at a time. A logged note lights up today."
+                href="/admin/notes/create-note"
+                cta="Log a note"
+              />
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* Below the journal the page is a ledger: the narrow column carries the
+          counted views, the wide one the entries themselves, and the two rows
+          keep the same column split so the eye tracks straight down. */}
+      <div className="grid gap-4 xl:grid-cols-3">
         <Panel
           label="Topics"
           meta={
@@ -407,22 +439,12 @@ const AdminDashboardMainWrapper = async () => {
             />
           )}
         </Panel>
-      </div>
 
-      {/* Row three: notes span two thirds, drafts take the third */}
-      <div className="grid gap-4 xl:grid-cols-3">
         <Panel
           className="xl:col-span-2"
           label="Recent notes"
           meta={notesUnavailable ? undefined : `${notes.length} logged`}
-          action={
-            <Link
-              href="/admin/notes/create-note"
-              className="text-xs font-medium underline underline-offset-4 hover:text-muted-foreground"
-            >
-              Log a note
-            </Link>
-          }
+          action={<PanelAction href="/admin/notes">All notes</PanelAction>}
         >
           {notesUnavailable ? (
             <Unavailable what="notes" />
@@ -434,19 +456,15 @@ const AdminDashboardMainWrapper = async () => {
                 return (
                   <li
                     key={note.id}
-                    className="flex flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3 sm:px-5"
+                    className="flex flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3 transition-colors hover:bg-muted/50 sm:px-5"
                   >
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-medium">{note.title}</p>
-                      {blog ? (
-                        <p className="mt-0.5 truncate font-mono text-xs text-muted-foreground">
-                          {blog.title}
-                        </p>
-                      ) : (
-                        <p className="mt-0.5 font-mono text-xs text-muted-foreground">
-                          standalone
-                        </p>
-                      )}
+                      <p className="truncate text-sm font-medium">
+                        {note.title}
+                      </p>
+                      <p className="mt-0.5 truncate font-mono text-xs text-muted-foreground">
+                        {blog ? blog.title : 'standalone'}
+                      </p>
                     </div>
 
                     <CategoryLabel
@@ -470,7 +488,9 @@ const AdminDashboardMainWrapper = async () => {
             />
           )}
         </Panel>
+      </div>
 
+      <div className="grid gap-4 xl:grid-cols-3">
         <Panel
           label="Drafts"
           meta={blogsUnavailable ? undefined : `${drafts.length}`}
@@ -482,12 +502,12 @@ const AdminDashboardMainWrapper = async () => {
               {drafts.map((blog) => (
                 <li
                   key={blog.id}
-                  className="flex items-center justify-between gap-3 px-4 py-3 sm:px-5"
+                  className="flex items-center justify-between gap-3 px-4 py-3 transition-colors hover:bg-muted/50 sm:px-5"
                 >
                   <div className="min-w-0 flex-1">
                     <Link
                       href={`/admin/blogs/edit-blog/${blog.slug}`}
-                      className="block truncate text-sm font-medium hover:underline hover:underline-offset-4"
+                      className="block truncate text-sm font-medium"
                     >
                       {blog.title}
                     </Link>
@@ -506,25 +526,16 @@ const AdminDashboardMainWrapper = async () => {
             />
           )}
         </Panel>
-      </div>
 
-      {/* Row four: every post, drafts included */}
-      <div>
         <Panel
+          className="xl:col-span-2"
           label="Recent posts"
           meta={
             blogsUnavailable
               ? undefined
               : `${published.length} published · ${drafts.length} drafts`
           }
-          action={
-            <Link
-              href="/admin/blogs"
-              className="text-xs font-medium underline underline-offset-4 hover:text-muted-foreground"
-            >
-              View all
-            </Link>
-          }
+          action={<PanelAction href="/admin/blogs">All posts</PanelAction>}
         >
           {blogsUnavailable ? (
             <Unavailable what="posts" />
@@ -533,12 +544,12 @@ const AdminDashboardMainWrapper = async () => {
               {recentBlogs.map((blog) => (
                 <li
                   key={blog.id}
-                  className="flex flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3 transition-colors hover:bg-muted/60 sm:px-5"
+                  className="flex flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3 transition-colors hover:bg-muted/50 sm:px-5"
                 >
                   <div className="min-w-0 flex-1">
                     <Link
                       href={`/admin/blogs/edit-blog/${blog.slug}`}
-                      className="block truncate text-sm font-medium hover:underline hover:underline-offset-4"
+                      className="block truncate text-sm font-medium"
                     >
                       {blog.title}
                     </Link>
