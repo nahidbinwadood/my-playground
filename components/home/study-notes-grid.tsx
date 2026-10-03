@@ -1,9 +1,10 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import Link from 'next/link';
 import { IBlog, ICategory, INote } from '@/types';
 import CategoryLabel from '@/components/common/category-label';
+import { NoteReadingDialog } from '@/components/common/note-reading-dialog';
+import { cleanMarkdownSnippet } from '@/lib/utils';
 import { JOURNAL_TIME_ZONE } from '@/lib/journal';
 import {
   ArrowRight,
@@ -12,15 +13,9 @@ import {
   FileText,
   Sparkles,
 } from 'lucide-react';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Reveal } from './motion/reveal';
+import Link from 'next/link';
 
 const dateFmt = new Intl.DateTimeFormat('en-GB', {
   day: '2-digit',
@@ -82,7 +77,7 @@ export function StudyNotesGrid({
   if (notes.length === 0) {
     return (
       <Reveal delay={0.08}>
-        <div className="relative overflow-hidden rounded-[24px] bg-card p-10 text-center sm:p-16">
+        <div className="relative overflow-hidden rounded-[24px] bg-card p-6 text-center sm:p-16">
           <div className="mx-auto flex size-14 items-center justify-center rounded-2xl bg-surface">
             <FileText className="size-6 text-brand-ink" />
           </div>
@@ -107,13 +102,13 @@ export function StudyNotesGrid({
       {/* Category filter pills */}
       {activeCategories.length > 1 && (
         <Reveal delay={0.04}>
-          <div className="mb-8 flex flex-wrap items-center gap-1.5 sm:mb-10">
+          <div className="mb-6 sm:mb-8 flex flex-wrap items-center gap-1.5">
             <button
               type="button"
               onClick={() => setSelectedCategory('ALL')}
-              className={`rounded-full px-3.5 py-1.5 font-mono text-xs font-medium transition-all ${
+              className={`cursor-pointer rounded-full px-3.5 py-1.5 font-mono text-xs font-medium transition-all ${
                 selectedCategory === 'ALL'
-                  ? 'bg-foreground text-background shadow-sm'
+                  ? 'bg-foreground text-background shadow-xs'
                   : 'bg-surface text-muted-foreground hover:bg-muted hover:text-foreground'
               }`}
             >
@@ -126,9 +121,9 @@ export function StudyNotesGrid({
                   key={cat.id}
                   type="button"
                   onClick={() => setSelectedCategory(cat.id)}
-                  className={`rounded-full px-3.5 py-1.5 font-mono text-xs font-medium transition-all ${
+                  className={`cursor-pointer rounded-full px-3.5 py-1.5 font-mono text-xs font-medium transition-all ${
                     selectedCategory === cat.id
-                      ? 'bg-foreground text-background shadow-sm'
+                      ? 'bg-foreground text-background shadow-xs'
                       : 'bg-surface text-muted-foreground hover:bg-muted hover:text-foreground'
                   }`}
                 >
@@ -140,25 +135,25 @@ export function StudyNotesGrid({
         </Reveal>
       )}
 
-      <div className="grid gap-5 lg:grid-cols-12 lg:gap-6">
+      <div className="grid gap-5 lg:grid-cols-12 lg:gap-6 min-w-0">
         {/* Lead Note — prominent magazine hero card */}
         {leadNote && (
-          <div className={otherNotes.length > 0 ? 'lg:col-span-7' : 'lg:col-span-12'}>
+          <div className={`min-w-0 ${otherNotes.length > 0 ? 'lg:col-span-7' : 'lg:col-span-12'}`}>
             <Reveal className="h-full">
               <article
                 onClick={() => setReadingNote(leadNote)}
-                className="group relative flex h-full cursor-pointer flex-col justify-between overflow-hidden rounded-[24px] bg-card p-7 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-2xl hover:ring-1 hover:ring-brand/35 sm:p-9"
+                className="group relative flex h-full cursor-pointer flex-col justify-between overflow-hidden rounded-[20px] sm:rounded-[24px] bg-card p-5 sm:p-7 lg:p-9 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:ring-1 hover:ring-brand/35"
               >
                 {/* Accent notch on top-left edge */}
                 <div
                   aria-hidden="true"
-                  className="absolute left-0 top-0 h-1.5 w-24 bg-brand transition-all duration-300 group-hover:w-36"
+                  className="absolute left-0 top-0 h-1.5 w-20 sm:w-24 bg-brand transition-all duration-300 group-hover:w-36"
                 />
 
-                <div>
+                <div className="min-w-0">
                   {/* Top metadata strip */}
-                  <div className="flex flex-wrap items-center justify-between gap-3">
-                    <div className="flex items-center gap-2">
+                  <div className="flex flex-wrap items-center justify-between gap-2.5">
+                    <div className="flex flex-wrap items-center gap-2">
                       <span className="flex items-center gap-1.5 font-mono text-[0.6875rem] font-medium text-brand-ink">
                         <Sparkles className="size-3" />
                         LATEST INSIGHT
@@ -167,7 +162,7 @@ export function StudyNotesGrid({
                         category={categoryById.get(leadNote.category)}
                       />
                     </div>
-                    <div className="flex items-center gap-3 font-mono text-xs text-muted-foreground">
+                    <div className="flex items-center gap-2.5 font-mono text-xs text-muted-foreground">
                       <span className="inline-flex items-center gap-1">
                         <Clock className="size-3" />
                         {estimateReadTime(leadNote.content)}
@@ -177,41 +172,41 @@ export function StudyNotesGrid({
                     </div>
                   </div>
 
-                  {/* Title */}
-                  <h3 className="mt-6 font-display text-2xl font-bold tracking-tight text-foreground transition-colors group-hover:text-brand-ink sm:text-3xl lg:text-4xl">
+                  {/* Title with word-break protection */}
+                  <h3 className="mt-4 sm:mt-6 font-display text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight text-foreground transition-colors group-hover:text-brand-ink break-words">
                     {leadNote.title}
                   </h3>
 
-                  {/* Highlight excerpt well */}
+                  {/* Highlight excerpt well with cleaned teaser */}
                   {leadNote.description ? (
-                    <p className="mt-4 text-base leading-relaxed text-muted-foreground line-clamp-3">
+                    <p className="mt-3 sm:mt-4 text-sm sm:text-base leading-relaxed text-muted-foreground line-clamp-3 break-words">
                       {leadNote.description}
                     </p>
                   ) : null}
 
                   {leadNote.content && (
-                    <div className="mt-6 rounded-[16px] bg-surface/80 p-5 font-sans text-sm leading-relaxed text-muted-foreground line-clamp-3 border-l-2 border-brand/50">
-                      {leadNote.content}
+                    <div className="mt-4 sm:mt-6 rounded-[14px] sm:rounded-[16px] bg-surface/80 p-3.5 sm:p-4.5 font-sans text-xs sm:text-sm leading-relaxed text-muted-foreground line-clamp-3 border-l-2 border-brand/50 break-words">
+                      {cleanMarkdownSnippet(leadNote.content, 220)}
                     </div>
                   )}
                 </div>
 
                 {/* Footer */}
-                <div className="mt-8 flex flex-wrap items-center justify-between gap-4 border-t border-border/25 pt-5 sm:mt-10">
+                <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-border/25 pt-4 sm:mt-8 sm:pt-5">
                   {leadNote.blog ? (
-                    <div className="flex min-w-0 items-center gap-1.5 font-mono text-xs text-muted-foreground">
+                    <div className="flex min-w-0 max-w-[220px] sm:max-w-none items-center gap-1.5 font-mono text-xs text-muted-foreground">
                       <CornerDownRight className="size-3.5 shrink-0 text-brand-ink" />
                       <span className="truncate">
                         Paired with {blogById.get(leadNote.blog)?.title || 'Reference'}
                       </span>
                     </div>
                   ) : (
-                    <span className="font-mono text-xs text-muted-foreground/70">
+                    <span className="font-mono text-xs text-muted-foreground/80">
                       Standalone takeaway
                     </span>
                   )}
 
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-surface px-3 py-1 font-mono text-xs font-medium text-foreground transition-colors group-hover:bg-brand group-hover:text-black">
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-surface px-3 py-1 font-mono text-xs font-medium text-foreground transition-colors group-hover:bg-brand group-hover:text-black shrink-0">
                     <span>Read takeaway</span>
                     <ArrowRight className="size-3.5 transition-transform duration-200 group-hover:translate-x-1" />
                   </span>
@@ -223,16 +218,16 @@ export function StudyNotesGrid({
 
         {/* Side Stack — companion cards */}
         {otherNotes.length > 0 && (
-          <div className="grid gap-5 sm:grid-cols-2 lg:col-span-5 lg:grid-cols-1 lg:gap-5">
+          <div className="min-w-0 grid gap-5 sm:grid-cols-2 lg:col-span-5 lg:grid-cols-1 lg:gap-5">
             {otherNotes.slice(0, 2).map((note, index) => {
               const blog = note.blog ? blogById.get(note.blog) : undefined;
               return (
-                <Reveal key={note.id} delay={0.06 * (index + 1)} className="h-full">
+                <Reveal key={note.id} delay={0.06 * (index + 1)} className="h-full min-w-0">
                   <article
                     onClick={() => setReadingNote(note)}
-                    className="group relative flex h-full cursor-pointer flex-col justify-between overflow-hidden rounded-[24px] bg-card p-6 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-2xl hover:ring-1 hover:ring-border sm:p-7"
+                    className="group relative flex h-full cursor-pointer flex-col justify-between overflow-hidden rounded-[20px] sm:rounded-[24px] bg-card p-4.5 sm:p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:ring-1 hover:ring-border"
                   >
-                    <div>
+                    <div className="min-w-0">
                       {/* Header */}
                       <div className="flex flex-wrap items-center justify-between gap-2">
                         <div className="flex items-center gap-2">
@@ -251,20 +246,20 @@ export function StudyNotesGrid({
                         </time>
                       </div>
 
-                      {/* Title */}
-                      <h4 className="mt-4 font-display text-lg font-bold tracking-tight text-foreground transition-colors group-hover:text-brand-ink sm:text-xl">
+                      {/* Title with word-break protection */}
+                      <h4 className="mt-3.5 font-display text-base sm:text-lg font-bold tracking-tight text-foreground transition-colors group-hover:text-brand-ink break-words">
                         {note.title}
                       </h4>
 
                       {/* Snippet */}
-                      <p className="mt-3 text-sm leading-relaxed text-muted-foreground line-clamp-3">
-                        {note.description || note.content}
+                      <p className="mt-2.5 text-xs sm:text-sm leading-relaxed text-muted-foreground line-clamp-3 break-words">
+                        {note.description || cleanMarkdownSnippet(note.content, 140)}
                       </p>
                     </div>
 
                     {/* Card bottom */}
-                    <div className="mt-6 flex items-center justify-between gap-3 border-t border-border/25 pt-4">
-                      <span className="truncate font-mono text-xs text-muted-foreground/70">
+                    <div className="mt-5 flex items-center justify-between gap-3 border-t border-border/25 pt-3.5">
+                      <span className="truncate font-mono text-xs text-muted-foreground/80 max-w-[180px]">
                         {blog ? blog.title : 'Standalone'}
                       </span>
 
@@ -282,57 +277,13 @@ export function StudyNotesGrid({
       </div>
 
       {/* Reading Dialog Modal */}
-      <Dialog
+      <NoteReadingDialog
+        note={readingNote}
         open={Boolean(readingNote)}
         onOpenChange={(open) => !open && setReadingNote(null)}
-      >
-        <DialogContent className="hide-scrollbar max-h-[90vh] overflow-y-auto sm:max-w-2xl">
-          {readingNote ? (
-            <>
-              <DialogHeader>
-                <div className="flex flex-wrap items-center gap-2 pb-1">
-                  <CategoryLabel
-                    category={categoryById.get(readingNote.category)}
-                  />
-                  {readingBlog ? (
-                    <Link
-                      href={`/blogs/${readingBlog.slug}`}
-                      className="inline-flex items-center gap-1 font-mono text-xs text-muted-foreground transition-colors hover:text-foreground"
-                    >
-                      <CornerDownRight className="size-3 text-brand-ink" />
-                      <span>{readingBlog.title}</span>
-                    </Link>
-                  ) : null}
-                </div>
-                <DialogTitle className="font-display text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
-                  {readingNote.title}
-                </DialogTitle>
-                <DialogDescription className="flex items-center gap-3 font-mono text-xs tabular-nums text-muted-foreground">
-                  <span>Logged {formatNoteDate(readingNote.createdAt)}</span>
-                  <span>•</span>
-                  <span>{estimateReadTime(readingNote.content)}</span>
-                </DialogDescription>
-              </DialogHeader>
-
-              {readingNote.description ? (
-                <div className="rounded-[14px] bg-muted/40 p-4 text-sm leading-relaxed text-muted-foreground">
-                  {readingNote.description}
-                </div>
-              ) : null}
-
-              {/* Full body */}
-              <div className="overflow-hidden rounded-[16px] bg-surface">
-                <div className="flex items-center justify-between bg-muted/40 px-5 py-2.5 text-xs font-mono text-muted-foreground">
-                  <span>Takeaways & Notes</span>
-                </div>
-                <div className="hide-scrollbar max-h-96 overflow-y-auto px-6 py-5 text-sm leading-relaxed whitespace-pre-wrap text-foreground/90 font-sans">
-                  {readingNote.content || '—'}
-                </div>
-              </div>
-            </>
-          ) : null}
-        </DialogContent>
-      </Dialog>
+        category={readingNote ? categoryById.get(readingNote.category) : undefined}
+        blog={readingBlog}
+      />
     </>
   );
 }
