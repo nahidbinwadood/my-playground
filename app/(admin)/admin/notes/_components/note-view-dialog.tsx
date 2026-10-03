@@ -6,6 +6,10 @@ import CommonModal from '@/components/modal/common-modal';
 import { Button } from '@/components/ui/button';
 import { ICategory, INote } from '@/types';
 import { Pencil } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import rehypeHighlight from 'rehype-highlight';
+import '@/app/(homepage)/blogs/[slug]/markdown-content.css';
 import { TBlogOption } from '../types';
 import { formatNoteDate } from './format-date';
 
@@ -113,8 +117,13 @@ const NoteViewDialog = ({
           <p className="label-mono border-b border-line bg-surface px-4 py-2">
             Body
           </p>
-          <div className="px-4 py-3 text-sm leading-relaxed whitespace-pre-wrap">
-            {note.content || '—'}
+          <div className="markdown-content p-4 text-sm leading-relaxed break-words">
+            <ReactMarkdown
+              remarkPlugins={[remarkGfm]}
+              rehypePlugins={[rehypeHighlight]}
+            >
+              {note.content || '—'}
+            </ReactMarkdown>
           </div>
         </div>
       </div>

@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { motion, useScroll, useSpring } from 'motion/react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import rehypeHighlight from 'rehype-highlight';
 import '../markdown-content.css';
 import { ImageWithLoader } from '@/components/ui/image-with-loader';
 import CategoryLabel from '@/components/common/category-label';
@@ -133,7 +134,10 @@ const BlogDetailsMainWrapper = ({
         )}
 
         <div className="markdown-content mx-auto mt-12 max-w-[68ch]">
-          <ReactMarkdown remarkPlugins={[remarkGfm]}>
+          <ReactMarkdown
+            remarkPlugins={[remarkGfm]}
+            rehypePlugins={[rehypeHighlight]}
+          >
             {blog.content}
           </ReactMarkdown>
         </div>

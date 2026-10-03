@@ -20,6 +20,7 @@ import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import rehypeHighlight from 'rehype-highlight';
 import { BlogFormValues, blogSchema } from '../validation/blog-schema';
 import '../../../../../(homepage)/blogs/[slug]/markdown-content.css';
 
@@ -277,7 +278,10 @@ const CreateBlogForm = ({
               <div className="h-[calc(100%-2.75rem)] overflow-y-auto p-4 sm:p-5">
                 {content?.trim() ? (
                   <div className="markdown-content">
-                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                    <ReactMarkdown
+                      remarkPlugins={[remarkGfm]}
+                      rehypePlugins={[rehypeHighlight]}
+                    >
                       {content}
                     </ReactMarkdown>
                   </div>

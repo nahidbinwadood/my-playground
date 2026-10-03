@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import rehypeHighlight from 'rehype-highlight';
 import '@/app/(homepage)/blogs/[slug]/markdown-content.css';
 import { IBlog, ICategory, INote } from '@/types';
 import CategoryLabel from '@/components/common/category-label';
@@ -125,7 +126,10 @@ export function NoteReadingDialog({
 
           <div className="flex-1 overflow-y-auto overflow-x-hidden p-4 sm:p-6">
             <div className="markdown-content text-xs sm:text-sm leading-relaxed break-words text-foreground/90">
-              <ReactMarkdown remarkPlugins={[remarkGfm]}>
+              <ReactMarkdown
+                remarkPlugins={[remarkGfm]}
+                rehypePlugins={[rehypeHighlight]}
+              >
                 {note.content || '—'}
               </ReactMarkdown>
             </div>

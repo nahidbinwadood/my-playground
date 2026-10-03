@@ -191,7 +191,7 @@
 }
 
 /* ───────────────── Code — inline ───────────────── */
-.markdown-content code {
+.markdown-content :not(pre) > code {
   @apply font-mono;
   font-size: 0.85em;
   padding: 0.15em 0.4em;
@@ -204,26 +204,121 @@
 /* ───────────────── Code — block ───────────────── */
 .markdown-content pre {
   @apply font-mono;
-  margin-block: 1rem;
-  padding: 1rem;
+  margin-block: 1.25rem;
+  padding: 1.125rem 1.25rem;
   border-radius: var(--radius);
-  background: var(--surface);
-  border: 1px solid var(--line);
-  color: var(--foreground);
-  font-size: 0.85rem;
-  line-height: 1.6;
+  background: #0d1117;
+  border: 1px solid #30363d;
+  color: #c9d1d9;
+  font-size: 0.875rem;
+  line-height: 1.65;
   max-width: 100%;
   overflow-x: auto;
   tab-size: 2;
 }
 
 .markdown-content pre code {
-  background: transparent;
-  border: 0;
-  padding: 0;
+  background: transparent !important;
+  border: 0 !important;
+  padding: 0 !important;
   font-size: inherit;
   color: inherit;
   white-space: pre;
+}
+
+/* ───────────────── Syntax Highlighting (GitHub Dark Palette) ───────────────── */
+.markdown-content .hljs {
+  color: #c9d1d9;
+  background: transparent;
+}
+
+.markdown-content .hljs-doctag,
+.markdown-content .hljs-keyword,
+.markdown-content .hljs-meta .hljs-keyword,
+.markdown-content .hljs-template-tag,
+.markdown-content .hljs-template-variable,
+.markdown-content .hljs-type,
+.markdown-content .hljs-variable.language_ {
+  color: #ff7b72; /* coral / pink keywords: const, function, return, let */
+  font-weight: 500;
+}
+
+.markdown-content .hljs-title,
+.markdown-content .hljs-title.class_,
+.markdown-content .hljs-title.class_.inherited__,
+.markdown-content .hljs-title.function_ {
+  color: #d2a8ff; /* purple functions & classes */
+}
+
+.markdown-content .hljs-attr,
+.markdown-content .hljs-attribute,
+.markdown-content .hljs-literal,
+.markdown-content .hljs-meta,
+.markdown-content .hljs-number,
+.markdown-content .hljs-operator,
+.markdown-content .hljs-variable,
+.markdown-content .hljs-selector-attr,
+.markdown-content .hljs-selector-class,
+.markdown-content .hljs-selector-id {
+  color: #79c0ff; /* sky blue constants, numbers, operators */
+}
+
+.markdown-content .hljs-regexp,
+.markdown-content .hljs-string,
+.markdown-content .hljs-meta .hljs-string {
+  color: #a5d6ff; /* soft cyan/blue strings */
+}
+
+.markdown-content .hljs-built_in,
+.markdown-content .hljs-symbol {
+  color: #ffa657; /* warm amber built-ins: console, Math, etc. */
+}
+
+.markdown-content .hljs-comment,
+.markdown-content .hljs-code,
+.markdown-content .hljs-formula {
+  color: #8b949e; /* muted comments */
+  font-style: italic;
+}
+
+.markdown-content .hljs-name,
+.markdown-content .hljs-quote,
+.markdown-content .hljs-selector-tag,
+.markdown-content .hljs-selector-pseudo {
+  color: #7ee787; /* green tags & selectors */
+}
+
+.markdown-content .hljs-subst {
+  color: #c9d1d9;
+}
+
+.markdown-content .hljs-section {
+  color: #1f6feb;
+  font-weight: bold;
+}
+
+.markdown-content .hljs-bullet {
+  color: #f2cc60;
+}
+
+.markdown-content .hljs-emphasis {
+  color: #c9d1d9;
+  font-style: italic;
+}
+
+.markdown-content .hljs-strong {
+  color: #c9d1d9;
+  font-weight: bold;
+}
+
+.markdown-content .hljs-addition {
+  color: #aff5b4;
+  background-color: #033a16;
+}
+
+.markdown-content .hljs-deletion {
+  color: #ffdcd7;
+  background-color: #67060c;
 }
 
 /* ───────────────── Images ───────────────── */
