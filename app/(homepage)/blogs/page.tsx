@@ -3,6 +3,8 @@ import { getAllCategoriesAction } from '@/actions/category.action';
 import { ICategory } from '@/types';
 import AllBlogsMainWrapper from './_components/all-blogs-main-wrapper';
 
+export const revalidate = 3600;
+
 const page = async () => {
   const response = await getAllBlogs();
 

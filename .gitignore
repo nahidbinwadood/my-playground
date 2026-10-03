@@ -42,3 +42,5 @@ next-env.d.ts
 
 # playwright-mcp scratch output
 .playwright-mcp/
+
+.freebuff

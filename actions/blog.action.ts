@@ -1,6 +1,7 @@
 'use server';
 
 import { CACHE_TAGS } from '@/lib/cache-tags';
+import { getCacheFetchOptions } from '@/lib/cache-fetch';
 import { getToken } from '@/lib/getToken';
 import { IBlog } from '@/types';
 import { updateTag } from 'next/cache';
@@ -66,12 +67,17 @@ export const getAllBlogs = async ({
       headers.Authorization = `Bearer ${accessToken}`;
     }
 
+    const cacheOptions = await getCacheFetchOptions({
+      tag: CACHE_TAGS.blogs,
+      revalidateSeconds: 3600,
+    });
+
     const response = await fetch(url, {
       method: 'GET',
-      headers,
-      cache: 'force-cache',
-      next: {
-        tags: [CACHE_TAGS.blogs],
+      ...cacheOptions,
+      headers: {
+        ...headers,
+        ...(cacheOptions.headers ?? {}),
       },
     });
 
@@ -190,22 +196,23 @@ export const toggleBlogStatus = async (id: string, status: 'DRAFT' | 'PUBLISHED'
   }
 };
 
-// get single blog — one entry per post, under the same 'blogs' tag so editing or
-// deleting a post also drops its detail page
+// get single blog — one entry per post, under the same 'blogs' tag with 1h ISR
+// and hard-reload support so viewing or editing stays fresh.
 export const singleBlogAction = async (id: string) => {
   try {
+    const cacheOptions = await getCacheFetchOptions({
+      tag: CACHE_TAGS.blogs,
+      revalidateSeconds: 3600,
+      extraHeaders: {
+        'Content-Type': 'application/json',
+      },
+    });
+
     const response = await fetch(
       `${process.env.NEXT_PUBLIC_SERVER_URL}/blogs/${id}`,
       {
         method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        cache: 'force-cache',
-        next: {
-          tags: [CACHE_TAGS.blogs],
-        },
+        ...cacheOptions,
       }
     );
 

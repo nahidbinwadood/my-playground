@@ -28,7 +28,7 @@ const AdminBlogsMainWrapper = ({
   return (
     <div className="space-y-6">
       {/* Header row: title/breadcrumbs on the left, the one signal action on the right */}
-      <div className="flex flex-col gap-4 border-b border-line pb-6 sm:flex-row sm:items-end sm:justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <PageHeader
           title="Blog posts"
           subtitle="Write, edit, and publish posts. Drafts stay out of the public list."

@@ -106,7 +106,7 @@ const AppSidebar = () => {
                   size="lg"
                   className="h-12 gap-2.5 rounded-md px-2 hover:bg-accent data-[state=open]:bg-accent"
                 >
-                  <Avatar className="size-8 shrink-0 rounded-md border border-line">
+                  <Avatar className="size-8 shrink-0 rounded-md bg-muted">
                     <AvatarFallback className="rounded-md bg-surface font-mono text-[0.6875rem] font-medium tracking-tight text-foreground">
                       {getInitials(user?.name)}
                     </AvatarFallback>

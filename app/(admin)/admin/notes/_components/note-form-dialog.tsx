@@ -34,6 +34,7 @@ const EMPTY_VALUES: NoteFormValues = {
   description: '',
   category: '',
   content: '',
+  status: 'DRAFT',
 };
 
 /**
@@ -83,6 +84,7 @@ const NoteFormDialog = ({
       description: note.description ?? '',
       category: note.category ?? '',
       content: note.content,
+      status: note.status ?? 'DRAFT',
     });
   }, [open, note, form]);
 
@@ -102,6 +104,9 @@ const NoteFormDialog = ({
         // sent even when empty — clearing a description is a real edit, and the
         // backend treats a missing key as "leave it alone"
         description: data.description?.trim() ?? '',
+        // always sent from here: the dialog knows the status, and flipping it
+        // is what puts the note on — or takes it off — the public homepage
+        status: data.status ?? 'DRAFT',
       };
 
       const response = await updateNoteAction(note.id, payload);
@@ -142,7 +147,7 @@ const NoteFormDialog = ({
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             {blogsUnavailable ? (
-              <div className="rounded-lg border border-warn/40 bg-card px-4 py-3">
+              <div className="rounded-[14px] bg-warn/10 px-4 py-3">
                 <p className="label-mono text-warn-ink">
                   Blog list unavailable
                 </p>
@@ -201,6 +206,18 @@ const NoteFormDialog = ({
               placeholder="Optional one-liner"
             />
 
+            <FormSelect
+              control={form.control}
+              name="status"
+              label="Status"
+              placeholder="Select a status"
+              options={[
+                { label: 'Draft — stays private', value: 'DRAFT' },
+                { label: 'Complete — shown on the homepage', value: 'COMPLETE' },
+              ]}
+              description="Complete notes are the ones the signed-out homepage renders. Drafts are never sent to it."
+            />
+
             <FormTextarea
               control={form.control}
               name="content"
@@ -211,7 +228,7 @@ const NoteFormDialog = ({
               onKeyDown={handleKeyDown}
             />
 
-            <DialogFooter className="border-t border-line pt-4 sm:items-center sm:justify-between">
+            <DialogFooter className="pt-4 sm:items-center sm:justify-between">
               {errorCount > 0 ? (
                 <p
                   role="status"

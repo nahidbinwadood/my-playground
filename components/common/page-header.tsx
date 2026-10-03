@@ -42,7 +42,7 @@ const PageHeader = ({
   const actionSlot = action ?? children;
 
   return (
-    <div className={cn('mb-8 w-full border-b border-line pb-6', className)}>
+    <div className={cn('mb-8 w-full', className)}>
       {breadcrumbs && breadcrumbs.length > 0 && (
         <Breadcrumb className="mb-4">
           <BreadcrumbList className="font-mono text-xs">
@@ -71,7 +71,7 @@ const PageHeader = ({
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div className="min-w-0 flex-1 space-y-2">
           {eyebrow && <p className="label-mono">{eyebrow}</p>}
-          <h1 className="text-2xl font-semibold tracking-[-0.02em] text-balance break-words sm:text-[2rem]">
+          <h1 className="text-2xl font-semibold tracking-[-0.02em] text-balance wrap-break-word sm:text-[2rem]">
             {title}
           </h1>
           <p className="max-w-2xl text-sm leading-relaxed text-muted-foreground sm:text-base">

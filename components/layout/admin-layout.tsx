@@ -11,7 +11,7 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
       <AppSidebar />
 
       {/* Fill the viewport height so the content area owns the only scrollbar */}
-      <SidebarInset className="h-svh overflow-hidden bg-card md:h-[calc(100svh-1rem)] md:border md:border-line md:shadow-none">
+      <SidebarInset className="h-svh overflow-hidden bg-card md:h-[calc(100svh-1rem)] md:shadow-none">
         {/* Header: fixed height, never scrolls */}
         <DashboardHeader />
 

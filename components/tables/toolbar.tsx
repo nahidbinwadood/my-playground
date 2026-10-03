@@ -206,7 +206,7 @@ export default function Toolbar({
             <Button
               variant="ghost"
               onClick={handleReset}
-              className="h-8 px-2 border rounded-full flex justify-center items-center shrink-0"
+              className="h-8 px-2 rounded-full bg-muted/60 hover:bg-muted flex justify-center items-center shrink-0"
             >
               <X className="h-4 w-4" />
             </Button>
@@ -265,7 +265,7 @@ export default function Toolbar({
           <Button
             variant="ghost"
             onClick={handleReset}
-            className="h-8 px-2 lg:px-3 border rounded-full flex justify-center items-center"
+            className="h-8 px-2 lg:px-3 rounded-full bg-muted/60 hover:bg-muted flex justify-center items-center"
           >
             <X className="h-4 w-4" />
           </Button>

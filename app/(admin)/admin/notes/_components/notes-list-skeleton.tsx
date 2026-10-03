@@ -17,9 +17,9 @@ const NotesListSkeleton = () => {
           <Skeleton className="h-10 w-full shrink-0 sm:w-32" />
         </div>
 
-        <div className="grid grid-cols-1 divide-y divide-line overflow-hidden rounded-lg border border-border bg-card sm:grid-cols-3 sm:divide-x sm:divide-y-0">
-          {Array.from({ length: 3 }).map((_, index) => (
-            <div key={index} className="px-5 py-4 sm:py-5">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+          {Array.from({ length: 5 }).map((_, index) => (
+            <div key={index} className="rounded-[14px] bg-surface px-5 py-4 sm:py-5">
               <Skeleton className="h-3 w-20 rounded-sm" />
               <Skeleton className="mt-3 h-8 w-14" />
               <Skeleton className="mt-2 h-3 w-32 max-w-full rounded-sm" />
@@ -36,7 +36,7 @@ const NotesListSkeleton = () => {
           {Array.from({ length: 6 }).map((_, index) => (
             <div
               key={index}
-              className="flex flex-col gap-3 rounded-lg border border-border bg-card p-5"
+              className="flex flex-col gap-3 rounded-[14px] bg-surface p-5"
             >
               <div className="flex items-start justify-between gap-3">
                 <Skeleton className="h-5 w-16 rounded-md" />
@@ -50,7 +50,7 @@ const NotesListSkeleton = () => {
               </div>
               <Skeleton className="h-3 w-full rounded-sm" />
               <Skeleton className="h-3 w-11/12 rounded-sm" />
-              <div className="mt-2 flex items-center justify-between border-t border-line pt-3">
+              <div className="mt-2 flex items-center justify-between pt-3">
                 <Skeleton className="h-3 w-20 rounded-sm" />
                 <Skeleton className="h-3 w-24 rounded-sm" />
               </div>

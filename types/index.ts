@@ -34,6 +34,10 @@ export interface ICategory {
 // Mirrors the backend's BlogStatus enum.
 export type TBlogStatus = 'DRAFT' | 'PUBLISHED';
 
+// The note lifecycle, mirroring the backend's TNoteStatus. DRAFT is a private
+// work-in-progress; COMPLETE is the only state the signed-out homepage reads.
+export type TNoteStatus = 'DRAFT' | 'COMPLETE';
+
 export interface IBlog {
   id: string;
   title: string;
@@ -58,6 +62,7 @@ export interface INote {
   description?: string;
   content: string;
   category: string; // ICategory id — the note's own topic, not the blog's
+  status: TNoteStatus; // 'DRAFT' | 'COMPLETE' — COMPLETE is what goes public
   isPublished: boolean;
   createdAt: string;
   updatedAt: string;
@@ -70,4 +75,7 @@ export interface INoteInput {
   category: string; // ICategory id
   description?: string;
   blog?: string | null;
+  // optional — the quick-note form does not ask, and the backend defaults a
+  // new note to 'DRAFT'. Sent only by the edit dialog.
+  status?: TNoteStatus;
 }

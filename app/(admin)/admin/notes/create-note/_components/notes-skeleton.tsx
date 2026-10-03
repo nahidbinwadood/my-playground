@@ -21,14 +21,14 @@ const PanelSkeleton = ({
   footer?: boolean;
   bodyClassName?: string;
 }) => (
-  <div className="overflow-hidden rounded-lg border border-border bg-card">
-    <div className="flex items-center justify-between gap-3 border-b border-line bg-surface px-4 py-2.5">
+  <div className="overflow-hidden rounded-[14px] bg-surface">
+    <div className="flex items-center justify-between gap-3 bg-muted/40 px-4 py-2.5">
       <Skeleton className={`h-3 rounded-sm ${labelWidth}`} />
       <Skeleton className={`h-3 rounded-sm ${hintWidth}`} />
     </div>
     <div className={bodyClassName}>{children}</div>
     {footer ? (
-      <div className="flex items-center justify-between gap-3 border-t border-line bg-surface px-4 py-3">
+      <div className="flex items-center justify-between gap-3 px-4 py-3">
         <Skeleton className="h-3 w-48 max-w-full rounded-sm" />
         <div className="flex items-center gap-2">
           <Skeleton className="h-9 w-20" />
@@ -41,15 +41,15 @@ const PanelSkeleton = ({
 
 // Mirrors the timeline card: header strip, then dated groups of entries.
 export const TimelineSkeleton = () => (
-  <div className="overflow-hidden rounded-lg border border-border bg-card">
-    <div className="flex items-center justify-between gap-3 border-b border-line bg-surface px-4 py-2.5 sm:px-5">
+  <div className="overflow-hidden rounded-[14px] bg-surface">
+    <div className="flex items-center justify-between gap-3 bg-muted/40 px-4 py-2.5 sm:px-5">
       <Skeleton className="h-3 w-16 rounded-sm" />
       <Skeleton className="h-3 w-20 rounded-sm" />
     </div>
 
     {[0, 1].map((group) => (
       <div key={group}>
-        <div className="border-b border-line bg-surface px-4 py-2 sm:px-5">
+        <div className="bg-muted/20 px-4 py-2 sm:px-5">
           <Skeleton className="h-3 w-40 max-w-full rounded-sm" />
         </div>
         <div className="space-y-2.5 px-4 py-4 sm:px-5">
@@ -70,7 +70,7 @@ const NotesSkeleton = () => {
       <span className="sr-only">Loading the note form and timeline</span>
 
       <div aria-hidden="true" className="pointer-events-none">
-        <div className="mb-8 space-y-3 border-b border-line pb-6">
+        <div className="mb-8 space-y-3 pb-6">
           <Skeleton className="h-3 w-24 rounded-sm" />
           <Skeleton className="h-8 w-40 max-w-full" />
           <Skeleton className="h-4 w-80 max-w-full" />

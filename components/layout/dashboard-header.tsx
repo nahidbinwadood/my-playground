@@ -30,10 +30,10 @@ export default function DashboardHeader() {
   const segments = pathname.split('/').filter(Boolean);
 
   return (
-    <header className="flex h-14 shrink-0 items-center justify-between gap-3 border-b border-line bg-card px-3 sm:px-5">
+    <header className="flex h-14 shrink-0 items-center justify-between gap-3 bg-card px-3 sm:px-5">
       {/* Route trail — mono, read as a path */}
       <div className="flex min-w-0 items-center gap-2 sm:gap-3">
-        <SidebarTrigger className="size-9 rounded-md border border-line text-muted-foreground hover:text-foreground" />
+        <SidebarTrigger className="size-9 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground" />
 
         <Breadcrumb className="min-w-0">
           <BreadcrumbList className="flex-nowrap gap-1 font-mono text-xs tracking-tight sm:gap-1.5">

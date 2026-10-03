@@ -59,7 +59,7 @@ import Link from 'next/link';
 /** Shared cell rhythm: generous padding so rows read as data, not as chips. */
 const CELL_CLASS = 'px-4 py-3.5 align-middle text-sm';
 /** Hairlines do the separating — no shadows, no zebra striping. */
-const ROW_CLASS = 'border-b border-line last:border-0 hover:bg-accent/50';
+const ROW_CLASS = 'border-b-0 hover:bg-accent/50';
 
 function DragHandle({ listeners, attributes }: DragHandleProps) {
   return (
@@ -126,7 +126,7 @@ const DragOverlayRow = React.memo(function DragOverlayRow<TData>({
   row: Row<TData>;
 }) {
   return (
-    <TableRow className="rounded-lg border border-line bg-card">
+    <TableRow className="rounded-lg border-0 bg-card shadow-md">
       <TableCell className="w-4 text-muted-foreground">
         <button
           type="button"
@@ -291,11 +291,11 @@ export function DataTable<TData, TValue = unknown>({
 
   // Header row sits on the recessed surface with a hairline rule beneath it.
   const tableHeader = (
-    <TableHeader className="bg-surface">
+    <TableHeader className="bg-muted/50 [&_tr]:border-b-0">
       {table.getHeaderGroups().map((headerGroup) => (
         <TableRow
           key={headerGroup.id}
-          className="border-line hover:bg-transparent"
+          className="border-b-0 hover:bg-transparent"
         >
           {enableRowOrdering && <TableHead className="w-4" />}
           {headerGroup.headers.map((header) => {
@@ -335,7 +335,7 @@ export function DataTable<TData, TValue = unknown>({
     return Array.from({ length: 5 }).map((_, rowIndex) => (
       <TableRow
         key={rowIndex}
-        className="border-b border-line last:border-0 hover:bg-transparent"
+        className="border-b-0 hover:bg-transparent"
       >
         {enableRowOrdering && (
           <TableCell className="w-4 px-4 py-3.5">
@@ -374,7 +374,7 @@ export function DataTable<TData, TValue = unknown>({
         <div className="flex flex-col items-center gap-3">
           <span
             aria-hidden="true"
-            className="flex h-10 w-10 items-center justify-center rounded-md border border-line bg-surface text-muted-foreground"
+            className="flex h-10 w-10 items-center justify-center rounded-md bg-muted text-muted-foreground"
           >
             <Inbox className="h-4 w-4" />
           </span>
@@ -390,8 +390,7 @@ export function DataTable<TData, TValue = unknown>({
     <>
       <Card
         className={cn(
-          'gap-0 overflow-hidden rounded-lg border-border bg-card py-0 shadow-none',
-          hideDefaultClassname && 'border-none'
+          'gap-0 overflow-hidden rounded-[14px] border-none bg-surface py-0 shadow-none',
         )}
       >
         <CardContent className="p-3 lg:p-6">
@@ -415,7 +414,7 @@ export function DataTable<TData, TValue = unknown>({
                   <Link
                     href={href}
                     aria-label="Open the full table"
-                    className="ml-auto rounded-md border border-line p-2 text-muted-foreground transition-colors hover:border-border hover:text-foreground sm:ml-0"
+                    className="ml-auto rounded-md bg-muted/60 p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground sm:ml-0"
                   >
                     <MoveUpRight className="h-4 w-4" aria-hidden="true" />
                   </Link>
@@ -457,7 +456,7 @@ export function DataTable<TData, TValue = unknown>({
                       type="button"
                       onClick={() => setModalOpen(true)}
                       aria-label="Open the table in a larger view"
-                      className="rounded-md border border-line p-2 text-muted-foreground transition-colors hover:border-border hover:text-foreground"
+                      className="rounded-md bg-muted/60 p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
                     >
                       <MoveUpRight className="h-4 w-4" aria-hidden="true" />
                     </button>
@@ -477,7 +476,7 @@ export function DataTable<TData, TValue = unknown>({
                 </div>
                 <div
                   aria-busy="true"
-                  className="overflow-hidden rounded-lg border border-line"
+                  className="overflow-hidden rounded-[14px]"
                 >
                   <div className="overflow-x-auto">
                     <UITable className="min-w-full">
@@ -488,7 +487,7 @@ export function DataTable<TData, TValue = unknown>({
                 </div>
               </div>
             ) : (
-              <div className="overflow-hidden rounded-lg border border-line">
+              <div className="overflow-hidden rounded-[14px]">
                 <div className="overflow-x-auto">
                   {enableRowOrdering ? (
                     <DndContext
@@ -520,7 +519,7 @@ export function DataTable<TData, TValue = unknown>({
                       </UITable>
                       <DragOverlay>
                         {activeRow ? (
-                          <div className="table-wrapper overflow-x-auto rounded-lg border border-line bg-card">
+                          <div className="table-wrapper overflow-x-auto rounded-[14px] bg-card shadow-lg">
                             <table className="w-full min-w-full">
                               <tbody>
                                 <DragOverlayRow row={activeRow} />
@@ -606,7 +605,7 @@ export function DataTable<TData, TValue = unknown>({
                   {isViewOption && <DataTableViewOptions table={table} />}
                 </div>
               </div>
-              <div className="overflow-hidden rounded-lg border border-line">
+              <div className="overflow-hidden rounded-[14px]">
                 <div className="overflow-x-auto">
                   <UITable className="min-w-full">
                     {tableHeader}

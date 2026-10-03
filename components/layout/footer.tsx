@@ -11,6 +11,7 @@ const footerColumns = [
       { name: 'Components', href: '/components' },
       { name: 'Form challenges', href: '/form-playground' },
       { name: 'Blog', href: '/blogs' },
+      { name: 'Study notes', href: '/notes' },
     ],
   },
   {

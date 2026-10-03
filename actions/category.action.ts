@@ -1,6 +1,7 @@
 'use server';
 
 import { CACHE_TAGS } from '@/lib/cache-tags';
+import { getCacheFetchOptions } from '@/lib/cache-fetch';
 import { getToken } from '@/lib/getToken';
 import { ICategory } from '@/types';
 import { updateTag } from 'next/cache';
@@ -40,15 +41,16 @@ const authHeaders = async () => {
 // visitors on /blogs and /blogs/[slug], and the endpoint is deliberately
 // unguarded, so there is nothing for a token to prove here.
 //
-// Cached under the 'categories' tag. This is the list every picker and every
-// category label joins against, so it is read on nearly every admin page — with
-// fetch's no-store default it was refetched on each of them, which is the
-// loader the blog and note forms kept showing. A category write expires it.
+// Cached under the 'categories' tag with 1h ISR and hard-reload support.
 export const getAllCategoriesAction = async () => {
+  const cacheOptions = await getCacheFetchOptions({
+    tag: CACHE_TAGS.categories,
+    revalidateSeconds: 3600,
+  });
+
   const response = await fetch(categoriesUrl(), {
     method: 'GET',
-    cache: 'force-cache',
-    next: { tags: [CACHE_TAGS.categories] },
+    ...cacheOptions,
   });
 
   return parse<ICategory[]>(response);

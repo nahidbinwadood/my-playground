@@ -1,19 +1,17 @@
 import { getAllBlogs } from '@/actions/blog.action';
 import { getAllCategoriesAction } from '@/actions/category.action';
+import { getCompleteNotes } from '@/actions/note.action';
 import { CATEGORY_TONE_FILL } from '@/lib/categories';
 import { cn } from '@/lib/utils';
-import { IBlog, ICategory } from '@/types';
+import { IBlog, ICategory, INote } from '@/types';
 
-// Counted from the repo: previews registered on /components, and the
-// challenges on /form-playground that have a working form.
-const COMPONENT_COUNT = 5;
+// Counted from the repo: the challenges on /form-playground that have a working form.
 const CHALLENGE_COUNT = 9;
 
-// Public figures only — notes are private, so the reading list stands in for
-// activity. A failed fetch is unknown (—), never zero.
 export async function HeroPanel() {
   let blogs: IBlog[] | null = null;
   let categories: ICategory[] = [];
+  let notes: INote[] | null = null;
 
   try {
     blogs = ((await getAllBlogs()).data ?? []) as IBlog[];
@@ -27,6 +25,12 @@ export async function HeroPanel() {
     categories = [];
   }
 
+  try {
+    notes = ((await getCompleteNotes()).data ?? []) as INote[];
+  } catch {
+    notes = null;
+  }
+
   const byTopic = [...categories]
     .sort((a, b) => a.order - b.order)
     .map((category) => ({
@@ -38,12 +42,12 @@ export async function HeroPanel() {
 
   const tiles = [
     { label: 'posts', value: blogs ? blogs.length : null },
-    { label: 'components', value: COMPONENT_COUNT },
+    { label: 'notes', value: notes ? notes.length : null },
     { label: 'challenges', value: CHALLENGE_COUNT },
   ];
 
   return (
-    <div className="rounded-[18px] border bg-card p-6">
+    <div className="rounded-[18px] bg-card p-6">
       <div className="flex items-center justify-between gap-3 text-sm">
         <span className="font-medium">Reading list by topic</span>
         <span className="font-mono text-muted-foreground">

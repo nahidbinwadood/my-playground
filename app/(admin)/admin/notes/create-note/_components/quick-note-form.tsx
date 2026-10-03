@@ -30,8 +30,8 @@ const Panel = ({
   hint?: string;
   children: ReactNode;
 }) => (
-  <section className="rounded-lg border border-border bg-card">
-    <div className="flex items-center justify-between gap-3 border-b border-line bg-surface px-4 py-2.5">
+  <section className="overflow-hidden rounded-[14px] bg-surface">
+    <div className="flex items-center justify-between gap-3 bg-muted/50 px-4 py-2.5">
       <h2 className="font-mono text-[0.6875rem] font-medium text-foreground">
         {label}
       </h2>
@@ -166,7 +166,7 @@ const QuickNoteForm = ({
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
         {blogsUnavailable ? (
-          <div className="mb-6 rounded-lg border border-warn/40 bg-card px-4 py-3">
+          <div className="mb-6 rounded-[14px] bg-warn/10 px-4 py-3">
             <p className="label-mono text-warn-ink">Blog list unavailable</p>
             <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
               The reference blogs could not be loaded, so a note cannot be linked
@@ -242,7 +242,7 @@ const QuickNoteForm = ({
               />
             </div>
 
-            <footer className="flex flex-col gap-3 border-t border-line bg-surface px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+            <footer className="flex flex-col gap-3 bg-muted/50 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
               {errorCount > 0 ? (
                 <p
                   role="status"

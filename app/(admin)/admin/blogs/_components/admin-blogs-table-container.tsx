@@ -112,11 +112,11 @@ const AdminBlogsTableContainer = ({
           />
         </div>
       ) : (
-        <div className="rounded-lg border border-border bg-card">
+        <div className="rounded-[14px] bg-surface">
           <div className="flex flex-col items-center gap-4 px-5 py-16 text-center sm:px-8">
             <span
               aria-hidden="true"
-              className="flex h-11 w-11 items-center justify-center rounded-md border border-line bg-surface text-muted-foreground"
+              className="flex h-11 w-11 items-center justify-center rounded-md bg-muted text-muted-foreground"
             >
               <FileText className="h-5 w-5" />
             </span>

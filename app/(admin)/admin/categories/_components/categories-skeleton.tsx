@@ -22,8 +22,8 @@ const CategoriesSkeleton = () => {
           <Skeleton className="h-10 w-full shrink-0 sm:w-36" />
         </div>
 
-        <div className="overflow-hidden rounded-lg border border-border bg-card">
-          <div className="flex items-center justify-between gap-3 border-b border-line px-4 py-3 sm:px-5">
+        <div className="overflow-hidden rounded-[14px] bg-surface">
+          <div className="flex items-center justify-between gap-3 px-4 py-3 sm:px-5">
             <div className="space-y-2">
               <Skeleton className="h-4 w-28" />
               <Skeleton className="h-3 w-72 max-w-full rounded-sm" />
@@ -34,7 +34,7 @@ const CategoriesSkeleton = () => {
             </div>
           </div>
 
-          <div className={`${ROW_GRID} border-b border-line bg-surface py-3.5`}>
+          <div className={`${ROW_GRID} bg-muted/50 py-3.5`}>
             <Skeleton className="h-3 w-14 rounded-sm" />
             <Skeleton className="hidden h-3 w-10 rounded-sm md:block" />
             <Skeleton className="hidden h-3 w-10 rounded-sm md:block" />
@@ -43,7 +43,7 @@ const CategoriesSkeleton = () => {
             <span className="block" />
           </div>
 
-          <div className="divide-y divide-line">
+          <div className="space-y-1 px-2 pb-2">
             {Array.from({ length: 3 }).map((_, index) => (
               <div key={index} className={`${ROW_GRID} py-4`}>
                 <div className="space-y-2">

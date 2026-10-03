@@ -28,7 +28,7 @@ const AdminBlogsSkeleton = () => {
           {Array.from({ length: 4 }).map((_, index) => (
             <div
               key={index}
-              className="rounded-lg border border-border bg-card p-5"
+              className="rounded-[14px] bg-surface p-5"
             >
               <div className="flex items-start justify-between gap-4">
                 <Skeleton className="h-3 w-24 rounded-sm" />
@@ -45,9 +45,9 @@ const AdminBlogsSkeleton = () => {
           <Skeleton className="h-9 w-9 rounded-full" />
         </div>
 
-        <div className="overflow-hidden rounded-lg border border-border bg-card">
+        <div className="overflow-hidden rounded-[14px] bg-surface">
           <div
-            className={`${ROW_GRID} border-b border-line bg-surface py-3.5`}
+            className={`${ROW_GRID} bg-muted/50 py-3.5`}
           >
             <Skeleton className="h-3 w-16 rounded-sm" />
             <Skeleton className="hidden h-3 w-10 rounded-sm md:block" />
@@ -56,7 +56,7 @@ const AdminBlogsSkeleton = () => {
             <span className="block" />
           </div>
 
-          <div className="divide-y divide-line">
+          <div className="space-y-1 px-2 pb-2">
             {Array.from({ length: 8 }).map((_, index) => (
               <div key={index} className={`${ROW_GRID} py-4`}>
                 <Skeleton
@@ -70,7 +70,7 @@ const AdminBlogsSkeleton = () => {
             ))}
           </div>
 
-          <div className="flex flex-wrap items-center justify-between gap-4 border-t border-line px-4 py-3.5 sm:px-5">
+          <div className="flex flex-wrap items-center justify-between gap-4 px-4 py-3.5 sm:px-5">
             <Skeleton className="h-3 w-40 max-w-full rounded-sm" />
             <div className="flex items-center gap-2">
               <Skeleton className="h-8 w-20" />

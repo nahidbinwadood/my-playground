@@ -1,6 +1,7 @@
 'use server';
 
 import { CACHE_TAGS } from '@/lib/cache-tags';
+import { getCacheFetchOptions } from '@/lib/cache-fetch';
 import { getToken } from '@/lib/getToken';
 import { INote, INoteInput } from '@/types';
 import { updateTag } from 'next/cache';
@@ -75,13 +76,36 @@ export const getAllNotes = async ({
   return parse<INote[]>(response);
 };
 
+// completed notes — the one public read, and what the homepage renders ==>
+//
+// Deliberately sends NO Authorization header: this is the signed-out path, and
+// the backend only returns status: 'COMPLETE' here. Cached under the notes tag
+// with 1-hour ISR. Hard reload (no-cache) bypasses the cache to fetch directly from API.
+export const getCompleteNotes = async () => {
+  const cacheOptions = await getCacheFetchOptions({
+    tag: CACHE_TAGS.notes,
+    revalidateSeconds: 3600,
+  });
+
+  const response = await fetch(notesUrl('/complete'), {
+    method: 'GET',
+    ...cacheOptions,
+  });
+
+  return parse<INote[]>(response);
+};
+
 // get the notes attached to one blog ==>
 export const getNotesByBlog = async (blogId: string) => {
+  const cacheOptions = await getCacheFetchOptions({
+    tag: CACHE_TAGS.notes,
+    revalidateSeconds: 3600,
+    extraHeaders: await authHeaders(),
+  });
+
   const response = await fetch(notesUrl(`/blog/${blogId}`), {
     method: 'GET',
-    headers: await authHeaders(),
-    cache: 'force-cache',
-    next: { tags: [CACHE_TAGS.notes] },
+    ...cacheOptions,
   });
 
   return parse<INote[]>(response);
@@ -89,11 +113,15 @@ export const getNotesByBlog = async (blogId: string) => {
 
 // get a single note ==>
 export const getNoteById = async (id: string) => {
+  const cacheOptions = await getCacheFetchOptions({
+    tag: CACHE_TAGS.notes,
+    revalidateSeconds: 3600,
+    extraHeaders: await authHeaders(),
+  });
+
   const response = await fetch(notesUrl(`/${id}`), {
     method: 'GET',
-    headers: await authHeaders(),
-    cache: 'force-cache',
-    next: { tags: [CACHE_TAGS.notes] },
+    ...cacheOptions,
   });
 
   return parse<INote>(response);

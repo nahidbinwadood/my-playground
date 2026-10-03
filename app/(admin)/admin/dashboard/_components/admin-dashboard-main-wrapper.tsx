@@ -52,11 +52,11 @@ const Panel = ({
 }) => (
   <section
     className={cn(
-      'flex flex-col overflow-hidden rounded-[14px] border border-border bg-surface',
+      'flex flex-col overflow-hidden rounded-[14px] bg-surface',
       className
     )}
   >
-    <header className="flex items-center justify-between gap-3 border-b border-line px-4 py-3 sm:px-5">
+    <header className="flex items-center justify-between gap-3 px-4 py-3 sm:px-5">
       <h2 className="text-sm font-semibold tracking-tight">{label}</h2>
       <div className="flex shrink-0 items-center gap-3">
         {meta ? (
@@ -130,7 +130,7 @@ const Tile = ({
   <div
     className={cn(
       'rounded-[14px] p-5',
-      brand ? 'bg-brand text-primary-foreground' : 'border bg-surface'
+      brand ? 'bg-brand text-primary-foreground' : 'bg-surface'
     )}
   >
     <p
@@ -247,6 +247,8 @@ const AdminDashboardMainWrapper = async () => {
 
   // the note carries only the blog id — join locally rather than populating
   const blogById = new Map(blogs.map((blog) => [blog.id, blog]));
+  const completedCount = notes.filter((n) => n.status === 'COMPLETE').length;
+  const draftCount = notes.filter((n) => (n.status ?? 'DRAFT') === 'DRAFT').length;
 
   return (
     <div className="space-y-6">
@@ -279,8 +281,8 @@ const AdminDashboardMainWrapper = async () => {
         }
       />
 
-      {/* The four journal figures. Unknown renders as —, never 0. */}
-      <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
+      {/* The journal figures. Unknown renders as —, never 0. */}
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-6">
         <Tile
           brand
           label="Streak"
@@ -288,6 +290,16 @@ const AdminDashboardMainWrapper = async () => {
           note={
             notesUnavailable ? undefined : `longest ${journal.longestStreak}d`
           }
+        />
+        <Tile
+          label="Completed"
+          value={notesUnavailable ? unknown : completedCount}
+          note="Public on /notes"
+        />
+        <Tile
+          label="In Draft"
+          value={notesUnavailable ? unknown : draftCount}
+          note="Private notes"
         />
         <Tile
           label="This month"
@@ -427,14 +439,14 @@ const AdminDashboardMainWrapper = async () => {
           {notesUnavailable ? (
             <Unavailable what="notes" />
           ) : recentNotes.length > 0 ? (
-            <ul className="divide-y divide-line">
+            <ul className="space-y-1 px-2 pb-2">
               {recentNotes.map((note) => {
                 const blog = note.blog ? blogById.get(note.blog) : undefined;
 
                 return (
                   <li
                     key={note.id}
-                    className="flex flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3 sm:px-5"
+                    className="flex flex-wrap items-center gap-x-4 gap-y-2 rounded-[10px] px-3 py-2.5 transition-colors hover:bg-muted/50"
                   >
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-sm font-medium">{note.title}</p>
@@ -478,11 +490,11 @@ const AdminDashboardMainWrapper = async () => {
           {blogsUnavailable ? (
             <Unavailable what="posts" />
           ) : drafts.length > 0 ? (
-            <ul className="divide-y divide-line">
+            <ul className="space-y-1 px-2 pb-2">
               {drafts.map((blog) => (
                 <li
                   key={blog.id}
-                  className="flex items-center justify-between gap-3 px-4 py-3 sm:px-5"
+                  className="flex items-center justify-between gap-3 rounded-[10px] px-3 py-2.5 transition-colors hover:bg-muted/50"
                 >
                   <div className="min-w-0 flex-1">
                     <Link
@@ -529,11 +541,11 @@ const AdminDashboardMainWrapper = async () => {
           {blogsUnavailable ? (
             <Unavailable what="posts" />
           ) : recentBlogs.length > 0 ? (
-            <ul className="divide-y divide-line">
+            <ul className="space-y-1 px-2 pb-2">
               {recentBlogs.map((blog) => (
                 <li
                   key={blog.id}
-                  className="flex flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3 transition-colors hover:bg-muted/60 sm:px-5"
+                  className="flex flex-wrap items-center gap-x-4 gap-y-2 rounded-[10px] px-3 py-2.5 transition-colors hover:bg-muted/50"
                 >
                   <div className="min-w-0 flex-1">
                     <Link

@@ -36,7 +36,7 @@ const ProfileMenu = () => {
           aria-label={`Account menu for ${name}`}
           className="group rounded-md"
         >
-          <Avatar className="size-9 rounded-md border border-line transition-colors group-hover:border-signal/40">
+          <Avatar className="size-9 rounded-md bg-muted transition-colors">
             <AvatarFallback className="rounded-md bg-surface font-mono text-xs font-medium tracking-tight text-foreground">
               {getInitials(user?.name)}
             </AvatarFallback>
@@ -46,7 +46,7 @@ const ProfileMenu = () => {
 
       <DropdownMenuContent align="end" sideOffset={8} className="w-60">
         <div className="flex items-center gap-2.5 px-2 py-2">
-          <Avatar className="size-8 shrink-0 rounded-md border border-line">
+          <Avatar className="size-8 shrink-0 rounded-md bg-muted">
             <AvatarFallback className="rounded-md bg-surface font-mono text-[0.6875rem] font-medium tracking-tight text-foreground">
               {getInitials(user?.name)}
             </AvatarFallback>

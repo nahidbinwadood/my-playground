@@ -29,9 +29,9 @@ const AdminBlogsStatsContainer = ({ blogs }: { blogs: IBlog[] }) => {
   ];
 
   return (
-    <dl className="grid grid-cols-1 divide-y divide-line overflow-hidden rounded-lg border border-border bg-card sm:grid-cols-3 sm:divide-x sm:divide-y-0">
+    <dl className="grid grid-cols-1 gap-3 sm:grid-cols-3">
       {blogsStats?.map((item) => (
-        <div key={item?.label} className="px-5 py-4 sm:py-5">
+        <div key={item?.label} className="rounded-[14px] bg-surface px-5 py-4 sm:py-5">
           <dt className="label-mono">{item?.label}</dt>
           <dd className="mt-2">
             <span className="block font-mono text-3xl font-semibold tracking-tight tabular-nums text-foreground">

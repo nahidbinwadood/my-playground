@@ -19,6 +19,13 @@ export const noteSchema = z.object({
   // but it must never reach the API, so it is rejected on submit.
   category: z.string().min(1, 'Pick a category for this note'),
   content: z.string().min(1, 'Content is required'),
+
+  // The lifecycle flag: DRAFT is private, COMPLETE is shown on the public
+  // homepage. Optional rather than required because this schema is shared with
+  // the quick-note form, which never asks for it — the backend defaults an
+  // omitted status to 'DRAFT'. The edit dialog always prefills it, so for that
+  // form it is effectively always present.
+  status: z.enum(['DRAFT', 'COMPLETE'] as const).optional(),
 });
 
 // what the form holds while editing (topic may still be unset)

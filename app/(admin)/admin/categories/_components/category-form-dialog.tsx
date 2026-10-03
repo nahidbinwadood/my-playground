@@ -156,7 +156,7 @@ const CategoryFormDialog = ({
             />
 
             {/* Live preview of the badge every blog and note will carry */}
-            <div className="flex items-center justify-between gap-3 rounded-lg border border-line bg-surface px-4 py-3">
+            <div className="flex items-center justify-between gap-3 rounded-[14px] bg-surface px-4 py-3">
               <span className="label-mono">Badge preview</span>
               <CategoryLabel
                 category={{
@@ -172,7 +172,7 @@ const CategoryFormDialog = ({
               />
             </div>
 
-            <DialogFooter className="border-t border-line pt-4">
+            <DialogFooter className="pt-4">
               <Button
                 type="button"
                 variant="outline"

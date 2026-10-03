@@ -29,7 +29,7 @@ const CategoriesMainWrapper = ({
   return (
     <div className="space-y-6">
       {/* Header row: title/breadcrumbs on the left, the one signal action on the right */}
-      <div className="flex flex-col gap-4 border-b border-line pb-6 sm:flex-row sm:items-end sm:justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <PageHeader
           title="Categories"
           subtitle="The topic axis for blogs and notes. Rename one here and every card, table and tracker follows."
@@ -47,7 +47,7 @@ const CategoriesMainWrapper = ({
 
       {unavailable ? (
         // Unknown is not zero — an empty table would read as "you have none".
-        <div className="rounded-lg border border-border bg-card px-5 py-10 text-center">
+        <div className="rounded-[14px] bg-surface px-5 py-10 text-center">
           <p className="text-sm font-medium text-warn-ink">
             Could not load categories
           </p>

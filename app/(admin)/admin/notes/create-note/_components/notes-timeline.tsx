@@ -9,7 +9,6 @@ import {
 } from '@/lib/journal';
 import { INote, ICategory } from '@/types';
 import CategoryLabel from '@/components/common/category-label';
-import { cn } from '@/lib/utils';
 import { TBlogOption } from '../../types';
 
 // Day keys, the week's start and the Today/Yesterday labels all come from
@@ -68,7 +67,7 @@ const buildGroups = (notes: INote[]): TTimelineGroup[] => {
 };
 
 const CardHeader = ({ count }: { count: number }) => (
-  <div className="flex items-center justify-between gap-3 border-b border-line bg-surface px-4 py-2.5 sm:px-5">
+  <div className="flex items-center justify-between gap-3 bg-muted/40 px-4 py-2.5 sm:px-5">
     <h2 className="font-mono text-[0.6875rem] font-medium text-foreground">
       Timeline
     </h2>
@@ -107,22 +106,13 @@ const TimelineEntry = ({
   note,
   blogById,
   categoryById,
-  isLastOfLastGroup,
 }: {
   note: INote;
   blogById: Map<string, TBlogOption>;
   categoryById: Map<string, ICategory>;
-  isLastOfLastGroup: boolean;
 }) => {
   return (
-    <li
-      className={cn(
-        'px-4 py-4 sm:px-5',
-        // every entry gets a hairline except the card's final row, whose rule
-        // would double up against the card border
-        !isLastOfLastGroup && 'border-b border-line'
-      )}
-    >
+    <li className="mx-2 my-1 rounded-xl p-3.5 transition-colors hover:bg-muted/40 sm:mx-3 sm:p-4">
       <div className="flex items-baseline justify-between gap-3">
         <h4 className="min-w-0 text-sm font-semibold break-words sm:text-base">
           {note.title}
@@ -172,7 +162,7 @@ const NotesTimeline = ({
 
   return (
     <section aria-label="Timeline of logged notes">
-      <div className="overflow-hidden rounded-lg border border-border bg-card">
+      <div className="overflow-hidden rounded-[14px] bg-surface">
         <CardHeader count={notes.length} />
 
         {unavailable ? (
@@ -193,12 +183,10 @@ const NotesTimeline = ({
           </div>
         ) : (
           <ol>
-            {groups.map((group, groupIndex) => {
-              const isLastGroup = groupIndex === groups.length - 1;
-
+            {groups.map((group) => {
               return (
                 <li key={group.key}>
-                  <div className="border-b border-line bg-surface px-4 py-2 sm:px-5">
+                  <div className="bg-muted/20 px-4 py-2 sm:px-5">
                     <h3 className="font-mono text-[0.6875rem] font-medium text-muted-foreground tabular-nums">
                       {group.label}
                       <span className="ml-2 text-foreground/60 tabular-nums">
@@ -207,13 +195,12 @@ const NotesTimeline = ({
                     </h3>
                   </div>
                   <ol>
-                    {group.entries.map((note, noteIndex) => (
+                    {group.entries.map((note) => (
                       <TimelineEntry
                         key={note.id}
                         note={note}
                         blogById={blogById}
                         categoryById={categoryById}
-                        isLastOfLastGroup={isLastGroup && noteIndex === group.entries.length - 1}
                       />
                     ))}
                   </ol>

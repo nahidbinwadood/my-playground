@@ -13,7 +13,8 @@ import Wordmark from '../common/wordmark';
 const navigation = [
   { name: 'Home', href: '/' },
   { name: 'Reading', href: '/blogs' },
-  { name: 'Components', href: '/components' },
+  { name: 'Notes', href: '/notes' },
+  // { name: 'Components', href: '/components' },
   { name: 'Forms', href: '/form-playground' },
 ];
 

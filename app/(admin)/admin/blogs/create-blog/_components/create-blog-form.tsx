@@ -34,8 +34,13 @@ const Panel = ({
   children: ReactNode;
   className?: string;
 }) => (
-  <section className={cn('rounded-lg border border-border bg-card', className)}>
-    <div className="flex items-center justify-between gap-3 border-b border-line bg-surface px-4 py-2.5">
+  <section
+    className={cn(
+      'overflow-hidden rounded-[14px] bg-surface',
+      className
+    )}
+  >
+    <div className="flex items-center justify-between gap-3 bg-muted/40 px-4 py-2.5">
       <h2 className="font-mono text-[0.6875rem] font-medium text-foreground">
         {label}
       </h2>
@@ -238,7 +243,7 @@ const CreateBlogForm = ({
                 />
               </div>
 
-              <div className="border-t border-line p-4 sm:p-5">
+              <div className="p-4 sm:p-5">
                 <FormImageUploader
                   control={form.control}
                   name="coverImage"

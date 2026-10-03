@@ -36,7 +36,7 @@ export function HeroSection({ panel }: { panel: React.ReactNode }) {
               className="flex items-center gap-2 font-mono text-sm text-muted-foreground"
             >
               <span aria-hidden="true" className="size-2 rounded-full bg-brand" />
-              reading · components · form challenges
+              reading · notes · form challenges
             </motion.p>
 
             <motion.h1
@@ -60,8 +60,8 @@ export function HeroSection({ panel }: { panel: React.ReactNode }) {
               className="mt-9 flex flex-col gap-3 sm:flex-row sm:items-center"
             >
               <Button size="lg" asChild>
-                <Link href="/components">
-                  Explore components
+                <Link href="/notes">
+                  Read study notes
                   <ArrowRight />
                 </Link>
               </Button>
