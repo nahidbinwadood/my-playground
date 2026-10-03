@@ -340,6 +340,11 @@ const AdminDashboardMainWrapper = async () => {
             <LedgerRow
               label="Notes logged"
               value={notesUnavailable ? unknown : journal.totalNotes}
+              note={
+                notesUnavailable
+                  ? undefined
+                  : `${completedCount} completed · ${draftCount} draft`
+              }
             />
           </dl>
         </div>
