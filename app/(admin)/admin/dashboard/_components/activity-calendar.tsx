@@ -1,12 +1,6 @@
 import { cn } from '@/lib/utils';
 import { TActivity, weekdayOfKey } from '@/lib/journal';
 
-// Cell pitch in px. The month axis labels are sized from the same numbers, so
-// they stay aligned with the columns they annotate.
-const CELL_PX = 12; // size-3
-const GAP_PX = 4; // gap-1
-const PITCH_PX = CELL_PX + GAP_PX;
-
 const WEEKDAY_LABELS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
 // The lime ramp is a token set (--heat-0..4) so light mode gets an olive ramp
@@ -36,16 +30,16 @@ const Cell = ({
 }) => {
   // A day still to come is a blank slot, not a day off — it gets no fill.
   if (future) {
-    return <div className="size-3 rounded-[3px]" />;
+    return <div className="aspect-square w-full rounded-[3px]" />;
   }
 
   return (
     <div
       title={`${count} ${count === 1 ? 'note' : 'notes'} · ${weekdayOfKey(day)} ${day}`}
       className={cn(
-        'size-3 rounded-[3px]',
+        'aspect-square w-full rounded-[3px] transition-all duration-150 hover:scale-125 hover:z-10',
         LEVEL_CLASS[levelOf(count)],
-        isToday && 'outline-1 outline-offset-1 outline-foreground/30'
+        isToday && 'outline-1 outline-offset-1 outline-foreground/40 ring-1 ring-brand'
       )}
     />
   );
@@ -58,12 +52,12 @@ const Legend = () => (
       less
     </span>
     {LEVEL_CLASS.map((level) => (
-      <span key={level} className={cn('size-3 rounded-[3px]', level)} />
+      <span key={level} className={cn('size-3 sm:size-3.5 rounded-[3px]', level)} />
     ))}
     <span className="font-mono text-[0.625rem] text-muted-foreground">
       more
     </span>
-    <span className="ml-2 size-3 rounded-[3px] bg-heat-0 outline-1 outline-offset-1 outline-foreground/30" />
+    <span className="ml-2 size-3 sm:size-3.5 rounded-[3px] bg-heat-0 outline-1 outline-offset-1 outline-foreground/30 ring-1 ring-brand" />
     <span className="font-mono text-[0.625rem] text-muted-foreground">
       today
     </span>
@@ -71,55 +65,55 @@ const Legend = () => (
 );
 
 /**
- * The streak's other half: the streak number says where things stand, this says
- * how the last few months actually went. Cells are day counts in the journal's
- * timezone, so the columns line up with the days the reminder nags about.
- *
- * The grid itself is decorative to a screen reader — per-day titles are hover
- * only — so the caption carries the same information as text.
+ * Well-proportioned compact activity calendar.
+ * Columns stretch comfortably across the container with larger cells that fill the space.
  */
 const ActivityCalendar = ({ activity }: { activity: TActivity }) => {
-  // the counts live in the panel's title strip now, so the caption only says
-  // what the grid itself cannot: how far back it reaches, and which cell is today
   const { columns, months } = activity;
 
-  // the last column is the week containing today
-  const today = columns[columns.length - 1].find((cell) => !cell.future);
+  // The last column is the week containing today
+  const today = columns[columns.length - 1]?.find((cell) => !cell.future);
 
   return (
-    <div className="px-4 py-4 sm:px-5">
-      <div className="hide-scrollbar overflow-x-auto">
-        <div className="flex gap-2">
-          {/* Weekday gutter. Every row keeps its height, labelled or not, so the
-              three visible labels line up with the grid's rows. */}
-          <div aria-hidden="true" className="flex flex-col gap-1 pt-4">
+    <div className="flex h-full flex-col justify-between p-4 sm:p-5">
+      <div className="w-full min-w-0 overflow-x-auto hide-scrollbar my-auto p-1.5 sm:p-2">
+        <div className="flex w-full min-w-[480px] gap-2.5 sm:gap-3">
+          {/* Weekday gutter */}
+          <div
+            aria-hidden="true"
+            className="flex flex-col justify-between pt-4 pb-0.5 shrink-0 w-6"
+          >
             {WEEKDAY_LABELS.map((day, index) => (
               <span
                 key={day}
-                className="h-3 font-mono text-[0.5625rem] leading-3 text-muted-foreground"
+                className="font-mono text-[0.625rem] leading-none text-muted-foreground"
               >
                 {index % 2 === 0 ? day : ''}
               </span>
             ))}
           </div>
 
-          <div className="flex flex-col gap-1">
-            {/* Month axis: one label per run of columns in the same month. */}
-            <div aria-hidden="true" className="flex h-3">
+          <div className="flex flex-1 flex-col gap-2 min-w-0">
+            {/* Month axis: each month spans (month.span / totalColumns * 100%) */}
+            <div aria-hidden="true" className="flex h-3.5 w-full">
               {months.map((month) => (
                 <span
                   key={`${month.label}-${month.span}`}
-                  style={{ width: month.span * PITCH_PX - GAP_PX }}
-                  className="shrink-0 font-mono text-[0.625rem] leading-3 text-muted-foreground"
+                  style={{ width: `${(month.span / columns.length) * 100}%` }}
+                  className="shrink-0 font-mono text-[0.6875rem] font-medium leading-none text-muted-foreground truncate"
                 >
                   {month.label}
                 </span>
               ))}
             </div>
 
+            {/* 7-row calendar grid stretching full width with well-proportioned squares */}
             <div
               aria-hidden="true"
-              className="grid grid-flow-col grid-rows-7 gap-1"
+              className="grid w-full grid-flow-col grid-rows-7 gap-1.5 sm:gap-2"
+              style={{
+                gridTemplateColumns: `repeat(${columns.length}, minmax(0, 1fr))`,
+              }}
             >
               {columns.flatMap((column) =>
                 column.map((cell) => (
@@ -137,7 +131,7 @@ const ActivityCalendar = ({ activity }: { activity: TActivity }) => {
         </div>
       </div>
 
-      <div className="mt-4 flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
+      <div className="mt-4 flex flex-wrap items-center justify-between gap-x-4 gap-y-2 border-t border-line/30 pt-3">
         <p className="font-mono text-xs tabular-nums text-muted-foreground">
           last {columns.length} weeks · today outlined
         </p>

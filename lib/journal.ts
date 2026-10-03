@@ -9,8 +9,8 @@ import type { INote } from '@/types';
 
 export const JOURNAL_TIME_ZONE = 'Asia/Dhaka';
 
-// Weeks of history the activity calendar shows.
-export const ACTIVITY_WEEKS = 16;
+// Weeks of history the activity calendar shows (compact 20-week window).
+export const ACTIVITY_WEEKS = 20;
 
 // "Current focus" looks at recent activity only, so a topic logged heavily
 // months ago cannot keep claiming the slot.

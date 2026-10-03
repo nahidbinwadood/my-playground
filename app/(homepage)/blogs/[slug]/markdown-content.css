@@ -204,7 +204,11 @@
 /* ───────────────── Code — block ───────────────── */
 .markdown-content pre {
   @apply font-mono;
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
   margin-block: 1.25rem;
+  margin-inline: 0;
   padding: 1.125rem 1.25rem;
   border-radius: var(--radius);
   background: #0d1117;
@@ -212,7 +216,6 @@
   color: #c9d1d9;
   font-size: 0.875rem;
   line-height: 1.65;
-  max-width: 100%;
   overflow-x: auto;
   tab-size: 2;
 }
@@ -366,13 +369,8 @@
   border-bottom: 0;
 }
 
-/* ───────────────── Wide break-out ───────────────── */
+/* ───────────────── Wide break-out (Images only) ───────────────── */
 @media (min-width: 768px) {
-  .markdown-content pre,
-  .markdown-content table {
-    margin-inline: -1.5rem;
-  }
-
   .markdown-content img {
     margin-inline: -1.5rem;
     width: calc(100% + 3rem);
