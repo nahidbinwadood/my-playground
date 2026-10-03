@@ -4,18 +4,11 @@ import { updateNoteAction } from '@/actions/note.action';
 import FormInput from '@/components/forms/shadcn/form-input';
 import FormSelect from '@/components/forms/shadcn/form-select';
 import FormTextarea from '@/components/forms/shadcn/form-textarea';
+import CommonModal from '@/components/modal/common-modal';
 import { Button } from '@/components/ui/button';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
 import { Form } from '@/components/ui/form';
-import { INote, INoteInput, ICategory } from '@/types';
 import { useRefreshContext } from '@/providers/refresh-provider';
+import { ICategory, INote, INoteInput } from '@/types';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { KeyboardEvent, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -36,6 +29,10 @@ const EMPTY_VALUES: NoteFormValues = {
   content: '',
   status: 'DRAFT',
 };
+
+// The footer sits outside the scroll area, so the save button reaches the form
+// through the native `form` attribute instead of a lifted submit handler.
+const FORM_ID = 'note-edit-form';
 
 /**
  * Edit a note in place: the same fields and the same schema as the quick-note
@@ -132,138 +129,123 @@ const NoteFormDialog = ({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="hide-scrollbar max-h-[90vh] overflow-y-auto sm:max-w-2xl">
-        <DialogHeader>
-          <DialogTitle className="pr-8 text-base font-semibold">
-            Edit note
-          </DialogTitle>
-          <DialogDescription className="text-sm">
-            Changes save straight to the journal. The timeline and the streak
-            pick them up on the next load.
-          </DialogDescription>
-        </DialogHeader>
+    <CommonModal
+      open={open}
+      onOpenChange={onOpenChange}
+      title="Edit note"
+      description="Changes save straight to the journal. The timeline and the streak pick them up on the next load."
+      footer={
+        <div className="flex flex-col-reverse gap-2 sm:flex-row sm:items-center sm:justify-between">
+          {errorCount > 0 ? (
+            <p
+              role="status"
+              className="font-mono text-xs tabular-nums text-fail-ink"
+            >
+              Fix {errorCount} {errorCount === 1 ? 'field' : 'fields'} before
+              saving
+            </p>
+          ) : (
+            <span />
+          )}
 
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            {blogsUnavailable ? (
-              <div className="rounded-[14px] bg-warn/10 px-4 py-3">
-                <p className="label-mono text-warn-ink">
-                  Blog list unavailable
-                </p>
-                <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
-                  The reference blogs could not be loaded, so this note can only
-                  be detached or kept as it is.
-                </p>
-              </div>
-            ) : null}
-
-            <div className="grid gap-4 sm:grid-cols-2">
-              <FormSelect
-                control={form.control}
-                name="blog"
-                label="Reference blog"
-                placeholder="Select a blog"
-                options={[
-                  { label: 'Standalone entry', value: STANDALONE },
-                  ...blogs.map((blog) => ({
-                    label: blog.title,
-                    value: blog.id,
-                  })),
-                ]}
-              />
-
-              <FormSelect
-                control={form.control}
-                name="category"
-                label="Category"
-                placeholder="Select a category"
-                options={categories.map((category) => ({
-                  label: category.name,
-                  value: category.id,
-                }))}
-                description={
-                  categoriesUnavailable
-                    ? 'The category list could not be loaded. Reload before saving.'
-                    : undefined
-                }
-                required
-              />
+          <div className="flex items-center gap-2 sm:justify-end">
+            <Button
+              type="button"
+              variant="outline"
+              disabled={saving}
+              onClick={() => onOpenChange(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              form={FORM_ID}
+              loading={saving}
+              loadingText="Saving"
+              className="min-w-[9rem]"
+            >
+              Save changes
+            </Button>
+          </div>
+        </div>
+      }
+    >
+      <Form {...form}>
+        <form
+          id={FORM_ID}
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="space-y-4"
+        >
+          {blogsUnavailable ? (
+            <div className="rounded-lg border border-warn/40 bg-card px-4 py-3">
+              <p className="label-mono text-warn-ink">Blog list unavailable</p>
+              <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+                The reference blogs could not be loaded, so this note can only
+                be detached or kept as it is.
+              </p>
             </div>
+          ) : null}
 
-            <FormInput
+          <div className="grid gap-4 sm:grid-cols-2">
+            <FormSelect
               control={form.control}
-              name="title"
-              label="Title"
-              placeholder="What this note is about"
-              required
-            />
-
-            <FormInput
-              control={form.control}
-              name="description"
-              label="Description"
-              placeholder="Optional one-liner"
+              name="blog"
+              label="Reference blog"
+              placeholder="Select a blog"
+              options={[
+                { label: 'Standalone entry', value: STANDALONE },
+                ...blogs.map((blog) => ({
+                  label: blog.title,
+                  value: blog.id,
+                })),
+              ]}
             />
 
             <FormSelect
               control={form.control}
-              name="status"
-              label="Status"
-              placeholder="Select a status"
-              options={[
-                { label: 'Draft — stays private', value: 'DRAFT' },
-                { label: 'Complete — shown on the homepage', value: 'COMPLETE' },
-              ]}
-              description="Complete notes are the ones the signed-out homepage renders. Drafts are never sent to it."
-            />
-
-            <FormTextarea
-              control={form.control}
-              name="content"
-              label="Body"
-              placeholder="What did you understand? What is still unclear?"
+              name="category"
+              label="Category"
+              placeholder="Select a category"
+              options={categories.map((category) => ({
+                label: category.name,
+                value: category.id,
+              }))}
+              description={
+                categoriesUnavailable
+                  ? 'The category list could not be loaded. Reload before saving.'
+                  : undefined
+              }
               required
-              hint="Ctrl + Enter to save"
-              onKeyDown={handleKeyDown}
             />
+          </div>
 
-            <DialogFooter className="pt-4 sm:items-center sm:justify-between">
-              {errorCount > 0 ? (
-                <p
-                  role="status"
-                  className="font-mono text-xs tabular-nums text-fail-ink"
-                >
-                  Fix {errorCount} {errorCount === 1 ? 'field' : 'fields'} before
-                  saving
-                </p>
-              ) : (
-                <span />
-              )}
+          <FormInput
+            control={form.control}
+            name="title"
+            label="Title"
+            placeholder="What this note is about"
+            required
+          />
 
-              <div className="flex items-center gap-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  disabled={saving}
-                  onClick={() => onOpenChange(false)}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  type="submit"
-                  loading={saving}
-                  loadingText="Saving"
-                  className="min-w-[9rem]"
-                >
-                  Save changes
-                </Button>
-              </div>
-            </DialogFooter>
-          </form>
-        </Form>
-      </DialogContent>
-    </Dialog>
+          <FormInput
+            control={form.control}
+            name="description"
+            label="Description"
+            placeholder="Optional one-liner"
+          />
+
+          <FormTextarea
+            control={form.control}
+            name="content"
+            label="Body"
+            placeholder="What did you understand? What is still unclear?"
+            required
+            hint="Ctrl + Enter to save"
+            onKeyDown={handleKeyDown}
+          />
+        </form>
+      </Form>
+    </CommonModal>
   );
 };
 

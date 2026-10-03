@@ -14,7 +14,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Eye, EyeOff } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useTransition } from 'react';
 import { toast } from 'sonner';
 import { loginAction } from '@/actions/auth.action';
 import { useRouter } from 'next/navigation';
@@ -26,6 +26,7 @@ const LoginForm = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const router = useRouter();
+  const [isPending, startTransition] = useTransition();
 
   const isDevMode = process.env.NEXT_PUBLIC_ENV === 'development';
 
@@ -55,8 +56,10 @@ const LoginForm = () => {
             response?.message ||
             'You’re logged in successfully. Let’s get things moving 🚀',
         });
-        router.push('/admin/dashboard');
-        form.reset();
+        startTransition(() => {
+          router.push('/admin/dashboard');
+          form.reset();
+        });
       } else {
         toast.error('Login Failed', {
           description: response?.message || 'Invalid credentials.',
@@ -142,8 +145,8 @@ const LoginForm = () => {
         <Button
           type="submit"
           className="mt-2 h-10 w-full font-mono text-sm tracking-tight"
-          loading={loading}
-          loadingText="Signing in"
+          loading={loading || isPending}
+          loadingText={loading ? 'Signing in' : 'Redirecting To Dashboard'}
         >
           Sign in
         </Button>

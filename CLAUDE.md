@@ -116,6 +116,12 @@ Type: Bricolage Grotesque (`font-display`, headings), Hanken Grotesk (body), DM 
 - Rich text: TipTap (`form-text-editor.tsx`, render via `tiptap-content.css`).
 - Types: shared in `types/index.ts` (`IUser`, `IBlog`, `IAuthContext`), else colocated.
 - Toasts: `sonner`. Theme: `next-themes` (`theme-provider`, `theme-toggler`).
+- **Modals: always `components/modal/common-modal.tsx`** — never `DialogContent`
+  directly. Fixed header (title, optional `description`, close button) + optional
+  fixed footer; only the body scrolls. Width via `className` (`sm:max-w-lg` forms,
+  `sm:max-w-2xl` reading). Footer submit buttons use `form="<form id>"`.
+  Destructive confirms stay on `common-alert-modal.tsx`.
+- Controls are buttons, not underlined text. Underline = prose link only.
 
 ## Key files
 
