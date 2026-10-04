@@ -1,170 +1,69 @@
 'use server';
 
+import { apiFetch, apiFetchOrNull } from '@/lib/api';
 import { CACHE_TAGS } from '@/lib/cache-tags';
-import { getCacheFetchOptions } from '@/lib/cache-fetch';
-import { getToken } from '@/lib/getToken';
 import { IBlog } from '@/types';
 import { updateTag } from 'next/cache';
 
+// Reads are cached under the 'blogs' tag with 1h ISR; every write below
+// expires it, so the next reader gets fresh data.
+const blogsCache = { tag: CACHE_TAGS.blogs, revalidateSeconds: 3600 };
+
 // create blog action==>
-// Multipart: payload is FormData (fields + cover photo file). No explicit
-// Content-Type header — fetch sets the multipart boundary itself.
+// Multipart: payload is FormData (fields + cover photo file); apiFetch leaves
+// Content-Type unset so fetch writes the multipart boundary itself.
 export const createBlogAction = async (payload: FormData) => {
-  const accessToken = (await getToken()).accessToken;
-
-  try {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_SERVER_URL}/blogs/create`,
-      {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-        body: payload,
-      }
-    );
-
-    const data = await response.json();
-
-    // throw error if the response doesn't return success==>
-    if (!data.success) {
-      throw new Error(data.message);
-    }
-    updateTag(CACHE_TAGS.blogs);
-    return data;
-  } catch (error) {
-    throw error;
-  }
+  const data = await apiFetch<IBlog>('/blogs/create', {
+    method: 'POST',
+    body: payload,
+    auth: true,
+  });
+  updateTag(CACHE_TAGS.blogs);
+  return data;
 };
 
 // get all blogs action==>
 //
-// Cached and tagged 'blogs'. Next's fetch default is no-store, so without the
-// explicit force-cache every page navigation re-hit the API — which is what made
-// the admin tables flash a skeleton on each visit. The tag is the escape hatch:
-// any write below expires it and the next reader gets fresh data.
-//
-// The cache key includes the Authorization header, so the draft-carrying
-// /blogs/all responses can never be served to a signed-out visitor.
+// Explicitly cached: Next's fetch default is no-store, and without the cache
+// every page navigation re-hit the API, which is what made the admin tables
+// flash a skeleton on each visit.
 //
 // Public pages get published blogs only (the backend filters drafts out).
 // Admin surfaces pass includeDrafts: true, which hits the admin-only /blogs/all
-// endpoint so their tables and pickers still show unpublished entries.
+// endpoint with the token, so their tables and pickers still show unpublished
+// entries. The token is part of the cache key, so those responses can never be
+// served to a signed-out visitor.
 export const getAllBlogs = async ({
   includeDrafts = false,
 }: {
   includeDrafts?: boolean;
-} = {}) => {
-  try {
-    const url = includeDrafts
-      ? `${process.env.NEXT_PUBLIC_SERVER_URL}/blogs/all`
-      : `${process.env.NEXT_PUBLIC_SERVER_URL}/blogs`;
-
-    const headers: HeadersInit = { 'Content-Type': 'application/json' };
-
-    if (includeDrafts) {
-      const accessToken = (await getToken()).accessToken;
-      headers.Authorization = `Bearer ${accessToken}`;
-    }
-
-    const cacheOptions = await getCacheFetchOptions({
-      tag: CACHE_TAGS.blogs,
-      revalidateSeconds: 3600,
-    });
-
-    const response = await fetch(url, {
-      method: 'GET',
-      ...cacheOptions,
-      headers: {
-        ...headers,
-        ...(cacheOptions.headers ?? {}),
-      },
-    });
-
-    // The backend is expected to reply JSON ({ success, statusCode, … }) but
-    // can return plain-text error pages (5xx/gateway). Parse defensively so a
-    // non-JSON body surfaces as a readable error instead of a JSON.parse
-    // SyntaxError crashing the page render.
-    const contentType = response.headers.get('content-type') ?? '';
-    let data: ({ data: IBlog[] } & Record<string, unknown>) | null = null;
-
-    if (contentType.toLowerCase().includes('application/json')) {
-      data = await response.json();
-    }
-
-    // throw error if the response doesn't return success==>
-    if (!data?.success) {
-      const fallback = `Blogs API ${response.status} ${response.statusText}: expected a JSON response`;
-      throw new Error(
-        typeof data?.message === 'string' ? data.message : fallback
-      );
-    }
-
-    return data;
-  } catch (error) {
-    throw error;
-  }
-};
+} = {}) =>
+  apiFetch<IBlog[]>(includeDrafts ? '/blogs/all' : '/blogs', {
+    auth: includeDrafts,
+    cache: blogsCache,
+  });
 
 // delete blog==>
 export const deleteBlog = async (id: string) => {
-  const accessToken = (await getToken()).accessToken;
-
-  try {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_SERVER_URL}/blogs/${id}`,
-      {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`,
-        },
-      }
-    );
-
-    const data = await response.json();
-
-    // throw error if the response doesn't return success==>
-    if (!data.success) {
-      throw new Error(data.message);
-    }
-    updateTag(CACHE_TAGS.blogs);
-    return data;
-  } catch (error) {
-    throw error;
-  }
+  const data = await apiFetch<never>(`/blogs/${id}`, {
+    method: 'DELETE',
+    auth: true,
+  });
+  updateTag(CACHE_TAGS.blogs);
+  return data;
 };
 
 // update blog action==>
 // Multipart like create. When the cover photo was replaced, the FormData also
 // carries deleteImageUrl (the previous cover photo URL) for backend cleanup.
 export const updateBlogAction = async (id: string, payload: FormData) => {
-  const accessToken = (await getToken()).accessToken;
-
-  try {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_SERVER_URL}/blogs/${id}`,
-      {
-        method: 'PATCH',
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-        credentials: 'include',
-        body: payload,
-      }
-    );
-
-    const data = await response.json();
-
-    // throw error if the response doesn't return success==>
-    if (!data.success) {
-      throw new Error(data.message);
-    }
-    updateTag(CACHE_TAGS.blogs);
-    return data;
-  } catch (error) {
-    throw error;
-  }
+  const data = await apiFetch<IBlog>(`/blogs/${id}`, {
+    method: 'PATCH',
+    body: payload,
+    auth: true,
+  });
+  updateTag(CACHE_TAGS.blogs);
+  return data;
 };
 
 // toggle blog publish status==>
@@ -172,69 +71,28 @@ export const toggleBlogStatus = async (
   id: string,
   status: 'DRAFT' | 'PUBLISHED'
 ) => {
-  const accessToken = (await getToken()).accessToken;
-
-  try {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_SERVER_URL}/blogs/${id}`,
-      {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`,
-        },
-        body: JSON.stringify({ status }),
-      }
-    );
-
-    const data = await response.json();
-
-    if (!data.success) {
-      throw new Error(data.message);
-    }
-    updateTag(CACHE_TAGS.blogs);
-    return data;
-  } catch (error) {
-    throw error;
-  }
+  const data = await apiFetch<IBlog>(`/blogs/${id}`, {
+    method: 'PATCH',
+    body: { status },
+    auth: true,
+  });
+  updateTag(CACHE_TAGS.blogs);
+  return data;
 };
 
-// get single blog — one entry per post, under the same 'blogs' tag with 1h ISR
-// so viewing or editing stays fresh.
+// get single blog: one cache entry per post, under the same 'blogs' tag.
 //
 // Public pages get published posts only; a draft answers like a missing slug.
 // The admin edit page passes includeDrafts: true, which hits the admin-only
-// /blogs/all/:slug with the token (the cache key includes that header).
+// /blogs/all/:slug with the token.
 //
 // Returns null when the post does not exist (or is a draft on a public read),
 // so callers can render a 404 instead of crashing.
 export const singleBlogAction = async (
   slug: string,
   { includeDrafts = false }: { includeDrafts?: boolean } = {}
-): Promise<{ success: boolean; message: string; data: IBlog } | null> => {
-  const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
-  };
-
-  if (includeDrafts) {
-    headers.Authorization = `Bearer ${(await getToken()).accessToken}`;
-  }
-
-  const cacheOptions = await getCacheFetchOptions({
-    tag: CACHE_TAGS.blogs,
-    revalidateSeconds: 3600,
-    extraHeaders: headers,
+): Promise<{ success: boolean; message: string; data: IBlog } | null> =>
+  apiFetchOrNull<IBlog>(`/blogs/${includeDrafts ? 'all/' : ''}${slug}`, {
+    auth: includeDrafts,
+    cache: blogsCache,
   });
-
-  const response = await fetch(
-    `${process.env.NEXT_PUBLIC_SERVER_URL}/blogs/${includeDrafts ? 'all/' : ''}${slug}`,
-    {
-      method: 'GET',
-      ...cacheOptions,
-    }
-  );
-
-  const data = await response.json();
-
-  return data.success ? data : null;
-};

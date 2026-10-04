@@ -1,151 +1,37 @@
 'use client';
 
 import {
-  flexRender,
   getCoreRowModel,
   getSortedRowModel,
   useReactTable,
-  type Cell,
-  type Row,
   type SortingState,
   type VisibilityState,
 } from '@tanstack/react-table';
 
 const NO_ROWS: never[] = [];
 
-import {
-  closestCenter,
-  DndContext,
-  DragOverlay,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  type DragEndEvent,
-  type DragStartEvent,
-} from '@dnd-kit/core';
-
-import {
-  arrayMove,
-  SortableContext,
-  useSortable,
-  verticalListSortingStrategy,
-} from '@dnd-kit/sortable';
-
-import { Skeleton } from '../ui/skeleton';
-import {
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-  Table as UITable,
-} from '../ui/table';
-import { CSS } from '@dnd-kit/utilities';
-import { Ellipsis, Inbox, MoveUpRight } from 'lucide-react';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { TableBody, Table as UITable } from '../ui/table';
+import { MoveUpRight } from 'lucide-react';
+import React, { useEffect, useMemo, useState } from 'react';
 
 import { cn } from '@/lib/utils';
 import { Card, CardContent } from '../ui/card';
 import { Dialog, DialogContent, DialogTitle } from '../ui/dialog';
-import {
-  DragHandleProps,
-  FlexibleDataTableProps,
-  SortableRowProps,
-} from './data-table-types';
+import { FlexibleDataTableProps } from './data-table-types';
 
 import Toolbar from './toolbar';
 import { DataTablePagination } from './data-table-pagination';
 import { DataTableViewOptions } from './data-table-view-options';
 import Link from 'next/link';
-
-/** Shared cell rhythm: generous padding so rows read as data, not as chips. */
-const CELL_CLASS = 'px-4 py-3.5 align-middle text-sm';
-/** Hairlines do the separating — no shadows, no zebra striping. */
-const ROW_CLASS = 'border-b-0 hover:bg-accent/50';
-
-function DragHandle({ listeners, attributes }: DragHandleProps) {
-  return (
-    <div
-      className="flex h-full w-full min-w-10 cursor-grab items-center justify-center bg-transparent"
-      {...listeners}
-      {...attributes}
-    >
-      <button
-        type="button"
-        aria-label="Reorder row"
-        className="cursor-grab rounded-md p-2 text-muted-foreground transition-colors hover:text-foreground"
-      >
-        <Ellipsis className="h-4 w-4" aria-hidden="true" />
-      </button>
-    </div>
-  );
-}
-
-const SortableRow = React.memo(function SortableRow<TData>({
-  row,
-  isDragging,
-}: SortableRowProps<TData>) {
-  const { attributes, listeners, setNodeRef, transform, transition } =
-    useSortable({ id: row.id });
-
-  const style = useMemo(
-    () => ({
-      transform: CSS.Transform.toString(transform),
-      transition,
-      opacity: isDragging ? 0.5 : 1,
-      position: 'relative' as const,
-      zIndex: isDragging ? 1 : 0,
-    }),
-    [transform, transition, isDragging]
-  );
-
-  return (
-    <TableRow
-      ref={setNodeRef}
-      style={style}
-      data-state={
-        (row.getIsSelected() && 'selected') ||
-        (isDragging && 'dragging') ||
-        undefined
-      }
-      className={cn(ROW_CLASS, isDragging && 'bg-surface')}
-    >
-      <TableCell className="w-4 p-0 text-muted-foreground">
-        <DragHandle listeners={listeners} attributes={attributes} />
-      </TableCell>
-      {row.getVisibleCells().map((cell: Cell<TData, unknown>) => (
-        <TableCell key={cell.id} className={CELL_CLASS}>
-          {flexRender(cell.column.columnDef.cell, cell.getContext())}
-        </TableCell>
-      ))}
-    </TableRow>
-  );
-});
-
-const DragOverlayRow = React.memo(function DragOverlayRow<TData>({
-  row,
-}: {
-  row: Row<TData>;
-}) {
-  return (
-    <TableRow className="rounded-lg border-0 bg-card shadow-md">
-      <TableCell className="w-4 text-muted-foreground">
-        <button
-          type="button"
-          aria-label="Reorder row"
-          className="cursor-grabbing p-2"
-        >
-          <Ellipsis className="h-4 w-4" aria-hidden="true" />
-        </button>
-      </TableCell>
-      {row.getVisibleCells().map((cell: Cell<TData, unknown>) => (
-        <TableCell key={cell.id} className={CELL_CLASS}>
-          {flexRender(cell.column.columnDef.cell, cell.getContext())}
-        </TableCell>
-      ))}
-    </TableRow>
-  );
-});
+import {
+  DataTableEmptyRow,
+  DataTableHeader,
+  DataTableHeading,
+  DataTableSkeletonRows,
+  DataTableStaticRows,
+} from './data-table-parts';
+import { DataTableSortableBody } from './data-table-sortable-body';
+import { useRowOrdering } from './use-row-ordering';
 
 export function DataTable<TData, TValue = unknown>({
   columns,
@@ -183,7 +69,6 @@ export function DataTable<TData, TValue = unknown>({
     pageSize: paginationData?.limit || paginationData?.pageSize || 10,
   });
 
-  const [activeId, setActiveId] = useState<string | null>(null);
   const [isModalOpen, setModalOpen] = useState(false);
 
   // Sync data and pagination with props using optional chaining
@@ -253,141 +138,28 @@ export function DataTable<TData, TValue = unknown>({
     autoResetPageIndex: false,
   });
 
-  const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: { distance: 3 },
-    })
-  );
-
   // getRowModel() is memoized by TanStack; only the fallback needs a stable
   // reference, or every memo below would recompute on each render
   const currentRows = table?.getRowModel()?.rows ?? NO_ROWS;
 
-  const activeRow = useMemo(() => {
-    if (!activeId) return null;
-    return currentRows.find((row) => row.id === activeId) || null;
-  }, [activeId, currentRows]);
+  const {
+    sensors,
+    activeId,
+    activeRow,
+    rowIds,
+    handleDragStart,
+    handleDragEnd,
+  } = useRowOrdering({ currentRows, data, setData, dragEnd });
 
-  const rowIds = useMemo(() => currentRows.map((row) => row.id), [currentRows]);
-
-  const handleDragStart = useCallback((event: DragStartEvent) => {
-    setActiveId(event.active.id as string);
-  }, []);
-
-  const handleDragEnd = useCallback(
-    (event: DragEndEvent) => {
-      const { active, over } = event;
-      setActiveId(null);
-
-      if (!over || active.id === over.id) return;
-
-      const oldIndex = currentRows.findIndex((row) => row.id === active.id);
-      const newIndex = currentRows.findIndex((row) => row.id === over.id);
-
-      if (oldIndex !== -1 && newIndex !== -1) {
-        const newData = arrayMove([...data], oldIndex, newIndex);
-        setData(newData);
-        dragEnd?.(newData);
-      }
-    },
-    [currentRows, data, dragEnd]
-  );
-
-  // Header row sits on the recessed surface with a hairline rule beneath it.
   const tableHeader = (
-    <TableHeader className="bg-muted/50 [&_tr]:border-b-0">
-      {table.getHeaderGroups().map((headerGroup) => (
-        <TableRow
-          key={headerGroup.id}
-          className="border-b-0 hover:bg-transparent"
-        >
-          {enableRowOrdering && <TableHead className="w-4" />}
-          {headerGroup.headers.map((header) => {
-            const sorted = header.column.getIsSorted();
-            return (
-              <TableHead
-                key={header.id}
-                aria-sort={
-                  header.column.getCanSort()
-                    ? sorted === 'asc'
-                      ? 'ascending'
-                      : sorted === 'desc'
-                        ? 'descending'
-                        : 'none'
-                    : undefined
-                }
-                className="label-mono h-auto px-4 py-3 whitespace-nowrap text-muted-foreground"
-              >
-                {header.isPlaceholder
-                  ? null
-                  : flexRender(
-                      header.column.columnDef.header,
-                      header.getContext()
-                    )}
-              </TableHead>
-            );
-          })}
-        </TableRow>
-      ))}
-    </TableHeader>
+    <DataTableHeader table={table} enableRowOrdering={enableRowOrdering} />
   );
-
-  // Skeleton mirrors the real row: checkbox, two-line title, data cells, actions.
-  const renderSkeletonRows = () => {
-    const columnCount = columns?.length ?? 0;
-
-    return Array.from({ length: 5 }).map((_, rowIndex) => (
-      <TableRow
-        key={rowIndex}
-        className="border-b-0 hover:bg-transparent"
-      >
-        {enableRowOrdering && (
-          <TableCell className="w-4 px-4 py-3.5">
-            <Skeleton className="h-4 w-4" />
-          </TableCell>
-        )}
-        {Array.from({ length: columnCount }).map((__, colIndex) => (
-          <TableCell key={colIndex} className={CELL_CLASS}>
-            {colIndex === 0 ? (
-              <Skeleton className="h-4 w-4 rounded-sm" />
-            ) : colIndex === 1 ? (
-              <div className="space-y-2">
-                <Skeleton className="h-4 w-48" />
-                <Skeleton className="h-3 w-28" />
-              </div>
-            ) : colIndex === columnCount - 1 ? (
-              <div className="flex justify-end gap-1.5">
-                <Skeleton className="h-8 w-8" />
-                <Skeleton className="h-8 w-8" />
-              </div>
-            ) : (
-              <Skeleton className="h-4 w-24" />
-            )}
-          </TableCell>
-        ))}
-      </TableRow>
-    ));
-  };
 
   const emptyTableBody = (
-    <TableRow className="hover:bg-transparent">
-      <TableCell
-        colSpan={columns?.length + (enableRowOrdering ? 1 : 0)}
-        className="px-4 py-14 text-center whitespace-normal"
-      >
-        <div className="flex flex-col items-center gap-3">
-          <span
-            aria-hidden="true"
-            className="flex h-10 w-10 items-center justify-center rounded-md bg-muted text-muted-foreground"
-          >
-            <Inbox className="h-4 w-4" />
-          </span>
-          <p className="font-mono text-sm tracking-tight text-foreground">
-            {emptyMessage}
-          </p>
-        </div>
-      </TableCell>
-    </TableRow>
+    <DataTableEmptyRow
+      colSpan={columns?.length + (enableRowOrdering ? 1 : 0)}
+      emptyMessage={emptyMessage}
+    />
   );
 
   return (
@@ -401,19 +173,12 @@ export function DataTable<TData, TValue = unknown>({
           <div className="space-y-3 sm:space-y-4">
             {customHeader ? (
               <div className="flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
-                <div className="w-full sm:max-w-[50%]">
-                  {tableTitle && (
-                    <h2 className="text-base font-semibold tracking-tight text-foreground sm:text-lg">
-                      {tableTitle}
-                    </h2>
-                  )}
-                  {tableDescription && (
-                    <p className="mt-1 text-sm text-muted-foreground">
-                      {tableDescription}
-                    </p>
-                  )}
-                  {tableHeaderRenderProps && tableHeaderRenderProps}
-                </div>
+                <DataTableHeading
+                  className="w-full sm:max-w-[50%]"
+                  tableTitle={tableTitle}
+                  tableDescription={tableDescription}
+                  tableHeaderRenderProps={tableHeaderRenderProps}
+                />
                 {href && (
                   <Link
                     href={href}
@@ -426,19 +191,12 @@ export function DataTable<TData, TValue = unknown>({
               </div>
             ) : (
               <div className="flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
-                <div className="w-full sm:w-auto sm:max-w-[50%]">
-                  {tableTitle && (
-                    <h2 className="text-base font-semibold tracking-tight text-foreground sm:text-lg">
-                      {tableTitle}
-                    </h2>
-                  )}
-                  {tableDescription && (
-                    <p className="mt-1 text-sm text-muted-foreground">
-                      {tableDescription}
-                    </p>
-                  )}
-                  {tableHeaderRenderProps && tableHeaderRenderProps}
-                </div>
+                <DataTableHeading
+                  className="w-full sm:w-auto sm:max-w-[50%]"
+                  tableTitle={tableTitle}
+                  tableDescription={tableDescription}
+                  tableHeaderRenderProps={tableHeaderRenderProps}
+                />
 
                 <div className="flex flex-wrap items-center gap-2 overflow-hidden sm:gap-3">
                   {toolbar && (
@@ -485,7 +243,12 @@ export function DataTable<TData, TValue = unknown>({
                   <div className="overflow-x-auto">
                     <UITable className="min-w-full">
                       {tableHeader}
-                      <TableBody>{renderSkeletonRows()}</TableBody>
+                      <TableBody>
+                        <DataTableSkeletonRows
+                          columnCount={columns?.length ?? 0}
+                          enableRowOrdering={enableRowOrdering}
+                        />
+                      </TableBody>
                     </UITable>
                   </div>
                 </div>
@@ -494,72 +257,26 @@ export function DataTable<TData, TValue = unknown>({
               <div className="overflow-hidden rounded-[14px]">
                 <div className="overflow-x-auto">
                   {enableRowOrdering ? (
-                    <DndContext
+                    <DataTableSortableBody
+                      header={tableHeader}
+                      emptyRow={emptyTableBody}
+                      rows={currentRows}
+                      rowIds={rowIds}
+                      activeId={activeId}
+                      activeRow={activeRow}
                       sensors={sensors}
-                      collisionDetection={closestCenter}
                       onDragStart={handleDragStart}
                       onDragEnd={handleDragEnd}
-                    >
-                      <UITable className="min-w-full">
-                        {tableHeader}
-                        <TableBody>
-                          {currentRows?.length === 0 ? (
-                            emptyTableBody
-                          ) : (
-                            <SortableContext
-                              items={rowIds}
-                              strategy={verticalListSortingStrategy}
-                            >
-                              {currentRows.map((row) => (
-                                <SortableRow
-                                  key={row.id}
-                                  row={row}
-                                  isDragging={activeId === row.id}
-                                />
-                              ))}
-                            </SortableContext>
-                          )}
-                        </TableBody>
-                      </UITable>
-                      <DragOverlay>
-                        {activeRow ? (
-                          <div className="table-wrapper overflow-x-auto rounded-[14px] bg-card shadow-lg">
-                            <table className="w-full min-w-full">
-                              <tbody>
-                                <DragOverlayRow row={activeRow} />
-                              </tbody>
-                            </table>
-                          </div>
-                        ) : null}
-                      </DragOverlay>
-                    </DndContext>
+                    />
                   ) : (
                     <UITable className="min-w-full">
                       {tableHeader}
                       <TableBody>
-                        {currentRows?.length === 0
-                          ? emptyTableBody
-                          : currentRows.map((row) => (
-                              <TableRow
-                                key={row.id}
-                                data-state={row.getIsSelected() && 'selected'}
-                                className={ROW_CLASS}
-                              >
-                                {row
-                                  .getVisibleCells()
-                                  .map((cell: Cell<TData, unknown>) => (
-                                    <TableCell
-                                      key={cell.id}
-                                      className={CELL_CLASS}
-                                    >
-                                      {flexRender(
-                                        cell.column.columnDef.cell,
-                                        cell.getContext()
-                                      )}
-                                    </TableCell>
-                                  ))}
-                              </TableRow>
-                            ))}
+                        {currentRows?.length === 0 ? (
+                          emptyTableBody
+                        ) : (
+                          <DataTableStaticRows rows={currentRows} />
+                        )}
                       </TableBody>
                     </UITable>
                   )}
@@ -585,19 +302,12 @@ export function DataTable<TData, TValue = unknown>({
           <div className="max-h-[calc(90vh-120px)]">
             <div className="space-y-4">
               <div className="flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
-                <div className="w-full sm:max-w-[50%]">
-                  {tableTitle && (
-                    <h2 className="text-base font-semibold tracking-tight text-foreground sm:text-lg">
-                      {tableTitle}
-                    </h2>
-                  )}
-                  {tableDescription && (
-                    <p className="mt-1 text-sm text-muted-foreground">
-                      {tableDescription}
-                    </p>
-                  )}
-                  {tableHeaderRenderProps && tableHeaderRenderProps}
-                </div>
+                <DataTableHeading
+                  className="w-full sm:max-w-[50%]"
+                  tableTitle={tableTitle}
+                  tableDescription={tableDescription}
+                  tableHeaderRenderProps={tableHeaderRenderProps}
+                />
                 <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                   {toolbar && (
                     <Toolbar
@@ -614,29 +324,11 @@ export function DataTable<TData, TValue = unknown>({
                   <UITable className="min-w-full">
                     {tableHeader}
                     <TableBody>
-                      {currentRows?.length === 0
-                        ? emptyTableBody
-                        : currentRows.map((row) => (
-                            <TableRow
-                              key={row.id}
-                              data-state={row.getIsSelected() && 'selected'}
-                              className={ROW_CLASS}
-                            >
-                              {row
-                                .getVisibleCells()
-                                .map((cell: Cell<TData, unknown>) => (
-                                  <TableCell
-                                    key={cell.id}
-                                    className={CELL_CLASS}
-                                  >
-                                    {flexRender(
-                                      cell.column.columnDef.cell,
-                                      cell.getContext()
-                                    )}
-                                  </TableCell>
-                                ))}
-                            </TableRow>
-                          ))}
+                      {currentRows?.length === 0 ? (
+                        emptyTableBody
+                      ) : (
+                        <DataTableStaticRows rows={currentRows} />
+                      )}
                     </TableBody>
                   </UITable>
                 </div>

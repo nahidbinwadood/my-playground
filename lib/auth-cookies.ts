@@ -1,6 +1,8 @@
 // Auth cookie helpers shared by the login action and the proxy (edge-safe: no
 // node APIs). The cookies mirror the JWTs' own lifetimes, so a cookie never
 // outlives the token inside it.
+//
+// Kept free of imports so `pnpm check:auth` can run it under plain node.
 
 export type TAuthTokens = { accessToken: string; refreshToken: string };
 
@@ -34,24 +36,3 @@ export const authCookieOptions = (token: string) => ({
   path: '/',
   maxAge: secondsLeft(token),
 });
-
-// Trades a refresh token for a fresh pair. The backend reads the refresh token
-// from its cookie, so it is forwarded as a Cookie header. null = log in again.
-export const refreshAuthTokens = async (
-  refreshToken: string
-): Promise<TAuthTokens | null> => {
-  try {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_SERVER_URL}/auth/refresh-token`,
-      {
-        method: 'POST',
-        headers: { Cookie: `refreshToken=${refreshToken}` },
-        cache: 'no-store',
-      }
-    );
-    const data = await response.json();
-    return data?.success ? (data.data as TAuthTokens) : null;
-  } catch {
-    return null;
-  }
-};

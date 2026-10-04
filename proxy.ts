@@ -2,10 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import {
   authCookieOptions,
   decodeJwt,
-  refreshAuthTokens,
   secondsLeft,
   TAuthTokens,
 } from '@/lib/auth-cookies';
+import { env } from '@/lib/env';
 
 // Prefix matching, not exact matching — an explicit list silently leaves nested
 // routes (e.g. /admin/blogs/create-blog) unprotected. A route matches its own
@@ -17,6 +17,27 @@ const matchesRoute = (pathname: string, routes: string[]) =>
   routes.some(
     (route) => pathname === route || pathname.startsWith(`${route}/`)
   );
+
+// Trades a refresh token for a fresh pair. The backend reads the refresh token
+// from its cookie, so it is forwarded as a Cookie header. null = log in again.
+const refreshAuthTokens = async (
+  refreshToken: string
+): Promise<TAuthTokens | null> => {
+  try {
+    const response = await fetch(
+      `${env.NEXT_PUBLIC_SERVER_URL}/auth/refresh-token`,
+      {
+        method: 'POST',
+        headers: { Cookie: `refreshToken=${refreshToken}` },
+        cache: 'no-store',
+      }
+    );
+    const data = await response.json();
+    return data?.success ? (data.data as TAuthTokens) : null;
+  } catch {
+    return null;
+  }
+};
 
 export default async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;

@@ -2,61 +2,42 @@
 
 import { LoginFormValues } from '@/app/(auth)/auth/login/schema';
 import { SignupPayload } from '@/app/(auth)/auth/signup/schema';
-import { getToken } from '@/lib/getToken';
+import { ApiError, apiFetch, apiFetchOrNull } from '@/lib/api';
 import { authCookieOptions, TAuthTokens } from '@/lib/auth-cookies';
+import { IUser } from '@/types';
 import { cookies } from 'next/headers';
+
+// The auth forms branch on `response.success` and toast `response.message`,
+// so these two catch at the boundary and return a result instead of throwing.
+// The backend's message ("user already exists", validation failures…) is
+// surfaced verbatim; only network/non-JSON failures get the generic text.
+const toFailure = (error: unknown, fallback: string) => ({
+  success: false as const,
+  message: error instanceof ApiError ? error.message : fallback,
+});
 
 export const signupAction = async (payload: SignupPayload) => {
   try {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_SERVER_URL}/auth/create`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload),
-        cache: 'no-store',
-      }
-    );
-
-    const data = await response.json();
-
-    // surface the backend's message ("user already exists", validation
-    // failures…) instead of a generic one
-    return data;
+    return await apiFetch<unknown>('/auth/create', {
+      method: 'POST',
+      body: payload,
+    });
   } catch (error) {
     console.error('signupAction error:', error);
-    return {
-      success: false,
-      message: 'Something went wrong. Please try again.',
-    };
+    return toFailure(error, 'Something went wrong. Please try again.');
   }
 };
 
 export const loginAction = async (payload: LoginFormValues) => {
   try {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_SERVER_URL}/auth/login`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload),
-        cache: 'no-store',
-      }
-    );
-
-    const data = await response.json();
-
-    if (!data.success) {
-      return { success: false, message: data.message };
-    }
+    const data = await apiFetch<{ tokens: TAuthTokens }>('/auth/login', {
+      method: 'POST',
+      body: payload,
+    });
 
     // The backend returns the token pair in the body. Each cookie's maxAge
     // follows its JWT's own expiry, so the cookie dies with the token.
-    const tokens = data.data?.tokens as TAuthTokens;
+    const { tokens } = data.data;
     const cookieStore = await cookies();
     cookieStore.set(
       'accessToken',
@@ -73,10 +54,7 @@ export const loginAction = async (payload: LoginFormValues) => {
     return { success: true, message: data.message };
   } catch (error) {
     console.error('loginAction error:', error);
-    return {
-      success: false,
-      message: 'Something went wrong. Please try again.',
-    };
+    return toFailure(error, 'Something went wrong. Please try again.');
   }
 };
 
@@ -90,32 +68,12 @@ export const logoutAction = async () => {
   return { success: true, message: 'Your session ended.' };
 };
 
+// null on any failure: the admin layout treats that as a dead session.
+// NOTE: no cookie writes here — this is read during Server Component render
+// (admin layout), where cookie mutation is forbidden.
 export const getProfileAction = async () => {
-  const accessToken = (await getToken()).accessToken;
-
   try {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_SERVER_URL}/auth/me`,
-      {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`,
-        },
-        credentials: 'include',
-        cache: 'no-store',
-      }
-    );
-
-    const data = await response.json();
-
-    if (!data.success) {
-      throw new Error(data.message);
-    }
-
-    return data;
-    // NOTE: no cookie writes here — this is read during Server Component
-    // render (admin layout), where cookie mutation is forbidden
+    return await apiFetchOrNull<IUser>('/auth/me', { auth: true });
   } catch {
     return null;
   }

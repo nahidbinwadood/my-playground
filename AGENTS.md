@@ -67,9 +67,19 @@ APIs.
 
 - `pnpm dev` — dev server
 - `pnpm build` / `pnpm start`
-- `pnpm lint` — eslint
+- `pnpm lint` — eslint (includes a rule: no `DialogContent` outside `components/modal/**`,
+  `components/ui/**` and the showcase demos)
+- `pnpm check:journal`, `pnpm check:auth` — assert scripts for the day/streak and
+  token-expiry logic
+- `npx next typegen` before `npx tsc --noEmit` on a fresh clone (route types)
+- CI (`.github/workflows/ci.yml`): typegen → tsc → lint → both checks, on every push/PR.
+  No build step — `next build` would fetch the live backend.
+- `pnpm build` fails on **Windows only** while the legacy blog slug containing `:`
+  exists (illegal filename); Vercel/Linux is fine. Re-saving that post fixes it.
 
-Env: `NEXT_PUBLIC_SERVER_URL` — external backend base URL (auth + blogs API). No local DB.
+Env: validated once in `lib/env.ts` (Zod) — `NEXT_PUBLIC_SERVER_URL` (required),
+`NEXT_PUBLIC_SITE_URL` (optional). Import `env` from there; never read
+`process.env.NEXT_PUBLIC_*` elsewhere. No local DB.
 
 ## Architecture
 
@@ -89,7 +99,10 @@ Env: `NEXT_PUBLIC_SERVER_URL` — external backend base URL (auth + blogs API). 
   set on the response and the forwarded request. No valid session → `/auth/login`;
   non-admin role (read unverified from the JWT, UX only) → `/`; signed-in admin on
   an auth route → dashboard.
-- **Data fetching**: server actions (`actions/*.action.ts`). Reads use
+- **Data fetching**: server actions (`actions/*.action.ts`) all go through
+  `lib/api.ts`: `apiFetch<T>()` throws `ApiError` (has `statusCode`) when the
+  envelope says `success: false`; `apiFetchOrNull<T>()` returns null instead (for
+  "missing is normal" reads). `auth: true` adds the Bearer token. Reads use
   `getCacheFetchOptions` (`force-cache` + ISR + tag from `lib/cache-tags.ts`);
   writes call `updateTag()`. Never read `headers()`/`cookies()` on public reads —
   it makes the page dynamic and cancels `revalidate`.
@@ -99,7 +112,10 @@ Env: `NEXT_PUBLIC_SERVER_URL` — external backend base URL (auth + blogs API). 
 - `(homepage)/` — public. `page.tsx` landing (hero centerpiece is
   `components/home/hero-panel.tsx`, public reading-list stats; the live Zod
   `validation-console.tsx` now sits atop `form-playground/`),
-  `blogs/` + `blogs/[slug]` (404 on unknown/draft, per-post metadata), `notes/` +
+  `blogs/` + `blogs/[slug]` (404 on unknown/draft, per-post metadata; the list page
+  and its `loading.tsx` live in a `(list)` route group so the skeleton never wraps
+  `[slug]` — a wrapping `loading.tsx` streams the page and turns `notFound()` into
+  a 200), `notes/` +
   `notes/[id]` (public study notes; the reader dialog links to the page),
   `components/` (showcase; specimens live in
   `components/_components/`), `form-playground/` (validation challenges).
@@ -147,9 +163,21 @@ Type: Bricolage Grotesque (`font-display`, headings), Hanken Grotesk (body), DM 
   Destructive confirms stay on `common-alert-modal.tsx`.
 - Controls are buttons, not underlined text. Underline = prose link only.
 
+Error UI: `app/not-found.tsx` (styled 404), `app/(homepage)/error.tsx`,
+`app/(admin)/admin/error.tsx`, `app/global-error.tsx`. Security headers
+(`X-Frame-Options`, nosniff, referrer, permissions, CSP `frame-ancestors` only) are in
+`next.config.ts`.
+
+Large screens are split by concern: notes page → `use-note-filters.ts`,
+`use-copy-note.ts` + section components in `notes/_components/`; admin dashboard →
+`dashboard-data.ts` (`loadDashboardSources` / pure `deriveDashboardStats`) + panel
+components; `components/tables/data-table.tsx` → `use-row-ordering.ts`,
+`data-table-sortable-*.tsx`, `data-table-parts.tsx`. Add to those pieces rather than
+growing the entry files again.
+
 ## Key files
 
-- `actions/auth.action.ts`, `actions/blog.action.ts`, `actions/category.action.ts` — backend calls
+- `actions/*.action.ts` — backend calls via `lib/api.ts`; `lib/env.ts` — validated env
 - `lib/getToken.ts` — cookie token read; `lib/auth-cookies.ts` — JWT decode, cookie
   options, refresh call; `lib/nav-items.ts` — admin sidebar; `lib/utils.ts` — `cn`
 - `lib/journal.ts` — the journal's Dhaka day keys plus every note-derived tracker figure
@@ -191,8 +219,18 @@ the edit page uses admin-only `GET /blogs/all/:slug`. `POST /auth/logout` has no
 Mongo TTL — per-email, not per-IP, because logins arrive via the frontend server),
 and unknown-email / wrong-password return the same message. Token lifetimes must
 be **access short, refresh long** (`JWT_ACCESS_EXPIRES=1d`,
-`JWT_REFRESH_EXPIRES=30d`); the backend deploys from committed `dist/`, so run
-`pnpm build` there after `src/` changes.
+`JWT_REFRESH_EXPIRES=30d`).
+
+Backend platform (2026-10-04): Vercel builds `src/server.ts` directly (`vercel.json`);
+`dist/` is gitignored and untracked. `helmet()` on all routes; uploads are checked by
+magic bytes (`utils/isAllowedImage.ts`: JPEG/PNG/GIF/WEBP); the error handler logs
+one structured JSON line (no bodies/headers); `/health` connects before reporting.
+Indexes: Note `{status,createdAt}`, `{blog,createdAt}`, `{createdAt}`; Blog
+`{isPublished,isDeleted,createdAt}`. Tests: `pnpm test` (vitest + supertest +
+mongodb-memory-server, `tests/*.test.mjs`, 29 tests on draft/privacy, auth, lockout,
+roles, reminder paths, Telegram mocked) + CI workflow (tsc + tests). Locally
+`pnpm-workspace.yaml` (gitignored) must set `allowBuilds.mongodb-memory-server: false`
+or pnpm 11 refuses to run scripts.
 
 ## Notes
 

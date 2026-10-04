@@ -1,0 +1,31 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    env:
+      # Env validation only needs a well-formed URL; nothing here calls the
+      # backend. No build step for that reason — `next build` would fetch live.
+      NEXT_PUBLIC_SERVER_URL: https://example.invalid/api/v1
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+      - run: npx next typegen
+      - run: npx tsc --noEmit
+      - run: pnpm lint
+      - run: pnpm check:journal
+      - run: pnpm check:auth

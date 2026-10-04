@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import { createBlogAction, updateBlogAction } from '@/actions/blog.action';
@@ -139,10 +138,14 @@ const CreateBlogForm = ({
           throw new Error(response.message);
         }
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       setLoading(false);
-      console.log(error);
-      toast.error(error.message || 'Failed to create blog');
+      console.error(error);
+      toast.error(
+        error instanceof Error && error.message
+          ? error.message
+          : 'Failed to create blog'
+      );
     }
   };
 

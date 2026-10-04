@@ -1,7 +1,7 @@
 import { getAllBlogs } from '@/actions/blog.action';
 import { getAllCategoriesAction } from '@/actions/category.action';
 import { ICategory } from '@/types';
-import AllBlogsMainWrapper from './_components/all-blogs-main-wrapper';
+import AllBlogsMainWrapper from '../_components/all-blogs-main-wrapper';
 
 export const revalidate = 3600;
 
