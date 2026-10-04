@@ -24,8 +24,7 @@ jobs:
           cache: pnpm
 
       - run: pnpm install --frozen-lockfile
-      - run: npx next typegen
-      - run: npx tsc --noEmit
+      - run: pnpm typecheck
       - run: pnpm lint
       - run: pnpm check:journal
       - run: pnpm check:auth

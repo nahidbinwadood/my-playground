@@ -22,40 +22,32 @@ export type TDashboardSources = {
 };
 
 export const loadDashboardSources = async (): Promise<TDashboardSources> => {
-  let blogs: IBlog[] = [];
-  let blogsUnavailable = false;
-
-  try {
+  const [blogsRes, categoriesRes, notesRes] = await Promise.allSettled([
     // drafts are real content too — the dashboard tracks both states
-    const response = await getAllBlogs({ includeDrafts: true });
-    blogs = (response.data ?? []) as IBlog[];
-  } catch {
-    blogsUnavailable = true;
-  }
-
-  // The topic axis is data now. Cards, tables and coverage all resolve a
-  // stored id against this one list; a failure degrades to "no category"
-  // rather than taking the page down.
-  let categories: ICategory[] = [];
-  let categoriesUnavailable = false;
-
-  try {
-    const response = await getAllCategoriesAction();
-    categories = response.data ?? [];
-  } catch {
-    categoriesUnavailable = true;
-  }
-
-  let notes: INote[] = [];
-  let notesUnavailable = false;
-
-  try {
+    getAllBlogs({ includeDrafts: true }),
+    // The topic axis is data now. Cards, tables and coverage all resolve a
+    // stored id against this one list; a failure degrades to "no category"
+    // rather than taking the page down.
+    getAllCategoriesAction(),
     // bodyless: the dashboard counts and lists notes, it never reads them
-    const response = await getAllNotes({ includeContent: false });
-    notes = response.data ?? [];
-  } catch {
-    notesUnavailable = true;
-  }
+    getAllNotes({ includeContent: false }),
+  ]);
+
+  const blogs =
+    blogsRes.status === 'fulfilled'
+      ? ((blogsRes.value.data ?? []) as IBlog[])
+      : [];
+  const blogsUnavailable = blogsRes.status === 'rejected';
+
+  const categories =
+    categoriesRes.status === 'fulfilled'
+      ? (categoriesRes.value.data ?? [])
+      : [];
+  const categoriesUnavailable = categoriesRes.status === 'rejected';
+
+  const notes =
+    notesRes.status === 'fulfilled' ? (notesRes.value.data ?? []) : [];
+  const notesUnavailable = notesRes.status === 'rejected';
 
   return {
     blogs,

@@ -2,11 +2,13 @@
   "name": "my-playground",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "typecheck": "next typegen && tsc --noEmit",
     "check:journal": "node --experimental-strip-types scripts/check-journal.mjs",
     "check:auth": "node --experimental-strip-types scripts/check-auth-cookies.mjs"
   },

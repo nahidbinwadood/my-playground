@@ -166,7 +166,8 @@ export function DataTable<TData, TValue = unknown>({
     <>
       <Card
         className={cn(
-          'gap-0 overflow-hidden rounded-[14px] border-none bg-surface py-0 shadow-none',
+          !hideDefaultClassname &&
+            'gap-0 overflow-hidden rounded-[14px] border-none bg-surface py-0 shadow-none'
         )}
       >
         <CardContent className="p-3 lg:p-6">

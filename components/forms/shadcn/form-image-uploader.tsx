@@ -94,6 +94,8 @@ function FormImageUploader<T extends FieldValues>({
         className="hidden"
         tabIndex={-1}
         disabled={disabled}
+        aria-invalid={error ? true : undefined}
+        aria-describedby={error ? errorId : undefined}
         onChange={(e) => {
           const file = e.target.files?.[0];
           if (file) field.onChange(file);
@@ -156,7 +158,6 @@ function FormImageUploader<T extends FieldValues>({
           type="button"
           disabled={disabled}
           onClick={() => inputRef.current?.click()}
-          aria-invalid={error ? true : undefined}
           aria-describedby={error ? errorId : undefined}
           className={cn(
             'flex aspect-video w-full cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-line bg-surface px-4 text-center transition-colors hover:border-foreground/30 disabled:pointer-events-none disabled:opacity-50',
