@@ -39,7 +39,7 @@ const FieldArrayFormMainWrapper = () => {
         setShowForm(false);
       }
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   };
 
@@ -57,7 +57,7 @@ const FieldArrayFormMainWrapper = () => {
         setAllData([...updatedData]);
       }
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   };
 

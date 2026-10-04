@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { readingMinutes } from '@/lib/utils';
 import { ArrowRight } from 'lucide-react';
 import { IBlog, ICategory } from '@/types';
 import { ImageWithLoader } from '@/components/ui/image-with-loader';
@@ -10,17 +11,6 @@ const formatDate = (value: string) =>
     month: 'short',
     day: 'numeric',
   });
-
-// Rough reading time: strip markdown syntax, count words, ~200 wpm.
-const readingTime = (md?: string) => {
-  const words = (md ?? '')
-    .replace(/<[^>]+>/g, ' ')
-    .replace(/[#*_~`>\-\[\]()!]/g, ' ')
-    .trim()
-    .split(/\s+/)
-    .filter(Boolean).length;
-  return Math.max(1, Math.round(words / 200));
-};
 
 // Latest post — same card vocabulary at larger scale: image left, content
 // right on lg, stacked below. One link, nothing interactive nested inside.
@@ -63,7 +53,7 @@ const FeaturedBlogCard = ({
           <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-2 border-t border-line pt-4 font-mono text-xs tabular-nums text-muted-foreground">
             <time dateTime={blog.createdAt}>{formatDate(blog.createdAt)}</time>
             <span aria-hidden="true">/</span>
-            <span>{readingTime(blog.content)} min read</span>
+            <span>{readingMinutes(blog.content)} min read</span>
             <span className="ml-auto inline-flex items-center gap-1.5 text-foreground">
               Read post
               <ArrowRight

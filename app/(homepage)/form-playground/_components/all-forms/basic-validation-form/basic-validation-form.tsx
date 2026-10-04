@@ -19,13 +19,12 @@ const BasicValidationForm = () => {
   });
 
   // submit handlers==>
-  const onSubmit = async (data: BasicValidationFormValues) => {
+  const onSubmit = async () => {
     try {
-      console.log('formData', data);
       toast.success('Form submitted successfully !');
       methods.reset();
     } catch (error) {
-      console.log(error);
+      console.error(error);
       toast.error('Please fill all the required fields');
     }
   };

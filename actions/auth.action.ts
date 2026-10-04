@@ -3,6 +3,7 @@
 import { LoginFormValues } from '@/app/(auth)/auth/login/schema';
 import { SignupPayload } from '@/app/(auth)/auth/signup/schema';
 import { getToken } from '@/lib/getToken';
+import { authCookieOptions, TAuthTokens } from '@/lib/auth-cookies';
 import { cookies } from 'next/headers';
 
 export const signupAction = async (payload: SignupPayload) => {
@@ -26,7 +27,10 @@ export const signupAction = async (payload: SignupPayload) => {
     return data;
   } catch (error) {
     console.error('signupAction error:', error);
-    return { success: false, message: 'Something went wrong. Please try again.' };
+    return {
+      success: false,
+      message: 'Something went wrong. Please try again.',
+    };
   }
 };
 
@@ -40,7 +44,6 @@ export const loginAction = async (payload: LoginFormValues) => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(payload),
-        credentials: 'include',
         cache: 'no-store',
       }
     );
@@ -48,64 +51,43 @@ export const loginAction = async (payload: LoginFormValues) => {
     const data = await response.json();
 
     if (!data.success) {
-      return data;
+      return { success: false, message: data.message };
     }
 
-    const cookieList = response.headers.getSetCookie();
+    // The backend returns the token pair in the body. Each cookie's maxAge
+    // follows its JWT's own expiry, so the cookie dies with the token.
+    const tokens = data.data?.tokens as TAuthTokens;
+    const cookieStore = await cookies();
+    cookieStore.set(
+      'accessToken',
+      tokens.accessToken,
+      authCookieOptions(tokens.accessToken)
+    );
+    cookieStore.set(
+      'refreshToken',
+      tokens.refreshToken,
+      authCookieOptions(tokens.refreshToken)
+    );
 
-    if (!!cookieList.length) {
-      const cookieStore = await cookies();
-
-      cookieList.forEach((cookie) => {
-        const [nameValue] = cookie.split(';');
-
-        const [name, value] = nameValue.trim().split('=');
-
-        cookieStore.set(name.trim(), value.trim(), {
-          httpOnly: true,
-          secure: process.env.NODE_ENV === 'production',
-          sameSite: 'lax',
-          path: '/',
-        });
-      });
-    }
-    return data;
+    // never hand the tokens to the browser — that is what httpOnly is for
+    return { success: true, message: data.message };
   } catch (error) {
     console.error('loginAction error:', error);
-    return { success: false, message: 'Something went wrong. Please try again.' };
+    return {
+      success: false,
+      message: 'Something went wrong. Please try again.',
+    };
   }
 };
 
+// Logout is purely local: the backend keeps no session, so clearing the two
+// cookies is the whole job. No backend call means an expired token can never
+// make logout fail.
 export const logoutAction = async () => {
-  const accessToken = (await getToken()).accessToken;
-
-  try {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_SERVER_URL}/auth/logout`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`,
-        },
-        credentials: 'include',
-        cache: 'no-store',
-      }
-    );
-
-    const data = await response.json();
-
-    // throw error if the response doesn't return success==>
-    if (!data.success) {
-      throw new Error(data.message);
-    }
-    const cookieStore = await cookies();
-    cookieStore.delete('accessToken');
-    cookieStore.delete('refreshToken');
-    return data;
-  } catch (error) {
-    throw error;
-  }
+  const cookieStore = await cookies();
+  cookieStore.delete('accessToken');
+  cookieStore.delete('refreshToken');
+  return { success: true, message: 'Your session ended.' };
 };
 
 export const getProfileAction = async () => {
@@ -132,8 +114,8 @@ export const getProfileAction = async () => {
     }
 
     return data;
-  // NOTE: no cookie writes here — this is read during Server Component
-  // render (admin layout), where cookie mutation is forbidden
+    // NOTE: no cookie writes here — this is read during Server Component
+    // render (admin layout), where cookie mutation is forbidden
   } catch {
     return null;
   }

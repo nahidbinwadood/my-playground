@@ -21,13 +21,12 @@ const DependentDropDownForm = () => {
   });
 
   //   submit handlers==>
-  const handleSubmit = (data: DependentDropdownFormValues) => {
+  const handleSubmit = () => {
     try {
-      console.log('formData', data);
       toast.success('Form submitted successfully !');
       methods.reset();
     } catch (error) {
-      console.log(error);
+      console.error(error);
       toast.error('Please fill all the required fields');
     }
   };

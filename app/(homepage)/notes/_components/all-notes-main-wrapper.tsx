@@ -6,7 +6,7 @@ import { IBlog, ICategory, INote } from '@/types';
 import { Reveal } from '@/components/home/motion/reveal';
 import CategoryLabel from '@/components/common/category-label';
 import { NoteReadingDialog } from '@/components/common/note-reading-dialog';
-import { cleanMarkdownSnippet } from '@/lib/utils';
+import { cleanMarkdownSnippet, readingMinutes } from '@/lib/utils';
 import {
   ArrowUpDown,
   BookOpen,
@@ -24,31 +24,9 @@ import {
   Sparkles,
   X,
 } from 'lucide-react';
-import { JOURNAL_TIME_ZONE } from '@/lib/journal';
+import { formatNoteDate } from '@/lib/journal';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
-
-const dateFmt = new Intl.DateTimeFormat('en-GB', {
-  day: '2-digit',
-  month: 'short',
-  year: 'numeric',
-  timeZone: JOURNAL_TIME_ZONE,
-});
-
-const formatNoteDate = (value?: string) =>
-  value ? dateFmt.format(new Date(value)) : '—';
-
-const estimateReadingTime = (text?: string) => {
-  if (!text) return '< 1 min';
-  const words = text
-    .replace(/<[^>]+>/g, ' ')
-    .replace(/[#*_~`>\-\[\]()!]/g, ' ')
-    .trim()
-    .split(/\s+/)
-    .filter(Boolean).length;
-  const mins = Math.max(1, Math.round(words / 180));
-  return `${mins} min read`;
-};
 
 export default function AllNotesMainWrapper({
   notes = [],
@@ -114,10 +92,15 @@ export default function AllNotesMainWrapper({
   const spotlightNote = isDefaultView && filteredNotes.length > 0 ? filteredNotes[0] : null;
   const standardNotes = isDefaultView && filteredNotes.length > 1 ? filteredNotes.slice(1) : filteredNotes;
 
-  const handleCopy = (note: INote, e?: React.MouseEvent) => {
+  const handleCopy = async (note: INote, e?: React.MouseEvent) => {
     e?.stopPropagation();
     const textToCopy = `${note.title}\n\n${note.description ? note.description + '\n\n' : ''}${note.content}`;
-    navigator.clipboard.writeText(textToCopy);
+    try {
+      await navigator.clipboard.writeText(textToCopy);
+    } catch {
+      toast.error('Copy failed — your browser blocked clipboard access');
+      return;
+    }
     setCopiedId(note.id);
     toast.success('Takeaway copied to clipboard');
     setTimeout(() => {
@@ -136,7 +119,7 @@ export default function AllNotesMainWrapper({
         <Reveal className="max-w-3xl min-w-0">
           <div className="inline-flex items-center gap-2 rounded-full bg-surface px-3 py-1 font-mono text-[0.6875rem] text-muted-foreground">
             <span className="size-1.5 rounded-full bg-signal animate-pulse" />
-            <span className="text-foreground font-medium">STUDY LAB</span>
+            <span className="text-foreground font-medium">STUDY NOTES</span>
             <span className="text-muted-foreground/60">{'//'}</span>
             <span>VERIFIED ARCHIVE</span>
           </div>
@@ -392,7 +375,7 @@ export default function AllNotesMainWrapper({
                           <CategoryLabel category={categoryById.get(spotlightNote.category)} />
                           <span className="inline-flex items-center gap-1 font-mono text-xs text-muted-foreground">
                             <Clock className="size-3" />
-                            {estimateReadingTime(spotlightNote.content)}
+                            {`${readingMinutes(spotlightNote.content, 180)} min read`}
                           </span>
                         </div>
 
@@ -547,7 +530,7 @@ export default function AllNotesMainWrapper({
                           <div className="flex items-center justify-between gap-2 text-xs text-muted-foreground">
                             <span className="inline-flex items-center gap-1 font-mono text-[0.6875rem]">
                               <Clock className="size-3" />
-                              {estimateReadingTime(note.content)}
+                              {`${readingMinutes(note.content, 180)} min read`}
                             </span>
 
                             <div className="flex items-center gap-1">

@@ -11,6 +11,8 @@ import {
   type VisibilityState,
 } from '@tanstack/react-table';
 
+const NO_ROWS: never[] = [];
+
 import {
   closestCenter,
   DndContext,
@@ -257,7 +259,9 @@ export function DataTable<TData, TValue = unknown>({
     })
   );
 
-  const currentRows = table?.getRowModel()?.rows ?? [];
+  // getRowModel() is memoized by TanStack; only the fallback needs a stable
+  // reference, or every memo below would recompute on each render
+  const currentRows = table?.getRowModel()?.rows ?? NO_ROWS;
 
   const activeRow = useMemo(() => {
     if (!activeId) return null;

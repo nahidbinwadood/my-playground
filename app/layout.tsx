@@ -3,6 +3,7 @@ import { Bricolage_Grotesque, DM_Mono, Hanken_Grotesk } from 'next/font/google';
 import './globals.css';
 import NextTopLoader from 'nextjs-toploader';
 import ThemeProvider from '@/providers/theme-provider';
+import { SITE_URL } from '@/lib/site';
 
 // Bricolage for headings and big figures, Hanken for everything a person
 // reads, DM Mono for what a machine produced (dates, counts, paths).
@@ -26,6 +27,7 @@ const mono = DM_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: 'DevPlayground — React UI, forms, and notes',
   description:
     'Component demos, form validation challenges, and notes on building with Next.js 16, TypeScript, and Tailwind CSS. Everything on this site runs.',

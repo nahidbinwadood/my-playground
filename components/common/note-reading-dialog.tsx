@@ -1,5 +1,6 @@
 'use client';
 
+import { readingMinutes } from '@/lib/utils';
 import { useState } from 'react';
 import Link from 'next/link';
 import ReactMarkdown from 'react-markdown';
@@ -8,7 +9,7 @@ import rehypeHighlight from 'rehype-highlight';
 import '@/app/(homepage)/blogs/[slug]/markdown-content.css';
 import { IBlog, ICategory, INote } from '@/types';
 import CategoryLabel from '@/components/common/category-label';
-import { JOURNAL_TIME_ZONE } from '@/lib/journal';
+import { formatNoteDate } from '@/lib/journal';
 import {
   Dialog,
   DialogContent,
@@ -19,28 +20,6 @@ import {
 import { Button } from '@/components/ui/button';
 import { Check, Clock, Copy, CornerDownRight } from 'lucide-react';
 import { toast } from 'sonner';
-
-const dateFmt = new Intl.DateTimeFormat('en-GB', {
-  day: '2-digit',
-  month: 'short',
-  year: 'numeric',
-  timeZone: JOURNAL_TIME_ZONE,
-});
-
-const formatNoteDate = (value?: string) =>
-  value ? dateFmt.format(new Date(value)) : '—';
-
-const estimateReadingTime = (text?: string) => {
-  if (!text) return '< 1 min';
-  const words = text
-    .replace(/<[^>]+>/g, ' ')
-    .replace(/[#*_~`>\-\[\]()!]/g, ' ')
-    .trim()
-    .split(/\s+/)
-    .filter(Boolean).length;
-  const mins = Math.max(1, Math.round(words / 180));
-  return `${mins} min read`;
-};
 
 interface NoteReadingDialogProps {
   note: INote | null;
@@ -61,10 +40,15 @@ export function NoteReadingDialog({
 
   if (!note) return null;
 
-  const handleCopy = (e?: React.MouseEvent) => {
+  const handleCopy = async (e?: React.MouseEvent) => {
     e?.stopPropagation();
     const textToCopy = `${note.title}\n\n${note.description ? note.description + '\n\n' : ''}${note.content}`;
-    navigator.clipboard.writeText(textToCopy);
+    try {
+      await navigator.clipboard.writeText(textToCopy);
+    } catch {
+      toast.error('Copy failed — your browser blocked clipboard access');
+      return;
+    }
     setCopied(true);
     toast.success('Takeaway copied to clipboard');
     setTimeout(() => setCopied(false), 2000);
@@ -81,22 +65,31 @@ export function NoteReadingDialog({
               <CategoryLabel category={category} />
               <span className="inline-flex items-center gap-1 font-mono text-xs text-muted-foreground">
                 <Clock className="size-3 shrink-0" />
-                {estimateReadingTime(note.content)}
+                {`${readingMinutes(note.content, 180)} min read`}
               </span>
             </div>
 
-            <button
-              type="button"
-              onClick={handleCopy}
-              className="inline-flex h-7 cursor-pointer items-center gap-1.5 rounded-sm bg-surface px-2.5 font-mono text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-            >
-              {copied ? (
-                <Check className="size-3 text-signal-ink" />
-              ) : (
-                <Copy className="size-3" />
-              )}
-              <span>{copied ? 'Copied' : 'Copy note'}</span>
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={handleCopy}
+                className="inline-flex h-7 cursor-pointer items-center gap-1.5 rounded-sm bg-surface px-2.5 font-mono text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+              >
+                {copied ? (
+                  <Check className="size-3 text-signal-ink" />
+                ) : (
+                  <Copy className="size-3" />
+                )}
+                <span>{copied ? 'Copied' : 'Copy note'}</span>
+              </button>
+              <Link
+                href={`/notes/${note.id}`}
+                className="inline-flex h-7 items-center gap-1.5 rounded-sm bg-surface px-2.5 font-mono text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+              >
+                <span>Open page</span>
+                <CornerDownRight className="size-3" />
+              </Link>
+            </div>
           </div>
 
           <DialogTitle className="mt-1 font-display text-xl font-bold tracking-tight text-foreground sm:text-2xl lg:text-3xl break-words text-left">

@@ -6,7 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Form } from '@/components/ui/form';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
-import { selectInputFormSchema, SelectInputFormValues } from './schema';
+import { selectInputFormSchema } from './schema';
 
 const SelectInputForm = () => {
   // declare form methods==>
@@ -20,13 +20,12 @@ const SelectInputForm = () => {
   });
 
   // submit handlers==>
-  const onSubmit = async (data: SelectInputFormValues) => {
+  const onSubmit = async () => {
     try {
-      console.log('formData', data);
       toast.success('Form submitted successfully !');
       methods.reset();
     } catch (error) {
-      console.log(error);
+      console.error(error);
       toast.error('Please fill all the required fields');
     }
   };

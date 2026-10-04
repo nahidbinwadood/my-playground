@@ -49,13 +49,12 @@ const TieredRateForm = () => {
     name: 'rates',
   });
 
-  const onSubmit = (data: TieredRateFormValues) => {
+  const onSubmit = () => {
     try {
-      console.log('Tiered Rates:', data);
       toast.success('Tiered rates saved successfully!');
       form.reset({ rates: [{ spendFrom: undefined, points: undefined }] });
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   };
 

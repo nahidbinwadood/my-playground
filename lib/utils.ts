@@ -25,3 +25,17 @@ export function cleanMarkdownSnippet(text?: string, maxLength = 160): string {
   if (clean.length <= maxLength) return clean;
   return clean.slice(0, maxLength).trim() + '...';
 }
+
+/**
+ * Rough reading time in minutes (at least 1): strips markdown/HTML syntax and
+ * counts words at `wpm`.
+ */
+export function readingMinutes(text?: string, wpm = 200): number {
+  const words = (text ?? '')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/[#*_~`>\-\[\]()!]/g, ' ')
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean).length;
+  return Math.max(1, Math.round(words / wpm));
+}

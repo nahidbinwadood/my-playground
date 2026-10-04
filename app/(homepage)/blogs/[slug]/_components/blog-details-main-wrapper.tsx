@@ -1,5 +1,6 @@
 'use client';
 
+import { readingMinutes } from '@/lib/utils';
 import { IBlog, ICategory } from '@/types';
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
@@ -10,17 +11,6 @@ import rehypeHighlight from 'rehype-highlight';
 import '../markdown-content.css';
 import { ImageWithLoader } from '@/components/ui/image-with-loader';
 import CategoryLabel from '@/components/common/category-label';
-
-// Rough reading time: strip markdown syntax, count words, ~200 wpm.
-const readingTime = (md: string) => {
-  const words = md
-    .replace(/<[^>]+>/g, ' ')
-    .replace(/[#*_~`>\-\[\]()!]/g, ' ')
-    .trim()
-    .split(/\s+/)
-    .filter(Boolean).length;
-  return Math.max(1, Math.round(words / 200));
-};
 
 const formatDate = (value: string) =>
   new Date(value).toLocaleDateString('en-US', {
@@ -84,7 +74,7 @@ const BlogDetailsMainWrapper = ({
                 /
               </span>
               <span className="tabular-nums">
-                {readingTime(blog.content)} min read
+                {readingMinutes(blog.content)} min read
               </span>
             </div>
 

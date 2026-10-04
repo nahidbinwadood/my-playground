@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "check:journal": "node --experimental-strip-types scripts/check-journal.mjs"
+    "check:journal": "node --experimental-strip-types scripts/check-journal.mjs",
+    "check:auth": "node --experimental-strip-types scripts/check-auth-cookies.mjs"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
@@ -41,16 +42,6 @@
     "@radix-ui/react-toggle-group": "^1.1.11",
     "@radix-ui/react-tooltip": "^1.2.8",
     "@tanstack/react-table": "^8.21.3",
-    "@tiptap/extension-color": "^3.23.4",
-    "@tiptap/extension-highlight": "^3.23.4",
-    "@tiptap/extension-link": "^3.23.4",
-    "@tiptap/extension-placeholder": "^3.23.4",
-    "@tiptap/extension-text-align": "^3.23.4",
-    "@tiptap/extension-text-style": "^3.23.4",
-    "@tiptap/extension-underline": "^3.23.4",
-    "@tiptap/pm": "^3.23.4",
-    "@tiptap/react": "^3.23.4",
-    "@tiptap/starter-kit": "^3.23.4",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
@@ -74,7 +65,6 @@
     "rehype-highlight": "^7.0.2",
     "remark-gfm": "^4.0.1",
     "sonner": "^2.0.7",
-    "table": "git+https://github.com/tanstack/react-table.git",
     "tailwind-merge": "^3.3.1",
     "vaul": "^1.1.2",
     "zod": "^4.1.12"

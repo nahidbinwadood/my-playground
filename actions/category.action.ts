@@ -41,7 +41,7 @@ const authHeaders = async () => {
 // visitors on /blogs and /blogs/[slug], and the endpoint is deliberately
 // unguarded, so there is nothing for a token to prove here.
 //
-// Cached under the 'categories' tag with 1h ISR and hard-reload support.
+// Cached under the 'categories' tag with 1h ISR.
 export const getAllCategoriesAction = async () => {
   const cacheOptions = await getCacheFetchOptions({
     tag: CACHE_TAGS.categories,

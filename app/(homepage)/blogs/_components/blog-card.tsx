@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { readingMinutes } from '@/lib/utils';
 import { IBlog, ICategory } from '@/types';
 import { ImageWithLoader } from '@/components/ui/image-with-loader';
 import CategoryLabel from '@/components/common/category-label';
@@ -9,17 +10,6 @@ const formatDate = (value: string) =>
     month: 'short',
     day: 'numeric',
   });
-
-// Rough reading time: strip markdown syntax, count words, ~200 wpm.
-const readingTime = (md?: string) => {
-  const words = (md ?? '')
-    .replace(/<[^>]+>/g, ' ')
-    .replace(/[#*_~`>\-\[\]()!]/g, ' ')
-    .trim()
-    .split(/\s+/)
-    .filter(Boolean).length;
-  return Math.max(1, Math.round(words / 200));
-};
 
 // The whole card is one link — nothing interactive is nested inside it.
 const BlogCard = ({
@@ -46,7 +36,7 @@ const BlogCard = ({
           <div className="flex items-center gap-3">
             <CategoryLabel category={category} />
             <span className="label-mono truncate">
-              {readingTime(blog.content)} min read
+              {readingMinutes(blog.content)} min read
             </span>
           </div>
 

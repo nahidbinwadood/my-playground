@@ -26,9 +26,8 @@ const ConditionalValidationForm = () => {
   });
 
   // submit handlers==>
-  const onSubmit = async (data: ConditionalValidationFormValues) => {
+  const onSubmit = async () => {
     try {
-      console.log('IFormData', data);
       toast.success('Form submitted successfully ! ');
       methods.reset({
         name: '',
@@ -38,7 +37,7 @@ const ConditionalValidationForm = () => {
         phone: '',
       });
     } catch (error) {
-      console.log(error);
+      console.error(error);
       toast.error('Please fill all the required fields');
     }
   };

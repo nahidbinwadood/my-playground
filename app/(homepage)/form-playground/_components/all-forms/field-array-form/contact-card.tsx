@@ -18,7 +18,6 @@ const ContactCard = ({
   onDelete: (index: number) => void;
   index: number;
 }) => {
-  console.log('contact', contact);
   const primaryPhone =
     contact.phone && contact.phone.length ? contact.phone[0].value : '—';
   return (

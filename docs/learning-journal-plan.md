@@ -7,7 +7,7 @@ The single source of truth for what we're building, why, and in what order.
 
 ## Goal
 
-A **private learning journal with a public face.** Reference material being studied
+A **public learning journal** (notes and blogs public; tracker under `/admin`). Reference material being studied
 lives in `blogs/`; the owner's own handwritten takeaways live in a new **notes** domain.
 The point is not reading — it is the streak.
 
@@ -25,12 +25,11 @@ Do not relitigate these without the owner.
 
 | Decision | Rationale |
 |---|---|
-| Notes stay **private** for now, with `isPublished: false` written from day one | Going public later becomes a query change, not a migration |
+| **COMPLETE** notes are **public** (2026-10-04): `/notes` shows full prose via `GET /notes/complete`; drafts stay private | The journal is meant to be read; writes stay admin-only |
 | **Many notes per blog**, and notes may be standalone (`blog: null`) | Each learning is its own dated entry — otherwise streaks and timelines are meaningless |
 | Topic axis = the existing `type` enum (FRONTEND / BACKEND / JAVASCRIPT), stored **on the note** | Standalone notes need a topic; re-classifying a blog must not silently shift the coverage map |
 | **Tracker replaces the admin dashboard** | The dashboard currently renders seed JSON (`blogs.json`, `viewCount`, lowercase `'draft'`) — that data is fake and must not sit beside real API data |
-| Playgrounds stay public under **`/lab`** | The component showcase and form-playground are proof of range |
-| Public site may show **aggregate stats only** (streak, note count, topics, current focus) | Evidence of momentum without exposing raw note prose |
+| **No `/lab`** — playgrounds stay public at `/components` and `/form-playground` | The component showcase and form-playground are proof of range; no relocation needed |
 | **Loop before charts** | The journal is worthless until logging is fast and the reminder is live. Trackers are the fun part — that's exactly why they wait |
 
 ## Constraints
@@ -194,10 +193,9 @@ Build in this order:
 ### Phase 5 — Public face
 
 - [ ] Aggregate-stats block on the homepage — **needs a public endpoint** (no `checkAuth`)
-- [ ] `/lab` — relocate `components/` showcase and `form-playground/`
 - [ ] `/about` — links out to the portfolio
 - [ ] `sitemap.ts`, `robots.ts`, RSS, per-page metadata, OG images
-- [ ] Flip `isPublished` and open the notes feed (owner's call, whenever ready)
+- [x] Open the notes feed — **done**: `/notes` is public (2026-10-04)
 
 ### Phase 6 — Launch
 

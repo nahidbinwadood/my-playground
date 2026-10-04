@@ -24,13 +24,12 @@ const CrossFieldValidationForm = () => {
   });
 
   // submit handlers==>
-  const onSubmit = async (data: CrossFieldValidationFormValues) => {
+  const onSubmit = async () => {
     try {
-      console.log('IFormData', data);
       toast.success('Form submitted successfully !');
       form.reset();
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   };
 

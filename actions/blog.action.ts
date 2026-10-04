@@ -168,7 +168,10 @@ export const updateBlogAction = async (id: string, payload: FormData) => {
 };
 
 // toggle blog publish status==>
-export const toggleBlogStatus = async (id: string, status: 'DRAFT' | 'PUBLISHED') => {
+export const toggleBlogStatus = async (
+  id: string,
+  status: 'DRAFT' | 'PUBLISHED'
+) => {
   const accessToken = (await getToken()).accessToken;
 
   try {
@@ -197,34 +200,41 @@ export const toggleBlogStatus = async (id: string, status: 'DRAFT' | 'PUBLISHED'
 };
 
 // get single blog — one entry per post, under the same 'blogs' tag with 1h ISR
-// and hard-reload support so viewing or editing stays fresh.
-export const singleBlogAction = async (id: string) => {
-  try {
-    const cacheOptions = await getCacheFetchOptions({
-      tag: CACHE_TAGS.blogs,
-      revalidateSeconds: 3600,
-      extraHeaders: {
-        'Content-Type': 'application/json',
-      },
-    });
+// so viewing or editing stays fresh.
+//
+// Public pages get published posts only; a draft answers like a missing slug.
+// The admin edit page passes includeDrafts: true, which hits the admin-only
+// /blogs/all/:slug with the token (the cache key includes that header).
+//
+// Returns null when the post does not exist (or is a draft on a public read),
+// so callers can render a 404 instead of crashing.
+export const singleBlogAction = async (
+  slug: string,
+  { includeDrafts = false }: { includeDrafts?: boolean } = {}
+): Promise<{ success: boolean; message: string; data: IBlog } | null> => {
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+  };
 
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_SERVER_URL}/blogs/${id}`,
-      {
-        method: 'GET',
-        ...cacheOptions,
-      }
-    );
-
-    const data = await response.json();
-
-    // throw error if the response doesn't return success==>
-    if (!data.success) {
-      throw new Error(data.message);
-    }
-
-    return data;
-  } catch (error) {
-    throw error;
+  if (includeDrafts) {
+    headers.Authorization = `Bearer ${(await getToken()).accessToken}`;
   }
+
+  const cacheOptions = await getCacheFetchOptions({
+    tag: CACHE_TAGS.blogs,
+    revalidateSeconds: 3600,
+    extraHeaders: headers,
+  });
+
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_SERVER_URL}/blogs/${includeDrafts ? 'all/' : ''}${slug}`,
+    {
+      method: 'GET',
+      ...cacheOptions,
+    }
+  );
+
+  const data = await response.json();
+
+  return data.success ? data : null;
 };

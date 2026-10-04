@@ -4,8 +4,8 @@ import { useMemo, useState } from 'react';
 import { IBlog, ICategory, INote } from '@/types';
 import CategoryLabel from '@/components/common/category-label';
 import { NoteReadingDialog } from '@/components/common/note-reading-dialog';
-import { cleanMarkdownSnippet } from '@/lib/utils';
-import { JOURNAL_TIME_ZONE } from '@/lib/journal';
+import { cleanMarkdownSnippet, readingMinutes } from '@/lib/utils';
+import { formatNoteDate } from '@/lib/journal';
 import {
   ArrowRight,
   Clock,
@@ -16,23 +16,6 @@ import {
 import { Button } from '@/components/ui/button';
 import { Reveal } from './motion/reveal';
 import Link from 'next/link';
-
-const dateFmt = new Intl.DateTimeFormat('en-GB', {
-  day: '2-digit',
-  month: 'short',
-  year: 'numeric',
-  timeZone: JOURNAL_TIME_ZONE,
-});
-
-const formatNoteDate = (value?: string) =>
-  value ? dateFmt.format(new Date(value)) : '—';
-
-const estimateReadTime = (content?: string) => {
-  if (!content) return '1 min read';
-  const words = content.trim().split(/\s+/).length;
-  const mins = Math.max(1, Math.ceil(words / 180));
-  return `${mins} min read`;
-};
 
 export function StudyNotesGrid({
   notes = [],
@@ -165,7 +148,7 @@ export function StudyNotesGrid({
                     <div className="flex items-center gap-2.5 font-mono text-xs text-muted-foreground">
                       <span className="inline-flex items-center gap-1">
                         <Clock className="size-3" />
-                        {estimateReadTime(leadNote.content)}
+                        {`${readingMinutes(leadNote.content, 180)} min read`}
                       </span>
                       <span>•</span>
                       <span>{formatNoteDate(leadNote.createdAt)}</span>
