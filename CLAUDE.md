@@ -120,7 +120,8 @@ Env: validated once in `lib/env.ts` (Zod) — `NEXT_PUBLIC_SERVER_URL` (required
   `components/` (showcase; specimens live in
   `components/_components/`), `form-playground/` (validation challenges).
 - `(admin)/admin/` — protected. `dashboard/` (the tracker), `blogs/` (table +
-  create + edit), `notes/` (table with view/edit/delete dialogs + `create-note/`
+  create + edit), `notes/` (table with view/edit/delete dialogs — the view dialog's AI panel calls
+  `actions/ai.action.ts` for recall cards / mistake check, results not saved — + `create-note/`
   for the quick-note form and timeline), `categories/` (the taxonomy CRUD), own
   `layout.tsx` (sidebar shell).
 - `(auth)/auth/` — `login/`, `signup/`, `expired/route.ts` (clears a dead session).

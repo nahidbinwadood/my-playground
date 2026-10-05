@@ -12,6 +12,7 @@ import rehypeHighlight from 'rehype-highlight';
 import '@/app/(homepage)/blogs/[slug]/markdown-content.css';
 import { TBlogOption } from '../types';
 import { formatNoteDate } from './format-date';
+import NoteAIPanel from './note-ai-panel';
 
 const MetaCell = ({
   label,
@@ -126,6 +127,9 @@ const NoteViewDialog = ({
             </ReactMarkdown>
           </div>
         </div>
+
+        {/* keyed so another note never shows this note's cards */}
+        <NoteAIPanel key={note.id} noteId={note.id} />
       </div>
     </CommonModal>
   );
